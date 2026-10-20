@@ -224,122 +224,138 @@
 <div class="container">
   <h1>📋 Relatório de Rede</h1>
 
-  <!-- 1. Informações Gerais -->
-  <div class="section">
-    <div class="section-title">Informações Gerais</div>
-    
-    <div class="row">
-      <div class="form-group">
-        <label for="ministerio">Ministério</label>
-        <select id="ministerio">
-          <option value="Eles">Eles</option>
-          <option value="Elas">Elas</option>
-          <option value="Let’s">Let’s</option>
-          <option value="Deep">Deep</option>
-        </select>
+  <form id="formRelatorio" onsubmit="event.preventDefault();">
+    <!-- 1. Informações Gerais -->
+    <div class="section">
+      <div class="section-title">Informações Gerais</div>
+      
+      <div class="row">
+        <div class="form-group">
+          <label for="ministerio">Ministério</label>
+          <select id="ministerio">
+            <option value="Eles">Eles</option>
+            <option value="Elas">Elas</option>
+            <option value="Let’s">Let’s</option>
+            <option value="Deep">Deep</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="nomeRede">Nome da Rede</label>
+          <input type="text" id="nomeRede" placeholder="Ex: Rede Esperança">
+        </div>
       </div>
 
       <div class="form-group">
-        <label for="nomeRede">Nome da Rede</label>
-        <input type="text" id="nomeRede" placeholder="Ex: Rede Esperança">
+        <label for="supervisor">Nome do Supervisor</label>
+        <input type="text" id="supervisor" placeholder="Nome do supervisor">
       </div>
-    </div>
 
-    <div class="form-group">
-      <label for="supervisor">Nome do Supervisor</label>
-      <input type="text" id="supervisor" placeholder="Nome do supervisor">
-    </div>
+      <div class="row">
+        <div class="form-group">
+          <label for="dataRede">Data</label>
+          <input type="date" id="dataRede">
+        </div>
+        <div class="form-group">
+          <label for="horarioRede">Horário</label>
+          <input type="time" id="horarioRede">
+        </div>
+      </div>
 
-    <div class="row">
       <div class="form-group">
-        <label for="dataRede">Data</label>
-        <input type="date" id="dataRede">
+        <label for="localRede">Local</label>
+        <input type="text" id="localRede" placeholder="Ex: Casa do João / Igreja">
       </div>
+    </div>
+
+    <!-- 2. Pessoas Presentes -->
+    <div class="section">
+      <div class="section-title">Pessoas Presentes</div>
+      <div id="listaPresentes" class="dynamic-list"></div>
+      <button type="button" id="btnAddPresente" class="btn btn-secondary">+ Adicionar Pessoa</button>
+    </div>
+
+    <!-- 3. Visitantes -->
+    <div class="section">
+      <div class="section-title">Visitantes</div>
+      <div class="checkbox-group">
+        <input type="checkbox" id="semVisitantes">
+        <label for="semVisitantes">Não houveram visitantes</label>
+      </div>
+      <div id="containerVisitantes">
+        <div id="listaVisitantes" class="dynamic-list"></div>
+        <button type="button" id="btnAddVisitante" class="btn btn-secondary">+ Adicionar Visitante</button>
+      </div>
+    </div>
+
+    <!-- 4. Pessoas que Faltaram -->
+    <div class="section">
+      <div class="section-title">Pessoas que Faltaram</div>
+      <div id="listaFaltantes" class="dynamic-list"></div>
+      <button type="button" id="btnAddFaltante" class="btn btn-secondary">+ Adicionar Faltante</button>
+    </div>
+
+    <!-- 5. Conteúdo e Atividades -->
+    <div class="section">
+      <div class="section-title">Conteúdo da Rede</div>
+
       <div class="form-group">
-        <label for="horarioRede">Horário</label>
-        <input type="time" id="horarioRede">
+        <label for="tema">Tema abordado na rede</label>
+        <input type="text" id="tema" placeholder="Ex: Fé e Perseverança">
+      </div>
+
+      <div class="form-group">
+        <label for="resumoPalavra">Resumo da Palavra</label>
+        <textarea id="resumoPalavra" placeholder="Escreva aqui um resumo do que foi ministrado..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="resumoAtividades">Resumo das Atividades do Dia</label>
+        <textarea id="resumoAtividades" placeholder="Resuma os momentos (louvor, dinâmica, lanche, oração...)..."></textarea>
+      </div>
+
+      <!-- Upload de Foto -->
+      <div class="form-group">
+        <label for="fotoRede">Foto da Rede (Opcional)</label>
+        <input type="file" id="fotoRede" accept="image/*">
+        <img id="imgPreview" class="preview-image" alt="Pré-visualização da foto">
       </div>
     </div>
 
-    <div class="form-group">
-      <label for="localRede">Local</label>
-      <input type="text" id="localRede" placeholder="Ex: Casa do João / Igreja">
-    </div>
-  </div>
-
-  <!-- 2. Pessoas Presentes -->
-  <div class="section">
-    <div class="section-title">Pessoas Presentes</div>
-    <div id="listaPresentes" class="dynamic-list"></div>
-    <button type="button" class="btn btn-secondary" onclick="adicionarPresente()">+ Adicionar Pessoa</button>
-  </div>
-
-  <!-- 3. Visitantes -->
-  <div class="section">
-    <div class="section-title">Visitantes</div>
-    <div class="checkbox-group">
-      <input type="checkbox" id="semVisitantes" onchange="toggleVisitantes()">
-      <label for="semVisitantes">Não houveram visitantes</label>
-    </div>
-    <div id="containerVisitantes">
-      <div id="listaVisitantes" class="dynamic-list"></div>
-      <button type="button" class="btn btn-secondary" onclick="adicionarVisitante()">+ Adicionar Visitante</button>
-    </div>
-  </div>
-
-  <!-- 4. Pessoas que Faltaram -->
-  <div class="section">
-    <div class="section-title">Pessoas que Faltaram</div>
-    <div id="listaFaltantes" class="dynamic-list"></div>
-    <button type="button" class="btn btn-secondary" onclick="adicionarFaltante()">+ Adicionar Faltante</button>
-  </div>
-
-  <!-- 5. Conteúdo e Atividades -->
-  <div class="section">
-    <div class="section-title">Conteúdo da Rede</div>
-
-    <div class="form-group">
-      <label for="tema">Tema abordado na rede</label>
-      <input type="text" id="tema" placeholder="Ex: Fé e Perseverança">
-    </div>
-
-    <div class="form-group">
-      <label for="resumoPalavra">Resumo da Palavra</label>
-      <textarea id="resumoPalavra" placeholder="Escreva aqui um resumo do que foi ministrado..."></textarea>
-    </div>
-
-    <div class="form-group">
-      <label for="resumoAtividades">Resumo das Atividades do Dia</label>
-      <textarea id="resumoAtividades" placeholder="Resuma os momentos (louvor, dinâmica, lanche, oração...)..."></textarea>
-    </div>
-
-    <!-- Upload de Foto -->
-    <div class="form-group">
-      <label for="fotoRede">Foto da Rede (Opcional)</label>
-      <input type="file" id="fotoRede" accept="image/*" onchange="previewFoto(event)">
-      <img id="imgPreview" class="preview-image" alt="Pré-visualização da foto">
-    </div>
-  </div>
-
-  <button type="button" class="btn" style="width: 100%; font-size: 1.05rem;" onclick="gerarRelatorio()">Gerar Relatório Formatado</button>
+    <button type="button" id="btnGerar" class="btn" style="width: 100%; font-size: 1.05rem;">Gerar Relatório Formatado</button>
+  </form>
 
   <!-- Saída -->
   <div class="output-area" id="outputArea" style="display: none;">
     <div class="section-title">Relatório Gerado</div>
     <div class="output-text" id="textoRelatorio"></div>
     <div class="actions">
-      <button class="btn btn-secondary" onclick="copiarTexto()">📋 Copiar Texto</button>
-
-      <button class="btn btn-whatsapp" onclick="compartilharWhatsApp()">💬 Compartilhar no WhatsApp</button>
+      <button type="button" class="btn btn-secondary" id="btnCopiar">📋 Copiar Texto</button>
+      <button type="button" class="btn btn-whatsapp" id="btnWhats">💬 Compartilhar no WhatsApp</button>
     </div>
   </div>
 </div>
 
 <script>
-  // Definir data atual padrão
-  document.getElementById('dataRede').valueAsDate = new Date();
-
   let fotoArquivo = null;
+
+  document.addEventListener("DOMContentLoaded", function() {
+    // Definir data atual padrão
+    document.getElementById('dataRede').valueAsDate = new Date();
+
+    // Eventos dos botões principais
+    document.getElementById('btnAddPresente').addEventListener('click', () => adicionarPresente());
+    document.getElementById('btnAddVisitante').addEventListener('click', () => adicionarVisitante());
+    document.getElementById('btnAddFaltante').addEventListener('click', () => adicionarFaltante());
+    document.getElementById('semVisitantes').addEventListener('change', toggleVisitantes);
+    document.getElementById('fotoRede').addEventListener('change', previewFoto);
+    document.getElementById('btnGerar').addEventListener('click', gerarRelatorio);
+    document.getElementById('btnCopiar').addEventListener('click', copiarTexto);
+    document.getElementById('btnWhats').addEventListener('click', compartilharWhatsApp);
+
+    // Adiciona o primeiro participante automaticamente ao carregar
+    adicionarPresente();
+  });
 
   function previewFoto(event) {
     const file = event.target.files[0];
@@ -365,8 +381,9 @@
     div.className = 'dynamic-item';
     div.innerHTML = `
       <input type="text" class="input-presente" placeholder="Nome do participante" value="${valor}">
-      <button type="button" class="btn btn-danger" onclick="this.parentElement.remove()">✕</button>
+      <button type="button" class="btn btn-danger">✕</button>
     `;
+    div.querySelector('.btn-danger').addEventListener('click', () => div.remove());
     container.appendChild(div);
   }
 
@@ -382,8 +399,9 @@
     div.className = 'dynamic-item';
     div.innerHTML = `
       <input type="text" class="input-visitante" placeholder="Nome do visitante" value="${valor}">
-      <button type="button" class="btn btn-danger" onclick="this.parentElement.remove()">✕</button>
+      <button type="button" class="btn btn-danger">✕</button>
     `;
+    div.querySelector('.btn-danger').addEventListener('click', () => div.remove());
     container.appendChild(div);
   }
 
@@ -403,29 +421,33 @@
     div.innerHTML = `
       <div style="display: flex; gap: 8px; margin-bottom: 6px;">
         <input type="text" class="input-faltante-nome" placeholder="Nome de quem faltou" style="flex: 1;">
-        <button type="button" class="btn btn-danger" onclick="this.parentElement.parentElement.remove()">✕</button>
+        <button type="button" class="btn btn-danger btn-remove-faltante">✕</button>
       </div>
       <div style="display: flex; gap: 8px; align-items: center;">
         <input type="text" class="input-faltante-just" placeholder="Justificativa" style="flex: 1;">
-        <div class="checkbox-group" style="margin: 0; whitespace: nowrap;">
-          <input type="checkbox" id="${idUnico}" onchange="toggleJustificativa(this)">
+        <div class="checkbox-group" style="margin: 0; white-space: nowrap;">
+          <input type="checkbox" id="${idUnico}" class="check-sem-just">
           <label for="${idUnico}">Sem justificativa</label>
         </div>
       </div>
     `;
-    container.appendChild(div);
-  }
 
-  function toggleJustificativa(checkbox) {
-    const inputJust = checkbox.closest('.dynamic-item').querySelector('.input-faltante-just');
-    if (checkbox.checked) {
-      inputJust.value = '';
-      inputJust.placeholder = 'Sem justificativa';
-      inputJust.disabled = true;
-    } else {
-      inputJust.placeholder = 'Justificativa';
-      inputJust.disabled = false;
-    }
+    div.querySelector('.btn-remove-faltante').addEventListener('click', () => div.remove());
+    
+    const checkbox = div.querySelector('.check-sem-just');
+    checkbox.addEventListener('change', () => {
+      const inputJust = div.querySelector('.input-faltante-just');
+      if (checkbox.checked) {
+        inputJust.value = '';
+        inputJust.placeholder = 'Sem justificativa';
+        inputJust.disabled = true;
+      } else {
+        inputJust.placeholder = 'Justificativa';
+        inputJust.disabled = false;
+      }
+    });
+
+    container.appendChild(div);
   }
 
   function formatarData(dataIso) {
@@ -451,4 +473,114 @@
     let visitantes = [];
     if (!semVisitantes) {
       const visitantesInputs = document.querySelectorAll('.input-visitante');
-      visitantes = Array.from(visitantesInputs).map(i => i
+      visitantes = Array.from(visitantesInputs).map(i => i.value.trim()).filter(v => v !== '');
+    }
+
+    // Faltantes
+    const faltantesItems = document.querySelectorAll('#listaFaltantes .dynamic-item');
+    const faltantes = [];
+    faltantesItems.forEach(item => {
+      const nome = item.querySelector('.input-faltante-nome').value.trim();
+      const inputJust = item.querySelector('.input-faltante-just');
+      const semJust = item.querySelector('.check-sem-just').checked;
+
+      if (nome) {
+        let just = semJust ? 'Sem justificativa' : (inputJust.value.trim() || 'Sem justificativa');
+        faltantes.push({ nome, just });
+      }
+    });
+
+    const tema = document.getElementById('tema').value || 'Não informado';
+    const resumoPalavra = document.getElementById('resumoPalavra').value || 'Sem resumo';
+    const resumoAtividades = document.getElementById('resumoAtividades').value || 'Sem registro';
+
+    // Montar texto no formato WhatsApp
+    let txt = `*RELATÓRIO DE REDE - ${ministerio.toUpperCase()}*\n`;
+    txt += `──────────────────\n`;
+    txt += `📌 *Rede:* ${nomeRede}\n`;
+    txt += `👤 *Supervisor:* ${supervisor}\n`;
+    txt += `📅 *Data:* ${dataR} às ${horario}\n`;
+    txt += `📍 *Local:* ${local}\n\n`;
+
+    txt += `👥 *PRESENTES (${presentes.length}):*\n`;
+    if (presentes.length > 0) {
+      presentes.forEach(p => txt += `• ${p}\n`);
+    } else {
+      txt += `• Nenhum presente registrado\n`;
+    }
+    txt += `\n`;
+
+    txt += `🤝 *VISITANTES:*\n`;
+    if (semVisitantes) {
+      txt += `• Não houveram visitantes\n`;
+    } else if (visitantes.length > 0) {
+      visitantes.forEach(v => txt += `• ${v}\n`);
+    } else {
+      txt += `• Nenhum visitante registrado\n`;
+    }
+    txt += `\n`;
+
+    txt += `❌ *FALTANTES (${faltantes.length}):*\n`;
+    if (faltantes.length > 0) {
+      faltantes.forEach(f => txt += `• ${f.nome} _(${f.just})_\n`);
+    } else {
+      txt += `• Nenhuma falta registrada\n`;
+    }
+    txt += `\n`;
+
+    txt += `📖 *TEMA:* ${tema}\n\n`;
+
+    txt += `💬 *RESUMO DA PALAVRA:*\n${resumoPalavra}\n\n`;
+
+    txt += `🎯 *RESUMO DAS ATIVIDADES:*\n${resumoAtividades}\n`;
+
+    // Exibir na tela
+    document.getElementById('textoRelatorio').innerText = txt;
+    document.getElementById('outputArea').style.display = 'block';
+
+    // Scroll suave até o relatório
+    document.getElementById('outputArea').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  async function compartilharWhatsApp() {
+    const texto = document.getElementById('textoRelatorio').innerText;
+
+    // Se houver suporte à Web Share API e foto anexada
+    if (navigator.share && fotoArquivo) {
+      try {
+        const shareData = {
+          text: texto,
+          files: [fotoArquivo]
+        };
+
+        if (navigator.canShare && navigator.canShare(shareData)) {
+          await navigator.share(shareData);
+          return;
+        }
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          console.log('Erro ao usar Web Share API:', err);
+        } else {
+          return;
+        }
+      }
+    }
+
+    // Fallback padrão
+    const encodedTxt = encodeURIComponent(texto);
+    const urlWa = `https://api.whatsapp.com/send?text=${encodedTxt}`;
+    window.open(urlWa, '_blank');
+  }
+
+  function copiarTexto() {
+    const texto = document.getElementById('textoRelatorio').innerText;
+    navigator.clipboard.writeText(texto).then(() => {
+      alert('Relatório copiado para a área de transferência!');
+    }).catch(() => {
+      alert('Erro ao copiar. Selecione o texto manualmente.');
+    });
+  }
+</script>
+
+</body>
+</html>
