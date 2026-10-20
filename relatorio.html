@@ -403,7 +403,7 @@
       </div>
     </div>
 
-    <button type="button" id="btnGerar" class="btn" style="width: 100%; font-size: 1.05rem;">Gerar Relatório Formatado</button>
+    <button type="button" id="btnGerar" class="btn" style="width: 100%; font-size: 1.05rem;">Gerar Relatório e Salvar</button>
   </form>
 
   <div class="output-area" id="outputArea" style="display: none;">
@@ -417,6 +417,8 @@
 </div>
 
 <script>
+  const API_URL = "https://script.google.com/macros/s/AKfycbxWFDRZFXS0RQmErdlERXKy4D4e8DQUhbZsyVPwuetLqKAYzB5ATtcKU-GOnZwghmBfCw/exec";
+
   const dadosTopo = [
     {
       supervisao: "Supervisão Monte Hor", supervisor: "Luís Felipe",
@@ -617,7 +619,8 @@
     return `${partes[2]}/${partes[1]}/${partes[0]}`;
   }
 
-  function gerarRelatorio() {
+  async function gerarRelatorio() {
+    const btnGerar = document.getElementById('btnGerar');
     const indexSup = document.getElementById('selectSupervisao').value;
     const indexRede = document.getElementById('selectRede').value;
 
@@ -626,10 +629,14 @@
       return;
     }
 
+    btnGerar.disabled = true;
+    btnGerar.innerText = "Enviando dados para a planilha...";
+
     const supObj = dadosTopo[indexSup];
     const redeObj = supObj.redes[indexRede];
 
-    const supervisao = `${supObj.supervisao} (${supObj.supervisor})`;
+    const supervisao = supObj.supervisao;
+    const supervisor = supObj.supervisor;
     const nomeRede = redeObj.nome;
     const liderRede = redeObj.lider;
     const dataR = formatarData(document.getElementById('dataRede').value);
@@ -648,7 +655,7 @@
       const semJust = item.querySelector('.check-sem-just').checked;
       if (nome) {
         let just = semJust ? 'Sem justificativa' : (inputJust.value.trim() || 'Sem justificativa');
-        faltantes.push({ nome, just });
+        faltantes.push(`${nome} (${just})`);
       }
     });
 
@@ -656,9 +663,40 @@
     const resumoPalavra = document.getElementById('resumoPalavra').value || 'Sem resumo';
     const resumoAtividades = document.getElementById('resumoAtividades').value || 'Sem registro';
 
+    // Monta objeto para o Google Sheets
+    const dadosEnvio = {
+      tipo: "RELATORIO",
+      supervisao: supervisao,
+      supervisor: supervisor,
+      rede: nomeRede,
+      lider: liderRede,
+      dataEncontro: dataR,
+      horario: horario,
+      local: local,
+      presentes: presentes.join(", "),
+      visitantes: semVisitantes ? "Não houveram visitantes" : (visitantes.length > 0 ? visitantes.join(", ") : "Nenhum"),
+      faltantes: faltantes.length > 0 ? faltantes.join(", ") : "Nenhum",
+      tema: tema,
+      resumoPalavra: resumoPalavra,
+      atividades: resumoAtividades
+    };
+
+    // Envio para o Google Apps Script
+    try {
+      await fetch(API_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dadosEnvio)
+      });
+    } catch (err) {
+      console.log("Erro no envio do Sheets:", err);
+    }
+
+    // Texto formatado para tela/WhatsApp
     let txt = `*RELATÓRIO DE REDE - MINISTÉRIO TOPO*\n`;
     txt += `──────────────────\n`;
-    txt += `🏔️ *${supervisao}*\n`;
+    txt += `🏔️ *${supervisao} (${supervisor})*\n`;
     txt += `📌 *Rede:* ${nomeRede}\n`;
     txt += `👤 *Líder:* ${liderRede}\n`;
     txt += `📅 *Data:* ${dataR} às ${horario}\n`;
@@ -676,7 +714,7 @@
     txt += `\n`;
 
     txt += `❌ *FALTANTES (${faltantes.length}):*\n`;
-    if (faltantes.length > 0) faltantes.forEach(f => txt += `• ${f.nome} _(${f.just})_\n`);
+    if (faltantes.length > 0) faltantes.forEach(f => txt += `• ${f}\n`);
     else txt += `• Nenhuma falta registrada\n`;
     txt += `\n`;
 
@@ -687,6 +725,9 @@
     document.getElementById('textoRelatorio').innerText = txt;
     document.getElementById('outputArea').style.display = 'block';
     document.getElementById('outputArea').scrollIntoView({ behavior: 'smooth' });
+
+    btnGerar.disabled = false;
+    btnGerar.innerText = "Gerar Relatório e Salvar";
   }
 
   async function compartilharWhatsApp() {
@@ -714,4 +755,3 @@
 
 </body>
 </html>
-
