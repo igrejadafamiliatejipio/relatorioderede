@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Relatório de Rede</title>
+  <title>Relatório de Rede - TOPO</title>
   <style>
     :root {
       --bg: #0D0F12;
@@ -15,7 +15,6 @@
       --primary: #6E56CF;
       --primary-hover: #5B45B0;
       --danger: #E5534B;
-      --danger-hover: #C93C37;
       --whatsapp: #23D160;
       --whatsapp-hover: #1EBE55;
     }
@@ -54,18 +53,25 @@
     .header h1 {
       font-size: 1.75rem;
       font-weight: 700;
-      letter-spacing: -0.5px;
       color: var(--text);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
     }
 
     .header p {
       color: var(--text-muted);
       font-size: 0.9rem;
       margin-top: 6px;
+    }
+
+    .badge-topo {
+      display: inline-block;
+      background: var(--primary);
+      color: #FFF;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
     }
 
     .section {
@@ -286,35 +292,35 @@
 
 <div class="container">
   <div class="header">
+    <span class="badge-topo">MINISTÉRIO TOPO</span>
     <h1>📋 Relatório de Rede</h1>
     <p>Preencha os dados abaixo para gerar o resumo formatado</p>
   </div>
 
   <form id="formRelatorio" onsubmit="event.preventDefault();">
-    <!-- 1. Informações Gerais -->
+    <!-- 1. Hierarquia de Liderança -->
     <div class="section">
-      <div class="section-title">📌 Informações Gerais</div>
+      <div class="section-title">📌 Hierarquia e Local</div>
       
       <div class="row">
         <div class="form-group">
-          <label for="ministerio">Ministério</label>
-          <select id="ministerio">
-            <option value="Eles">Eles</option>
-            <option value="Elas">Elas</option>
-            <option value="Let’s">Let’s</option>
-            <option value="Deep">Deep</option>
+          <label for="selectSupervisao">Supervisão</label>
+          <select id="selectSupervisao">
+            <option value="">Selecione a Supervisão</option>
           </select>
         </div>
 
         <div class="form-group">
-          <label for="nomeRede">Nome da Rede</label>
-          <input type="text" id="nomeRede" placeholder="Ex: Rede Esperança">
+          <label for="selectRede">Rede</label>
+          <select id="selectRede" disabled>
+            <option value="">Selecione primeiro a Supervisão</option>
+          </select>
         </div>
       </div>
 
       <div class="form-group">
-        <label for="supervisor">Nome do Supervisor</label>
-        <input type="text" id="supervisor" placeholder="Nome do supervisor">
+        <label for="liderRede">Líder da Rede</label>
+        <input type="text" id="liderRede" placeholder="Preenchido automaticamente ao escolher a rede" readonly style="opacity: 0.7;">
       </div>
 
       <div class="row">
@@ -329,8 +335,8 @@
       </div>
 
       <div class="form-group">
-        <label for="localRede">Local</label>
-        <input type="text" id="localRede" placeholder="Ex: Casa do João / Igreja">
+        <label for="localRede">Local do Encontro</label>
+        <input type="text" id="localRede" placeholder="Ex: Casa de Pedro / Igreja / Praça">
       </div>
     </div>
 
@@ -363,7 +369,7 @@
 
     <!-- 5. Conteúdo e Atividades -->
     <div class="section">
-      <div class="section-title">📖 Conteúdo da Rede</div>
+      <div class="section-title">📖 Conteúdo do Encontro</div>
 
       <div class="form-group">
         <label for="tema">Tema abordado na rede</label>
@@ -403,13 +409,133 @@
 </div>
 
 <script>
+  // Mapeamento Oficial das Supervisões, Redes e Líderes do Ministério TOPO
+  const dadosTopo = [
+    {
+      supervisao: "Supervisão Monte Hor",
+      supervisor: "Luís Felipe",
+      redes: [
+        { nome: "Rede Moisés", lider: "Gabriel" },
+        { nome: "Rede Alfa", lider: "Plinio" },
+        { nome: "Rede Timóteo", lider: "Sotero" },
+        { nome: "Rede Next", lider: "Vyni Léo" },
+        { nome: "Rede Inconformados", lider: "Maurilio" },
+        { nome: "Rede Atalaia", lider: "Mancine" }
+      ]
+    },
+    {
+      supervisao: "Supervisão Monte Tabor",
+      supervisor: "Danylo Brissantt",
+      redes: [
+        { nome: "Hazak", lider: "Vitinho" },
+        { nome: "Monte Pisga", lider: "Ezequiel" },
+        { nome: "Escolhidos", lider: "João" },
+        { nome: "Paroikos", lider: "Iago" },
+        { nome: "Atos", lider: "Arley" },
+        { nome: "Karygma", lider: "Richard" }
+      ]
+    },
+    {
+      supervisao: "Supervisão Monte Nebo",
+      supervisor: "Emanuel Henrique",
+      redes: [
+        { nome: "Rede Invictos", lider: "Éden" },
+        { nome: "Rede Ekballo", lider: "Cristian" },
+        { nome: "Rede Ousadia", lider: "Wallyson" },
+        { nome: "Rede Maranata", lider: "Richarlyson" },
+        { nome: "Rede Ruah", lider: "Vinícius" }
+      ]
+    },
+    {
+      supervisao: "Supervisão Monte Horebe",
+      supervisor: "Andryo Henrique",
+      redes: [
+        { nome: "Rede Aljava", lider: "Taycilio" },
+        { nome: "Rede Sal da Terra", lider: "Marcelo Flexa" },
+        { nome: "Rede Ekklesia", lider: "Rodrigo" },
+        { nome: "Rede Forjados", lider: "Alef" }
+      ]
+    },
+    {
+      supervisao: "Supervisão Monte Carmelo",
+      supervisor: "Diana Guerra",
+      redes: [
+        { nome: "Rede Flame", lider: "Cecília" },
+        { nome: "Rede Aurora", lider: "Ester" },
+        { nome: "Rede Colossenses", lider: "Ingrid" },
+        { nome: "Rede Perazim", lider: "Íris" },
+        { nome: "Rede Rise", lider: "Gabriela" }
+      ]
+    },
+    {
+      supervisao: "Supervisão Monte Moriá",
+      supervisor: "Larissa Neves",
+      redes: [
+        { nome: "Rede Peregrina", lider: "Saiwry" },
+        { nome: "Rede Lume", lider: "Myrella" },
+        { nome: "Rede Promessa", lider: "Júlia" },
+        { nome: "Rede Áquila", lider: "Thaynara" },
+        { nome: "Rede Carmesim", lider: "Lívia" },
+        { nome: "Rede Emunah", lider: "Mayara" },
+        { nome: "Rede Margaridas", lider: "Lara" }
+      ]
+    },
+    {
+      supervisao: "Supervisão Monte Sinai",
+      supervisor: "Sara Gomes",
+      redes: [
+        { nome: "Rede Jardim", lider: "Joana" },
+        { nome: "Rede Dunamis", lider: "Mikaele" },
+        { nome: "Rede Grace", lider: "Fernanda" },
+        { nome: "Rede Graciosa", lider: "Gleicy" },
+        { nome: "Rede Zoe", lider: "Karol" },
+        { nome: "Rede Lamparinas", lider: "Laura Ester" }
+      ]
+    },
+    {
+      supervisao: "Supervisão Monte Sião",
+      supervisor: "Clara Dione",
+      redes: [
+        { nome: "Rede Águias", lider: "Anny" },
+        { nome: "Rede Hope", lider: "Laysa" },
+        { nome: "Rede Bloom", lider: "Clara" },
+        { nome: "Rede Herdeiras", lider: "Mika" }
+      ]
+    },
+    {
+      supervisao: "Supervisão Monte das Oliveiras",
+      supervisor: "Letícia Sampaio",
+      redes: [
+        { nome: "Monte das Oliveiras", lider: "Letícia Sampaio" },
+        { nome: "Rede Lily", lider: "Dayanne Lethicia" },
+        { nome: "Rede Liz", lider: "Letícia Rodrigues" },
+        { nome: "Rede Âmbar", lider: "Gabriella A." }
+      ]
+    },
+    {
+      supervisao: "Supervisão Monte Seir",
+      supervisor: "Karol Nogueira",
+      redes: [
+        { nome: "Rede Joy", lider: "Leticia" },
+        { nome: "Rede Legacy", lider: "Laura" },
+        { nome: "Rede Ramá", lider: "Raianny" }
+      ]
+    }
+  ];
+
   let fotoArquivo = null;
 
   document.addEventListener("DOMContentLoaded", function() {
-    // Definir data atual padrão
     document.getElementById('dataRede').valueAsDate = new Date();
 
-    // Eventos dos botões principais
+    // Carregar Supervisões no Select
+    carregarSupervisoes();
+
+    // Eventos dos selects encadeados
+    document.getElementById('selectSupervisao').addEventListener('change', atualizarRedes);
+    document.getElementById('selectRede').addEventListener('change', atualizarLider);
+
+    // Eventos dos botões
     document.getElementById('btnAddPresente').addEventListener('click', () => adicionarPresente());
     document.getElementById('btnAddVisitante').addEventListener('click', () => adicionarVisitante());
     document.getElementById('btnAddFaltante').addEventListener('click', () => adicionarFaltante());
@@ -419,9 +545,57 @@
     document.getElementById('btnCopiar').addEventListener('click', copiarTexto);
     document.getElementById('btnWhats').addEventListener('click', compartilharWhatsApp);
 
-    // Adiciona o primeiro participante automaticamente ao carregar
     adicionarPresente();
   });
+
+  function carregarSupervisoes() {
+    const selectSup = document.getElementById('selectSupervisao');
+    dadosTopo.forEach((item, index) => {
+      const opt = document.createElement('option');
+      opt.value = index;
+      opt.textContent = `${item.supervisao} (${item.supervisor})`;
+      selectSup.appendChild(opt);
+    });
+  }
+
+  function atualizarRedes() {
+    const indexSup = document.getElementById('selectSupervisao').value;
+    const selectRede = document.getElementById('selectRede');
+    const inputLider = document.getElementById('liderRede');
+
+    selectRede.innerHTML = '';
+    inputLider.value = '';
+
+    if (indexSup === "") {
+      selectRede.disabled = true;
+      selectRede.innerHTML = '<option value="">Selecione primeiro a Supervisão</option>';
+      return;
+    }
+
+    const supSelecionada = dadosTopo[indexSup];
+    selectRede.disabled = false;
+    selectRede.innerHTML = '<option value="">Selecione a Rede</option>';
+
+    supSelecionada.redes.forEach((rede, index) => {
+      const opt = document.createElement('option');
+      opt.value = index;
+      opt.textContent = `${rede.nome} (Líder: ${rede.lider})`;
+      selectRede.appendChild(opt);
+    });
+  }
+
+  function atualizarLider() {
+    const indexSup = document.getElementById('selectSupervisao').value;
+    const indexRede = document.getElementById('selectRede').value;
+    const inputLider = document.getElementById('liderRede');
+
+    if (indexSup !== "" && indexRede !== "") {
+      const lider = dadosTopo[indexSup].redes[indexRede].lider;
+      inputLider.value = lider;
+    } else {
+      inputLider.value = '';
+    }
+  }
 
   function previewFoto(event) {
     const file = event.target.files[0];
@@ -523,9 +697,20 @@
   }
 
   function gerarRelatorio() {
-    const ministerio = document.getElementById('ministerio').value;
-    const nomeRede = document.getElementById('nomeRede').value || 'Não informado';
-    const supervisor = document.getElementById('supervisor').value || 'Não informado';
+    const indexSup = document.getElementById('selectSupervisao').value;
+    const indexRede = document.getElementById('selectRede').value;
+
+    if (indexSup === "" || indexRede === "") {
+      alert("Por favor, selecione a Supervisão e a Rede antes de gerar!");
+      return;
+    }
+
+    const supObj = dadosTopo[indexSup];
+    const redeObj = supObj.redes[indexRede];
+
+    const supervisao = `${supObj.supervisao} (${supObj.supervisor})`;
+    const nomeRede = redeObj.nome;
+    const liderRede = redeObj.lider;
     const dataR = formatarData(document.getElementById('dataRede').value);
     const horario = document.getElementById('horarioRede').value || 'Não informado';
     const local = document.getElementById('localRede').value || 'Não informado';
@@ -560,11 +745,12 @@
     const resumoPalavra = document.getElementById('resumoPalavra').value || 'Sem resumo';
     const resumoAtividades = document.getElementById('resumoAtividades').value || 'Sem registro';
 
-    // Montar texto no formato WhatsApp
-    let txt = `*RELATÓRIO DE REDE - ${ministerio.toUpperCase()}*\n`;
+    // Montar texto formatado
+    let txt = `*RELATÓRIO DE REDE - MINISTÉRIO TOPO*\n`;
     txt += `──────────────────\n`;
+    txt += `🏔️ *${supervisao}*\n`;
     txt += `📌 *Rede:* ${nomeRede}\n`;
-    txt += `👤 *Supervisor:* ${supervisor}\n`;
+    txt += `👤 *Líder:* ${liderRede}\n`;
     txt += `📅 *Data:* ${dataR} às ${horario}\n`;
     txt += `📍 *Local:* ${local}\n\n`;
 
@@ -600,18 +786,14 @@
 
     txt += `🎯 *RESUMO DAS ATIVIDADES:*\n${resumoAtividades}\n`;
 
-    // Exibir na tela
     document.getElementById('textoRelatorio').innerText = txt;
     document.getElementById('outputArea').style.display = 'block';
-
-    // Scroll suave até o relatório
     document.getElementById('outputArea').scrollIntoView({ behavior: 'smooth' });
   }
 
   async function compartilharWhatsApp() {
     const texto = document.getElementById('textoRelatorio').innerText;
 
-    // Se houver suporte à Web Share API e foto anexada
     if (navigator.share && fotoArquivo) {
       try {
         const shareData = {
@@ -625,14 +807,13 @@
         }
       } catch (err) {
         if (err.name !== 'AbortError') {
-          console.log('Erro ao usar Web Share API:', err);
+          console.log('Erro no compartilhamento nativo:', err);
         } else {
           return;
         }
       }
     }
 
-    // Fallback padrão
     const encodedTxt = encodeURIComponent(texto);
     const urlWa = `https://api.whatsapp.com/send?text=${encodedTxt}`;
     window.open(urlWa, '_blank');
@@ -643,7 +824,7 @@
     navigator.clipboard.writeText(texto).then(() => {
       alert('Relatório copiado para a área de transferência!');
     }).catch(() => {
-      alert('Erro ao copiar. Selecione o texto manualmente.');
+      alert('Erro ao copiar texto.');
     });
   }
 </script>
