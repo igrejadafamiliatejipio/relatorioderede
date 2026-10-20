@@ -6,12 +6,18 @@
   <title>Relatório de Rede</title>
   <style>
     :root {
-      --primary: #4F46E5;
-      --primary-hover: #4338CA;
-      --bg: #F3F4F6;
-      --card-bg: #FFFFFF;
-      --text: #1F2937;
-      --border: #D1D5DB;
+      --bg: #0D0F12;
+      --card-bg: #161B22;
+      --card-border: #30363D;
+      --input-bg: #0D1117;
+      --text: #F0F6FC;
+      --text-muted: #8B949E;
+      --primary: #6E56CF;
+      --primary-hover: #5B45B0;
+      --danger: #E5534B;
+      --danger-hover: #C93C37;
+      --whatsapp: #23D160;
+      --whatsapp-hover: #1EBE55;
     }
 
     * {
@@ -24,38 +30,58 @@
     body {
       background-color: var(--bg);
       color: var(--text);
-      padding: 20px 12px;
+      padding: 24px 12px;
       display: flex;
       justify-content: center;
+      min-height: 100vh;
     }
 
     .container {
-      max-width: 650px;
+      max-width: 680px;
       width: 100%;
       background: var(--card-bg);
-      padding: 24px;
-      border-radius: 12px;
-      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+      padding: 28px;
+      border-radius: 16px;
+      border: 1px solid var(--card-border);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
     }
 
-    h1 {
+    .header {
       text-align: center;
-      margin-bottom: 20px;
-      color: var(--primary);
-      font-size: 1.6rem;
+      margin-bottom: 28px;
+    }
+
+    .header h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .header p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-top: 6px;
     }
 
     .section {
       margin-bottom: 24px;
-      padding-bottom: 16px;
-      border-bottom: 1px solid var(--border);
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--card-border);
     }
 
     .section-title {
-      font-size: 1.1rem;
+      font-size: 1.05rem;
       font-weight: 600;
-      margin-bottom: 12px;
-      color: #374151;
+      margin-bottom: 14px;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
     .form-group {
@@ -65,8 +91,11 @@
     label {
       display: block;
       font-weight: 500;
-      font-size: 0.9rem;
-      margin-bottom: 4px;
+      font-size: 0.85rem;
+      margin-bottom: 6px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
     input[type="text"],
@@ -76,21 +105,34 @@
     select,
     textarea {
       width: 100%;
-      padding: 10px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
+      padding: 12px 14px;
+      background-color: var(--input-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
       font-size: 0.95rem;
+      color: var(--text);
       outline: none;
-      transition: border-color 0.2s;
+      transition: all 0.2s ease;
+    }
+
+    input::placeholder, textarea::placeholder {
+      color: #484F58;
     }
 
     input:focus, select:focus, textarea:focus {
       border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(110, 86, 207, 0.25);
+    }
+
+    select option {
+      background-color: var(--card-bg);
+      color: var(--text);
     }
 
     textarea {
       resize: vertical;
-      min-height: 80px;
+      min-height: 90px;
+      line-height: 1.5;
     }
 
     .row {
@@ -106,7 +148,7 @@
       display: flex;
       flex-direction: column;
       gap: 10px;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
 
     .dynamic-item {
@@ -119,102 +161,123 @@
       background-color: var(--primary);
       color: white;
       border: none;
-      padding: 10px 16px;
-      border-radius: 6px;
+      padding: 12px 18px;
+      border-radius: 8px;
       cursor: pointer;
       font-weight: 600;
-      font-size: 0.9rem;
-      transition: background-color 0.2s;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
       text-align: center;
       text-decoration: none;
-      display: inline-block;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
     }
 
     .btn:hover {
       background-color: var(--primary-hover);
+      transform: translateY(-1px);
     }
 
     .btn-secondary {
-      background-color: #6B7280;
+      background-color: #21262D;
+      color: var(--text);
+      border: 1px solid var(--card-border);
     }
     .btn-secondary:hover {
-      background-color: #4B5563;
+      background-color: #30363D;
     }
 
     .btn-danger {
-      background-color: #EF4444;
-      padding: 8px 12px;
+      background-color: rgba(229, 83, 75, 0.15);
+      color: var(--danger);
+      border: 1px solid rgba(229, 83, 75, 0.3);
+      padding: 10px 14px;
     }
     .btn-danger:hover {
-      background-color: #DC2626;
+      background-color: var(--danger);
+      color: white;
     }
 
     .btn-whatsapp {
-      background-color: #25D366;
-      color: white;
+      background-color: var(--whatsapp);
+      color: #000;
+      font-weight: 700;
     }
     .btn-whatsapp:hover {
-      background-color: #128C7E;
+      background-color: var(--whatsapp-hover);
+      transform: translateY(-1px);
     }
 
     .checkbox-group {
       display: flex;
       align-items: center;
-      gap: 8px;
-      margin-bottom: 10px;
+      gap: 10px;
+      margin-bottom: 12px;
       font-size: 0.9rem;
+      color: var(--text);
+      cursor: pointer;
     }
 
     .checkbox-group input {
-      width: 16px;
-      height: 16px;
+      width: 18px;
+      height: 18px;
+      accent-color: var(--primary);
+      cursor: pointer;
     }
 
     .output-area {
-      margin-top: 24px;
-      background: #F9FAFB;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 16px;
+      margin-top: 28px;
+      background: var(--input-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 20px;
     }
 
     .output-text {
       white-space: pre-wrap;
-      font-family: monospace, monospace;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
       font-size: 0.88rem;
-      background: #FFF;
-      padding: 12px;
-      border-radius: 6px;
-      border: 1px solid var(--border);
-      max-height: 300px;
+      background: #040D12;
+      color: #A6ADBA;
+      padding: 16px;
+      border-radius: 8px;
+      border: 1px solid var(--card-border);
+      max-height: 320px;
       overflow-y: auto;
-      margin-bottom: 12px;
+      margin-bottom: 16px;
+      line-height: 1.6;
     }
 
     .preview-image {
       max-width: 100%;
-      max-height: 200px;
-      border-radius: 6px;
-      margin-top: 8px;
+      max-height: 220px;
+      border-radius: 8px;
+      margin-top: 10px;
       display: none;
-      border: 1px solid var(--border);
+      border: 1px solid var(--card-border);
+      object-fit: cover;
     }
 
     .actions {
       display: flex;
-      gap: 10px;
+      gap: 12px;
       flex-wrap: wrap;
     }
 
     .actions .btn {
       flex: 1;
-      min-width: 140px;
+      min-width: 160px;
     }
 
-    @media (max-width: 480px) {
+    @media (max-width: 500px) {
       .row {
         flex-direction: column;
         gap: 0;
+      }
+      .container {
+        padding: 20px 16px;
       }
     }
   </style>
@@ -222,12 +285,15 @@
 <body>
 
 <div class="container">
-  <h1>📋 Relatório de Rede</h1>
+  <div class="header">
+    <h1>📋 Relatório de Rede</h1>
+    <p>Preencha os dados abaixo para gerar o resumo formatado</p>
+  </div>
 
   <form id="formRelatorio" onsubmit="event.preventDefault();">
     <!-- 1. Informações Gerais -->
     <div class="section">
-      <div class="section-title">Informações Gerais</div>
+      <div class="section-title">📌 Informações Gerais</div>
       
       <div class="row">
         <div class="form-group">
@@ -270,17 +336,17 @@
 
     <!-- 2. Pessoas Presentes -->
     <div class="section">
-      <div class="section-title">Pessoas Presentes</div>
+      <div class="section-title">👥 Pessoas Presentes</div>
       <div id="listaPresentes" class="dynamic-list"></div>
       <button type="button" id="btnAddPresente" class="btn btn-secondary">+ Adicionar Pessoa</button>
     </div>
 
     <!-- 3. Visitantes -->
     <div class="section">
-      <div class="section-title">Visitantes</div>
+      <div class="section-title">🤝 Visitantes</div>
       <div class="checkbox-group">
         <input type="checkbox" id="semVisitantes">
-        <label for="semVisitantes">Não houveram visitantes</label>
+        <label for="semVisitantes" style="margin: 0; text-transform: none; color: var(--text);">Não houveram visitantes</label>
       </div>
       <div id="containerVisitantes">
         <div id="listaVisitantes" class="dynamic-list"></div>
@@ -290,14 +356,14 @@
 
     <!-- 4. Pessoas que Faltaram -->
     <div class="section">
-      <div class="section-title">Pessoas que Faltaram</div>
+      <div class="section-title">❌ Pessoas que Faltaram</div>
       <div id="listaFaltantes" class="dynamic-list"></div>
       <button type="button" id="btnAddFaltante" class="btn btn-secondary">+ Adicionar Faltante</button>
     </div>
 
     <!-- 5. Conteúdo e Atividades -->
     <div class="section">
-      <div class="section-title">Conteúdo da Rede</div>
+      <div class="section-title">📖 Conteúdo da Rede</div>
 
       <div class="form-group">
         <label for="tema">Tema abordado na rede</label>
@@ -327,7 +393,7 @@
 
   <!-- Saída -->
   <div class="output-area" id="outputArea" style="display: none;">
-    <div class="section-title">Relatório Gerado</div>
+    <div class="section-title">📄 Relatório Gerado</div>
     <div class="output-text" id="textoRelatorio"></div>
     <div class="actions">
       <button type="button" class="btn btn-secondary" id="btnCopiar">📋 Copiar Texto</button>
@@ -413,13 +479,13 @@
     div.className = 'dynamic-item';
     div.style.flexDirection = 'column';
     div.style.alignItems = 'stretch';
-    div.style.background = '#F9FAFB';
-    div.style.padding = '10px';
-    div.style.borderRadius = '6px';
-    div.style.border = '1px solid #E5E7EB';
+    div.style.background = '#0D1117';
+    div.style.padding = '12px';
+    div.style.borderRadius = '8px';
+    div.style.border = '1px solid #30363D';
 
     div.innerHTML = `
-      <div style="display: flex; gap: 8px; margin-bottom: 6px;">
+      <div style="display: flex; gap: 8px; margin-bottom: 8px;">
         <input type="text" class="input-faltante-nome" placeholder="Nome de quem faltou" style="flex: 1;">
         <button type="button" class="btn btn-danger btn-remove-faltante">✕</button>
       </div>
@@ -427,7 +493,7 @@
         <input type="text" class="input-faltante-just" placeholder="Justificativa" style="flex: 1;">
         <div class="checkbox-group" style="margin: 0; white-space: nowrap;">
           <input type="checkbox" id="${idUnico}" class="check-sem-just">
-          <label for="${idUnico}">Sem justificativa</label>
+          <label for="${idUnico}" style="margin: 0; text-transform: none;">Sem justificativa</label>
         </div>
       </div>
     `;
