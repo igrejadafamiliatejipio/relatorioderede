@@ -12,7 +12,10 @@
       --text: #F0F6FC;
       --text-muted: #8B949E;
       --primary: #6E56CF;
-      --primary-hover: #5B45B0;
+      --primary-hover: #8B70F0;
+      --accent-relatorio: #388BFD;
+      --accent-cadastro: #23D160;
+      --accent-painel: #E3B341;
     }
 
     * {
@@ -25,7 +28,7 @@
     body {
       background-color: var(--bg);
       color: var(--text);
-      padding: 24px 16px;
+      padding: 32px 16px;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -33,73 +36,159 @@
     }
 
     .container {
-      max-width: 500px;
+      max-width: 860px;
       width: 100%;
-      background: var(--card-bg);
-      padding: 36px 24px;
-      border-radius: 16px;
-      border: 1px solid var(--card-border);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
       text-align: center;
     }
 
     .badge-topo {
       display: inline-block;
-      background: var(--primary);
-      color: #FFF;
+      background: rgba(110, 86, 207, 0.15);
+      color: #A58BFF;
+      border: 1px solid rgba(110, 86, 207, 0.4);
       padding: 6px 16px;
       border-radius: 20px;
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       font-weight: 700;
-      letter-spacing: 1px;
-      margin-bottom: 16px;
+      letter-spacing: 1.5px;
+      margin-bottom: 12px;
     }
 
     h1 {
-      font-size: 1.8rem;
-      font-weight: 700;
+      font-size: 2rem;
+      font-weight: 800;
       color: var(--text);
-      margin-bottom: 10px;
+      margin-bottom: 8px;
+      letter-spacing: -0.5px;
     }
 
-    p {
+    .subtitle {
       color: var(--text-muted);
       font-size: 0.95rem;
-      margin-bottom: 32px;
+      margin-bottom: 36px;
       line-height: 1.5;
     }
 
-    .menu-options {
-      display: flex;
-      flex-direction: column;
+    /* Grid de Cards Quadrados Horizontais */
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
       gap: 16px;
     }
 
-    .btn-menu {
-      background-color: var(--card-bg);
-      color: var(--text);
+    .card-menu {
+      background: var(--card-bg);
       border: 1px solid var(--card-border);
-      padding: 16px 20px;
-      border-radius: 12px;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 1.05rem;
-      transition: all 0.2s ease;
-      text-align: left;
+      border-radius: 16px;
+      padding: 24px 20px;
       text-decoration: none;
+      color: var(--text);
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: space-between;
+      aspect-ratio: 1 / 1; /* Garante que o card seja quadrado no desktop */
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
     }
 
-    .btn-menu:hover {
-      background-color: #21262D;
-      border-color: var(--primary);
-      transform: translateY(-2px);
+    .card-menu::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: var(--card-border);
+      transition: background 0.25s ease;
     }
 
-    .btn-menu span.icon {
-      font-size: 1.3rem;
+    /* Realce Superior Colorido */
+    .card-menu.relatorio::before { background: var(--accent-relatorio); }
+    .card-menu.cadastro::before { background: var(--accent-cadastro); }
+    .card-menu.painel::before { background: var(--accent-painel); }
+
+    .card-menu:hover {
+      transform: translateY(-4px);
+      border-color: #484F58;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.5);
+    }
+
+    .card-icon {
+      font-size: 2rem;
+      width: 56px;
+      height: 56px;
+      background: #0D1117;
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+    }
+
+    .card-body h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: var(--text);
+    }
+
+    .card-body p {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .card-footer {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 12px;
+    }
+
+    /* Ajustes para Celulares */
+    @media (max-width: 680px) {
+      .menu-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .card-menu {
+        aspect-ratio: auto; /* Remove a forma quadrada no celular para caber melhor */
+        flex-direction: row;
+        align-items: center;
+        text-align: left;
+        padding: 18px 16px;
+      }
+
+      .card-menu::before {
+        width: 4px;
+        height: 100%;
+        top: 0;
+        left: 0;
+      }
+
+      .card-icon {
+        margin-bottom: 0;
+        margin-right: 14px;
+        flex-shrink: 0;
+        width: 48px;
+        height: 48px;
+        font-size: 1.6rem;
+      }
+
+      .card-body {
+        flex: 1;
+      }
+
+      .card-footer {
+        margin-top: 0;
+      }
     }
   </style>
 </head>
@@ -108,28 +197,48 @@
 <div class="container">
   <span class="badge-topo">MINISTÉRIO TOPO</span>
   <h1>Painel de Redes</h1>
-  <p>Selecione abaixo a opção desejada para gerenciar as atividades da sua rede.</p>
+  <p class="subtitle">Selecione uma opção para gerenciar as atividades da sua rede</p>
 
-  <div class="menu-options">
-    <!-- Opção 1: Relatório -->
-    <a href="relatorio.html" class="btn-menu">
-      <div>
-        <strong>📋 Relatório de Rede</strong>
-        <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: normal; margin-top: 4px;">Preencher resumo do encontro semanal</div>
+  <div class="menu-grid">
+    
+    <!-- Card 1: Relatório de Rede -->
+    <a href="relatorio.html" class="card-menu relatorio">
+      <div class="card-icon">📋</div>
+      <div class="card-body">
+        <h3>Relatório de Rede</h3>
+        <p>Preencher o resumo do encontro semanal</p>
       </div>
-      <span class="icon">➔</span>
+      <div class="card-footer">
+        Acessar <span>➔</span>
+      </div>
     </a>
 
-    <!-- Opção 2: Cadastro -->
-    <a href="cadastro.html" class="btn-menu">
-      <div>
-        <strong>👤 Cadastro de Liderados</strong>
-        <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: normal; margin-top: 4px;">Adicionar novos membros à rede</div>
+    <!-- Card 2: Cadastro de Liderados -->
+    <a href="cadastro.html" class="card-menu cadastro">
+      <div class="card-icon">👤</div>
+      <div class="card-body">
+        <h3>Cadastro de Liderados</h3>
+        <p>Adicionar novos membros e base da rede</p>
       </div>
-      <span class="icon">➔</span>
+      <div class="card-footer">
+        Acessar <span>➔</span>
+      </div>
     </a>
 
-    <!-- Opção 3: Painel de Saúde -->
-    <a href="painel.html" class="btn-menu">
-      <div>
-        <strong>📊 Painel de
+    <!-- Card 3: Painel da Rede -->
+    <a href="painel.html" class="card-menu painel">
+      <div class="card-icon">📊</div>
+      <div class="card-body">
+        <h3>Painel da Rede</h3>
+        <p>Acompanhar saúde, faltas e liderados</p>
+      </div>
+      <div class="card-footer">
+        Acessar <span>➔</span>
+      </div>
+    </a>
+
+  </div>
+</div>
+
+</body>
+</html>
