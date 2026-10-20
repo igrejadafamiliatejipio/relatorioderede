@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Relatório de Rede</title>
+  <style>
+    :root {
+      --primary: #4F46E5;
+      --primary-hover: #4338CA;
+      --bg: #F3F4F6;
+      --card-bg: #FFFFFF;
+      --text: #1F2937;
+      --border: #D1D5DB;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      padding: 20px 12px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .container {
+      max-width: 650px;
+      width: 100%;
+      background: var(--card-bg);
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: var(--primary);
+      font-size: 1.6rem;
+    }
+
+    .section {
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: #374151;
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    label {
+      display: block;
+      font-weight: 500;
+      font-size: 0.9rem;
+      margin-bottom: 4px;
+    }
+
+    input[type="text"],
+    input[type="date"],
+    input[type="time"],
+    input[type="file"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--primary);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .row {
+      display: flex;
+      gap: 12px;
+    }
+
+    .row .form-group {
+      flex: 1;
+    }
+
+    .dynamic-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .dynamic-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: background-color 0.2s;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .btn-secondary {
+      background-color: #6B7280;
+    }
+    .btn-secondary:hover {
+      background-color: #4B5563;
+    }
+
+    .btn-danger {
+      background-color: #EF4444;
+      padding: 8px 12px;
+    }
+    .btn-danger:hover {
+      background-color: #DC2626;
+    }
+
+    .btn-whatsapp {
+      background-color: #25D366;
+      color: white;
+    }
+    .btn-whatsapp:hover {
+      background-color: #128C7E;
+    }
+
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      font-size: 0.9rem;
+    }
+
+    .checkbox-group input {
+      width: 16px;
+      height: 16px;
+    }
+
+    .output-area {
+      margin-top: 24px;
+      background: #F9FAFB;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .output-text {
+      white-space: pre-wrap;
+      font-family: monospace, monospace;
+      font-size: 0.88rem;
+      background: #FFF;
+      padding: 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      max-height: 300px;
+      overflow-y: auto;
+      margin-bottom: 12px;
+    }
+
+    .preview-image {
+      max-width: 100%;
+      max-height: 200px;
+      border-radius: 6px;
+      margin-top: 8px;
+      display: none;
+      border: 1px solid var(--border);
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .actions .btn {
+      flex: 1;
+      min-width: 140px;
+    }
+
+    @media (max-width: 480px) {
+      .row {
+        flex-direction: column;
+        gap: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>📋 Relatório de Rede</h1>
+
+  <!-- 1. Informações Gerais -->
+  <div class="section">
+    <div class="section-title">Informações Gerais</div>
+    
+    <div class="row">
+      <div class="form-group">
+        <label for="ministerio">Ministério</label>
+        <select id="ministerio">
+          <option value="Eles">Eles</option>
+          <option value="Elas">Elas</option>
+          <option value="Let’s">Let’s</option>
+          <option value="Deep">Deep</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="nomeRede">Nome da Rede</label>
+        <input type="text" id="nomeRede" placeholder="Ex: Rede Esperança">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="supervisor">Nome do Supervisor</label>
+      <input type="text" id="supervisor" placeholder="Nome do supervisor">
+    </div>
+
+    <div class="row">
+      <div class="form-group">
+        <label for="dataRede">Data</label>
+        <input type="date" id="dataRede">
+      </div>
+      <div class="form-group">
+        <label for="horarioRede">Horário</label>
+        <input type="time" id="horarioRede">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="localRede">Local</label>
+      <input type="text" id="localRede" placeholder="Ex: Casa do João / Igreja">
+    </div>
+  </div>
+
+  <!-- 2. Pessoas Presentes -->
+  <div class="section">
+    <div class="section-title">Pessoas Presentes</div>
+    <div id="listaPresentes" class="dynamic-list"></div>
+    <button type="button" class="btn btn-secondary" onclick="adicionarPresente()">+ Adicionar Pessoa</button>
+  </div>
+
+  <!-- 3. Visitantes -->
+  <div class="section">
+    <div class="section-title">Visitantes</div>
+    <div class="checkbox-group">
+      <input type="checkbox" id="semVisitantes" onchange="toggleVisitantes()">
+      <label for="semVisitantes">Não houveram visitantes</label>
+    </div>
+    <div id="containerVisitantes">
+      <div id="listaVisitantes" class="dynamic-list"></div>
+      <button type="button" class="btn btn-secondary" onclick="adicionarVisitante()">+ Adicionar Visitante</button>
+    </div>
+  </div>
+
+  <!-- 4. Pessoas que Faltaram -->
+  <div class="section">
+    <div class="section-title">Pessoas que Faltaram</div>
+    <div id="listaFaltantes" class="dynamic-list"></div>
+    <button type="button" class="btn btn-secondary" onclick="adicionarFaltante()">+ Adicionar Faltante</button>
+  </div>
+
+  <!-- 5. Conteúdo e Atividades -->
+  <div class="section">
+    <div class="section-title">Conteúdo da Rede</div>
+
+    <div class="form-group">
+      <label for="tema">Tema abordado na rede</label>
+      <input type="text" id="tema" placeholder="Ex: Fé e Perseverança">
+    </div>
+
+    <div class="form-group">
+      <label for="resumoPalavra">Resumo da Palavra</label>
+      <textarea id="resumoPalavra" placeholder="Escreva aqui um resumo do que foi ministrado..."></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="resumoAtividades">Resumo das Atividades do Dia</label>
+      <textarea id="resumoAtividades" placeholder="Resuma os momentos (louvor, dinâmica, lanche, oração...)..."></textarea>
+    </div>
+
+    <!-- Upload de Foto -->
+    <div class="form-group">
+      <label for="fotoRede">Foto da Rede (Opcional)</label>
+      <input type="file" id="fotoRede" accept="image/*" onchange="previewFoto(event)">
+      <img id="imgPreview" class="preview-image" alt="Pré-visualização da foto">
+    </div>
+  </div>
+
+  <button type="button" class="btn" style="width: 100%; font-size: 1.05rem;" onclick="gerarRelatorio()">Gerar Relatório Formatado</button>
+
+  <!-- Saída -->
+  <div class="output-area" id="outputArea" style="display: none;">
+    <div class="section-title">Relatório Gerado</div>
+    <div class="output-text" id="textoRelatorio"></div>
+    <div class="actions">
+      <button class="btn btn-secondary" onclick="copiarTexto()">📋 Copiar Texto</button>
+
+      <button class="btn btn-whatsapp" onclick="compartilharWhatsApp()">💬 Compartilhar no WhatsApp</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Definir data atual padrão
+  document.getElementById('dataRede').valueAsDate = new Date();
+
+  let fotoArquivo = null;
+
+  function previewFoto(event) {
+    const file = event.target.files[0];
+    const preview = document.getElementById('imgPreview');
+    
+    if (file) {
+      fotoArquivo = file;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        preview.src = e.target.result;
+        preview.style.display = 'block';
+      }
+      reader.readAsDataURL(file);
+    } else {
+      fotoArquivo = null;
+      preview.style.display = 'none';
+    }
+  }
+
+  function adicionarPresente(valor = '') {
+    const container = document.getElementById('listaPresentes');
+    const div = document.createElement('div');
+    div.className = 'dynamic-item';
+    div.innerHTML = `
+      <input type="text" class="input-presente" placeholder="Nome do participante" value="${valor}">
+      <button type="button" class="btn btn-danger" onclick="this.parentElement.remove()">✕</button>
+    `;
+    container.appendChild(div);
+  }
+
+  function toggleVisitantes() {
+    const semVisitantes = document.getElementById('semVisitantes').checked;
+    const container = document.getElementById('containerVisitantes');
+    container.style.display = semVisitantes ? 'none' : 'block';
+  }
+
+  function adicionarVisitante(valor = '') {
+    const container = document.getElementById('listaVisitantes');
+    const div = document.createElement('div');
+    div.className = 'dynamic-item';
+    div.innerHTML = `
+      <input type="text" class="input-visitante" placeholder="Nome do visitante" value="${valor}">
+      <button type="button" class="btn btn-danger" onclick="this.parentElement.remove()">✕</button>
+    `;
+    container.appendChild(div);
+  }
+
+  function adicionarFaltante() {
+    const container = document.getElementById('listaFaltantes');
+    const idUnico = 'semJust_' + Date.now() + Math.random().toString(36).substr(2, 4);
+    
+    const div = document.createElement('div');
+    div.className = 'dynamic-item';
+    div.style.flexDirection = 'column';
+    div.style.alignItems = 'stretch';
+    div.style.background = '#F9FAFB';
+    div.style.padding = '10px';
+    div.style.borderRadius = '6px';
+    div.style.border = '1px solid #E5E7EB';
+
+    div.innerHTML = `
+      <div style="display: flex; gap: 8px; margin-bottom: 6px;">
+        <input type="text" class="input-faltante-nome" placeholder="Nome de quem faltou" style="flex: 1;">
+        <button type="button" class="btn btn-danger" onclick="this.parentElement.parentElement.remove()">✕</button>
+      </div>
+      <div style="display: flex; gap: 8px; align-items: center;">
+        <input type="text" class="input-faltante-just" placeholder="Justificativa" style="flex: 1;">
+        <div class="checkbox-group" style="margin: 0; whitespace: nowrap;">
+          <input type="checkbox" id="${idUnico}" onchange="toggleJustificativa(this)">
+          <label for="${idUnico}">Sem justificativa</label>
+        </div>
+      </div>
+    `;
+    container.appendChild(div);
+  }
+
+  function toggleJustificativa(checkbox) {
+    const inputJust = checkbox.closest('.dynamic-item').querySelector('.input-faltante-just');
+    if (checkbox.checked) {
+      inputJust.value = '';
+      inputJust.placeholder = 'Sem justificativa';
+      inputJust.disabled = true;
+    } else {
+      inputJust.placeholder = 'Justificativa';
+      inputJust.disabled = false;
+    }
+  }
+
+  function formatarData(dataIso) {
+    if (!dataIso) return '';
+    const partes = dataIso.split('-');
+    return `${partes[2]}/${partes[1]}/${partes[0]}`;
+  }
+
+  function gerarRelatorio() {
+    const ministerio = document.getElementById('ministerio').value;
+    const nomeRede = document.getElementById('nomeRede').value || 'Não informado';
+    const supervisor = document.getElementById('supervisor').value || 'Não informado';
+    const dataR = formatarData(document.getElementById('dataRede').value);
+    const horario = document.getElementById('horarioRede').value || 'Não informado';
+    const local = document.getElementById('localRede').value || 'Não informado';
+
+    // Presentes
+    const presentesInputs = document.querySelectorAll('.input-presente');
+    const presentes = Array.from(presentesInputs).map(i => i.value.trim()).filter(v => v !== '');
+
+    // Visitantes
+    const semVisitantes = document.getElementById('semVisitantes').checked;
+    let visitantes = [];
+    if (!semVisitantes) {
+      const visitantesInputs = document.querySelectorAll('.input-visitante');
+      visitantes = Array.from(visitantesInputs).map(i => i
