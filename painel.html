@@ -51,6 +51,21 @@
 
     .section-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; }
 
+    /* Destaque do Aniversariante do Dia */
+    .niver-hoje-card {
+      background: linear-gradient(135deg, rgba(35, 209, 96, 0.2) 0%, var(--input-bg) 100%);
+      border: 2px solid var(--success);
+      padding: 16px 20px;
+      border-radius: 12px;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 20px rgba(35, 209, 96, 0.2);
+    }
+    .niver-hoje-info strong { font-size: 1.15rem; color: #FFF; display: block; margin-bottom: 2px; }
+    .niver-hoje-info small { color: var(--success); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+
     .membro-card { background: var(--input-bg); border: 1px solid var(--card-border); padding: 14px 16px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
     .membro-main strong { font-size: 1rem; color: var(--text); display: block; }
     .membro-main small { color: var(--text-muted); font-size: 0.82rem; }
@@ -82,9 +97,12 @@
     .relatorio-header { display: flex; justify-content: space-between; font-weight: 600; font-size: 0.9rem; margin-bottom: 6px; }
     .relatorio-body { font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; }
 
+    .btn-whats { background: #23D160; color: #000; padding: 6px 12px; border-radius: 6px; font-size: 0.78rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
+    .btn-whats:hover { background: #1EBE55; }
+
     .loading-box { text-align: center; padding: 40px; color: var(--text-muted); }
 
-    @media (max-width: 500px) { .row { flex-direction: column; gap: 8px; } .membro-card { flex-direction: column; align-items: flex-start; } .actions-group { width: 100%; justify-content: flex-end; margin-top: 8px; } }
+    @media (max-width: 500px) { .row { flex-direction: column; gap: 8px; } .membro-card, .niver-hoje-card { flex-direction: column; align-items: flex-start; gap: 10px; } .actions-group { width: 100%; justify-content: flex-end; margin-top: 8px; } }
   </style>
 
   <!-- Firebase SDK Compat -->
@@ -125,6 +143,9 @@
       </div>
       <div class="health-count" id="qtdMembrosMembro">12</div>
     </div>
+
+    <!-- SEÇÃO DE ANIVERSARIANTES INSERIDA AQUI -->
+    <div id="secaoAniversariantesRede" style="margin-bottom: 32px;"></div>
 
     <div style="margin-bottom: 32px;">
       <div class="section-title">
@@ -316,11 +337,13 @@
     document.getElementById('totalMembrosLista').innerText = total;
     containerMembros.innerHTML = '';
 
+    const dataHoje = new Date();
+    const mesAtual = dataHoje.getMonth() + 1;
+    const diaAtual = dataHoje.getDate();
+
     if (total === 0) {
       containerMembros.innerHTML = `<div style="color: var(--text-muted); font-size: 0.9rem;">Nenhum membro cadastrado nesta rede ainda.</div>`;
     } else {
-      const mesAtual = new Date().getMonth() + 1;
-
       membrosRede.forEach(m => {
         const nome = m.nome;
         const nascimento = m.nascimento || '';
@@ -335,11 +358,11 @@
           else break;
         }
 
-        let isNiver = false;
+        let isNiverMes = false;
         if (nascimento) {
           const partesNasc = nascimento.toString().split('-');
           if (partesNasc.length === 3 && parseInt(partesNasc[1]) === mesAtual) {
-            isNiver = true;
+            isNiverMes = true;
           }
         }
 
@@ -347,7 +370,7 @@
         div.className = 'membro-card';
 
         let tagsHTML = `<span class="tag ${categoria === 'Base da Rede' ? 'tag-base' : 'tag-liderado'}">${categoria}</span>`;
-        if (isNiver) tagsHTML += `<span class="tag tag-niver">🎂 Aniversariante do Mês</span>`;
+        if (isNiverMes) tagsHTML += `<span class="tag tag-niver">🎂 Aniversariante do Mês</span>`;
         if (faltasSeguidas === 2) tagsHTML += `<span class="tag tag-warning">⚠️ Alerta de Apascentamento (2 faltas)</span>`;
         if (faltasSeguidas >= 3) tagsHTML += `<span class="tag tag-danger">⛔ Não Pode Servir (${faltasSeguidas} faltas)</span>`;
 
@@ -366,6 +389,60 @@
       });
     }
 
+    // MONTAGEM DA SEÇÃO DE ANIVERSARIANTES (BOTÃO WHATSAPP SÓ PARA O DIA)
+    const secaoNivers = document.getElementById('secaoAniversariantesRede');
+    let aniversariantesHojeHtml = '';
+    let aniversariantesMesHtml = '';
+    let qtdNiverMes = 0;
+
+    membrosRede.forEach(m => {
+      const nasc = m.nascimento;
+      if (nasc) {
+        const partes = nasc.toString().split('-');
+        if (partes.length === 3 && parseInt(partes[1]) === mesAtual) {
+          qtdNiverMes++;
+          const diaNasc = parseInt(partes[2]);
+
+          if (diaNasc === diaAtual) {
+            const linkWhats = m.whatsapp ? `<a href="https://api.whatsapp.com/send?phone=55${m.whatsapp.replace(/\D/g,'')}&text=${encodeURIComponent('Parabéns ' + m.nome + '! Que o Senhor te abençoe muito em seu aniversário, com muita paz e alegria. Estamos muito felizes por ter você em nossa rede!')}" target="_blank" class="btn-whats">🎂 Dar os Parabéns</a>` : '<small style="color:var(--text-muted)">Sem WhatsApp</small>';
+            
+            aniversariantesHojeHtml += `
+              <div class="niver-hoje-card">
+                <div class="niver-hoje-info">
+                  <small>🎉 ANIVERSARIANTE DE HOJE 🎉</small>
+                  <strong>${m.nome}</strong>
+                </div>
+                <div>${linkWhats}</div>
+              </div>
+            `;
+          } else {
+            aniversariantesMesHtml += `
+              <div class="membro-card">
+                <div class="membro-main">
+                  <strong>🎂 ${m.nome}</strong>
+                  <small>Data: ${partes[2]}/${partes[1]}</small>
+                </div>
+                <div style="color: var(--text-muted); font-size: 0.8rem;">Dia ${partes[2]}</div>
+              </div>
+            `;
+          }
+        }
+      }
+    });
+
+    if (qtdNiverMes > 0) {
+      secaoNivers.innerHTML = `
+        <div class="section-title">🎂 Aniversariantes do Mês</div>
+        ${aniversariantesHojeHtml}
+        ${aniversariantesMesHtml}
+      `;
+      secaoNivers.style.display = 'block';
+    } else {
+      secaoNivers.innerHTML = '';
+      secaoNivers.style.display = 'none';
+    }
+
+    // Renderiza Relatórios
     const containerRel = document.getElementById('listaRelatorios');
     containerRel.innerHTML = '';
     if (relatoriosRede.length === 0) {
