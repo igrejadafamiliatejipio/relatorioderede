@@ -22,42 +22,72 @@
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
     body { background-color: var(--bg); color: var(--text); padding: 24px 12px; display: flex; justify-content: center; min-height: 100vh; }
-    .container { max-width: 900px; width: 100%; background: var(--card-bg); padding: 28px; border-radius: 16px; border: 1px solid var(--card-border); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); }
-
+    .container { max-width: 960px; width: 100%; background: var(--card-bg); padding: 28px; border-radius: 16px; border: 1px solid var(--card-border); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); }
+    
     .top-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-    .btn-voltar { background: #21262D; color: var(--text); border: 1px solid var(--card-border); padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; text-decoration: none; }
+    .btn-voltar { background: #21262D; color: var(--text); border: 1px solid var(--card-border); padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
     .btn-voltar:hover { background: #30363D; }
 
     .header { text-align: center; margin-bottom: 24px; }
-    .header h1 { font-size: 1.75rem; font-weight: 700; margin-top: 6px; }
+    .header h1 { font-size: 1.75rem; font-weight: 700; }
+    .header p { color: var(--text-muted); font-size: 0.9rem; margin-top: 4px; }
+
     .badge-topo { display: inline-block; background: var(--primary); color: #FFF; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 8px; }
 
-    .info-sup-box { background: var(--input-bg); border: 1px solid var(--card-border); padding: 14px; border-radius: 8px; margin-bottom: 24px; text-align: center; font-size: 0.9rem; color: var(--text-muted); }
-    .info-sup-box strong { color: var(--text); }
+    #loginBox { max-width: 400px; margin: 40px auto; text-align: center; background: var(--input-bg); padding: 32px 24px; border-radius: 12px; border: 1px solid var(--card-border); }
+    .form-group { margin-bottom: 16px; text-align: left; }
+    label { display: block; font-weight: 500; font-size: 0.85rem; margin-bottom: 6px; color: var(--text-muted); text-transform: uppercase; }
+    input[type="password"], select { width: 100%; padding: 12px 14px; background-color: var(--card-bg); border: 1px solid var(--card-border); border-radius: 8px; font-size: 0.95rem; color: var(--text); outline: none; }
+    input:focus, select:focus { border-color: var(--primary); }
+    select option { background-color: var(--card-bg); color: var(--text); }
 
-    .section-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; }
+    .btn { background-color: var(--primary); color: white; border: none; padding: 12px 18px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.95rem; width: 100%; transition: 0.2s; }
+    .btn:hover { background-color: var(--primary-hover); }
 
-    .rede-raiox-card { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 10px; padding: 16px; margin-bottom: 14px; }
-    .rede-raiox-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-    .rede-raiox-header strong { font-size: 1.1rem; color: var(--text); }
+    .metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 28px; }
+    .metric-card { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 10px; padding: 16px; text-align: center; }
+    .metric-card h4 { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; }
+    .metric-card .value { font-size: 1.6rem; font-weight: 800; color: var(--text); }
+
+    .section-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+
+    /* Estilo de Árvore em Acordeão das Redes e Liderados */
+    .tree-wrapper { margin-bottom: 32px; }
+    .supervisao-card { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 12px; margin-bottom: 12px; overflow: hidden; transition: border-color 0.2s; }
+    .supervisao-card:hover { border-color: var(--primary); }
+
+    .supervisao-header { padding: 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+    .supervisao-info h3 { font-size: 1.05rem; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+    .supervisao-info p { font-size: 0.82rem; color: var(--text-muted); }
     
-    .btn-ver-relatorios { background: rgba(56, 139, 253, 0.15); color: var(--info); border: 1px solid rgba(56, 139, 253, 0.3); padding: 4px 10px; border-radius: 6px; font-size: 0.78rem; font-weight: 600; cursor: pointer; text-decoration: none; }
-    .btn-ver-relatorios:hover { background: var(--info); color: #FFF; }
+    .supervisao-badge { background: rgba(110, 86, 207, 0.2); color: #A58BFF; border: 1px solid rgba(110, 86, 207, 0.4); padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
 
-    .raiox-detalhes { font-size: 0.88rem; color: var(--text-muted); line-height: 1.5; }
-    .raiox-detalhes span { color: var(--text); font-weight: 600; }
+    .redes-list { padding: 0 16px 16px 16px; display: none; border-top: 1px solid var(--card-border); background: var(--card-bg); }
+    .supervisao-card.ativo .redes-list { display: block; }
 
-    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 999; display: none; }
-    .modal-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 24px; max-width: 600px; width: 100%; max-height: 85vh; overflow-y: auto; }
-    .modal-header { font-size: 1.2rem; font-weight: 700; margin-bottom: 16px; color: var(--text); display: flex; justify-content: space-between; align-items: center; }
-    .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
-    .btn-cancelar { background: #21262D; color: var(--text); border: 1px solid var(--card-border); padding: 8px 14px; border-radius: 8px; cursor: pointer; }
-    .btn-cancelar:hover { background: #30363D; }
+    .rede-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--card-border); font-size: 0.9rem; }
+    .rede-item:last-child { border-bottom: none; }
+    .arrow-icon { transition: transform 0.3s; font-size: 0.8rem; color: var(--text-muted); }
+    .supervisao-card.ativo .arrow-icon { transform: rotate(180deg); }
 
-    .relatorio-item-sup { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 8px; padding: 12px; margin-bottom: 10px; }
-    .relatorio-item-sup header { display: flex; justify-content: space-between; font-weight: 600; font-size: 0.88rem; margin-bottom: 4px; color: var(--primary); }
+    .table-container { width: 100%; overflow-x: auto; margin-bottom: 24px; border: 1px solid var(--card-border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; }
+    th, td { padding: 12px 16px; border-bottom: 1px solid var(--card-border); }
+    th { background: var(--input-bg); color: var(--text-muted); font-size: 0.78rem; text-transform: uppercase; }
+    tr:last-child td { border-bottom: none; }
+
+    .tag { font-size: 0.72rem; padding: 3px 8px; border-radius: 12px; font-weight: 600; display: inline-block; }
+    .tag-green { background: rgba(35, 209, 96, 0.2); color: var(--success); border: 1px solid rgba(35, 209, 96, 0.4); }
+    .tag-yellow { background: rgba(227, 179, 65, 0.2); color: var(--warning); border: 1px solid rgba(227, 179, 65, 0.4); }
+    .tag-blue { background: rgba(56, 139, 253, 0.2); color: var(--info); border: 1px solid rgba(56, 139, 253, 0.4); }
+    .tag-danger { background: rgba(229, 83, 75, 0.2); color: var(--danger); border: 1px solid rgba(229, 83, 75, 0.4); }
+
+    .btn-whats { background: #23D160; color: #000; padding: 5px 10px; border-radius: 6px; font-size: 0.78rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
+    .btn-whats:hover { background: #1EBE55; }
 
     .loading-box { text-align: center; padding: 40px; color: var(--text-muted); }
+
+    @media (max-width: 768px) { .metrics-grid { grid-template-columns: repeat(2, 1fr); } }
   </style>
 
   <!-- Firebase SDK Compat -->
@@ -68,43 +98,72 @@
 
 <div class="container">
   <div class="top-nav">
-    <a href="login.html" class="btn-voltar">← Sair / Voltar</a>
+    <a href="index.html" class="btn-voltar">← Voltar ao Início</a>
+    <span id="labelSupervisorLogado" style="font-size: 0.85rem; color: var(--text-muted);"></span>
   </div>
 
   <div class="header">
-    <span class="badge-topo">MINISTÉRIO TOPO</span>
-    <h1>👁️ Painel do Supervisor</h1>
-    <p>Raio-X e acompanhamento das redes sob sua supervisão</p>
+    <span class="badge-topo">PAINEL DO SUPERVISOR</span>
+    <h1>Supervisão Ministerial</h1>
+    <p>Acompanhamento macro das redes e hierarquia pastoral</p>
   </div>
 
-  <div class="info-sup-box" id="infoSupLogado">
-    Carregando dados da supervisão...
+  <div id="loginBox">
+    <div class="form-group">
+      <label for="selectSupLogin">Selecione sua Supervisão</label>
+      <select id="selectSupLogin"><option value="">Carregando supervisões...</option></select>
+    </div>
+    <div class="form-group">
+      <label for="inputSenha">Senha de Acesso</label>
+      <input type="password" id="inputSenha" placeholder="Digite sua senha">
+    </div>
+    <button class="btn" onclick="fazerLogin()">Entrar no Painel</button>
   </div>
 
-  <div id="conteudoPainelSupervisor" style="display: none;">
+  <div id="painelSupervisor" style="display: none;">
+    <div class="metrics-grid">
+      <div class="metric-card"><h4>Total de Membros</h4><div class="value" id="mTotalMembros">0</div></div>
+      <div class="metric-card"><h4>Redes na Meta (12)</h4><div class="value" id="mRedesMeta" style="color: var(--success);">0</div></div>
+      <div class="metric-card"><h4>Prontas p/ Multiplicar</h4><div class="value" id="mRedesMulti" style="color: var(--info);">0</div></div>
+      <div class="metric-card"><h4>Em Alerta (< 12)</h4><div class="value" id="mRedesAlerta" style="color: var(--warning);">0</div></div>
+    </div>
+
     <div class="section-title">📊 Raio-X das Redes da Supervisão</div>
-    <div id="listaRaioXRedes"></div>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr><th>Rede</th><th>Líder</th><th>Membros Ativos</th><th>Status de Saúde</th><th>Último Relatório</th></tr>
+        </thead>
+        <tbody id="tabelaRedesBody"></tbody>
+      </table>
+    </div>
+
+    <div class="section-title">⚠️ Matriz de Alertas e Faltas Consecutivas</div>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr><th>Membro</th><th>Rede</th><th>Situação</th><th>Contato</th></tr>
+        </thead>
+        <tbody id="tabelaAlertasBody"></tbody>
+      </table>
+    </div>
+
+    <div class="section-title">🎂 Aniversariantes do Mês na Supervisão</div>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr><th>Membro</th><th>Rede</th><th>Data Nasc.</th><th>WhatsApp</th></tr>
+        </thead>
+        <tbody id="tabelaNiverBody"></tbody>
+      </table>
+    </div>
+
+    <!-- ÁRVORE DE REDES E LIDERADOS NO FINAL -->
+    <div class="section-title">🌳 Árvore de Redes e Liderados</div>
+    <div class="tree-wrapper" id="treeContainerRedes"></div>
   </div>
 
-  <div id="loadingSup" class="loading-box" style="display: block;">Carregando informações do Firebase...</div>
-</div>
-
-<!-- Modal para Exibir os Relatórios da Rede Selecionada -->
-<div id="modalRelatoriosRede" class="modal-overlay">
-  <div class="modal-card">
-    <div class="modal-header">
-      <span id="tituloModalRede">📜 Relatórios da Rede</span>
-      <button onclick="fecharModalRelatoriosRede()" style="background:none; border:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer;">✕</button>
-    </div>
-    
-    <div id="conteudoRelatoriosRede">
-      Carregando relatórios...
-    </div>
-
-    <div class="modal-footer">
-      <button class="btn-cancelar" onclick="fecharModalRelatoriosRede()">Fechar</button>
-    </div>
-  </div>
+  <div id="loading" class="loading-box" style="display: none;">Carregando dados da supervisão do Firebase...</div>
 </div>
 
 <script>
@@ -121,151 +180,229 @@
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
 
-  let supervisaoLogada = "";
-  let redesDaSupervisao = [];
-  let relatoriosCache = [];
+  const supervisoresDB = [
+    { supervisao: "Supervisão Monte Hor", supervisor: "Luís Felipe", senha: "1001", redes: [{ nome: "Rede Moisés", lider: "Gabriel" }, { nome: "Rede Alfa", lider: "Plinio" }, { nome: "Rede Timóteo", lider: "Sotero" }, { nome: "Rede Next", lider: "Vyni Léo" }, { nome: "Rede Inconformados", lider: "Maurilio" }, { nome: "Rede Atalaia", lider: "Mancine" }] },
+    { supervisao: "Supervisão Monte Tabor", supervisor: "Danylo Brissantt", senha: "1002", redes: [{ nome: "Hazak", lider: "Vitinho" }, { nome: "Monte Pisga", lider: "Ezequiel" }, { nome: "Escolhidos", lider: "João" }, { nome: "Paroikos", lider: "Iago" }, { nome: "Atos", lider: "Arley" }, { nome: "Karygma", lider: "Richard" }] },
+    { supervisao: "Supervisão Monte Nebo", supervisor: "Emanuel Henrique", senha: "1003", redes: [{ nome: "Rede Invictos", lider: "Éden" }, { nome: "Rede Ekballo", lider: "Cristian" }, { nome: "Rede Ousadia", lider: "Wallyson" }, { nome: "Rede Maranata", lider: "Richarlyson" }, { nome: "Rede Ruah", lider: "Vinícius" }] },
+    { supervisao: "Supervisão Monte Horebe", supervisor: "Andryo Henrique", senha: "1004", redes: [{ nome: "Rede Aljava", lider: "Taycilio" }, { nome: "Rede Sal da Terra", lider: "Marcelo Flexa" }, { nome: "Rede Ekklesia", lider: "Rodrigo" }, { nome: "Rede Forjados", lider: "Alef" }] },
+    { supervisao: "Supervisão Monte Carmelo", supervisor: "Diana Guerra", senha: "1005", redes: [{ nome: "Rede Flame", lider: "Cecília" }, { nome: "Rede Aurora", lider: "Ester" }, { nome: "Rede Colossenses", lider: "Ingrid" }, { nome: "Rede Perazim", lider: "Íris" }, { nome: "Rede Rise", lider: "Gabriela" }] },
+    { supervisao: "Supervisão Monte Moriá", supervisor: "Larissa Neves", senha: "1006", redes: [{ nome: "Rede Peregrina", lider: "Saiwry" }, { nome: "Rede Lume", lider: "Myrella" }, { nome: "Rede Promessa", lider: "Júlia" }, { nome: "Rede Áquila", lider: "Thaynara" }, { nome: "Rede Carmesim", lider: "Lívia" }, { nome: "Rede Emunah", lider: "Mayara" }, { nome: "Rede Margaridas", lider: "Lara" }] },
+    { supervisao: "Supervisão Monte Sinai", supervisor: "Sara Gomes", senha: "1007", redes: [{ nome: "Rede Jardim", lider: "Joana" }, { nome: "Rede Dunamis", lider: "Mikaele" }, { nome: "Rede Grace", lider: "Fernanda" }, { nome: "Rede Graciosa", lider: "Gleicy" }, { nome: "Rede Zoe", lider: "Karol" }, { nome: "Rede Lamparinas", lider: "Laura Ester" }] },
+    { supervisao: "Supervisão Monte Sião", supervisor: "Clara Dione", senha: "1008", redes: [{ nome: "Rede Águias", lider: "Anny" }, { nome: "Rede Hope", lider: "Laysa" }, { nome: "Rede Bloom", lider: "Clara" }, { nome: "Rede Herdeiras", lider: "Mika" }] },
+    { supervisao: "Supervisão Monte das Oliveiras", supervisor: "Letícia Sampaio", senha: "1009", redes: [{ nome: "Monte das Oliveiras", lider: "Letícia Sampaio" }, { nome: "Rede Lily", lider: "Dayanne Lethicia" }, { nome: "Rede Liz", lider: "Letícia Rodrigues" }, { nome: "Rede Âmbar", lider: "Gabriella A." }] },
+    { supervisao: "Supervisão Monte Seir", supervisor: "Karol Nogueira", senha: "1010", redes: [{ nome: "Rede Joy", lider: "Leticia" }, { nome: "Rede Legacy", lider: "Laura" }, { nome: "Rede Ramá", lider: "Raianny" }] }
+  ];
 
-  document.addEventListener("DOMContentLoaded", async function() {
-    supervisaoLogada = sessionStorage.getItem('topo_supervisao');
+  let supervisorLogado = null;
 
-    if (!supervisaoLogada) {
-      alert("Nenhuma supervisão identificada. Faça o login novamente.");
-      window.location.href = "login.html";
-      return;
-    }
+  document.addEventListener("DOMContentLoaded", carregarSupervisoes);
 
-    document.getElementById('infoSupLogado').innerHTML = `Supervisor(a) da Supervisão: <strong>${supervisaoLogada}</strong>`;
+  function carregarSupervisoes() {
+    const select = document.getElementById('selectSupLogin');
+    select.innerHTML = '<option value="">Selecione sua Supervisão</option>';
+    supervisoresDB.forEach((item, index) => {
+      const opt = document.createElement('option');
+      opt.value = index;
+      opt.textContent = `${item.supervisao} (${item.supervisor})`;
+      select.appendChild(opt);
+    });
+  }
 
-    await carregarRaioXSupervisao();
-  });
+  async function fazerLogin() {
+    const index = document.getElementById('selectSupLogin').value;
+    const senha = document.getElementById('inputSenha').value.trim();
 
-  async function carregarRaioXSupervisao() {
-    document.getElementById('loadingSup').style.display = 'block';
-    document.getElementById('conteudoPainelSupervisor').style.display = 'none';
+    if (index === "") return alert("Selecione a sua supervisão.");
+
+    const supSelecionada = supervisoresDB[index];
+    if (senha !== supSelecionada.senha) return alert("Senha incorreta!");
+
+    supervisorLogado = supSelecionada;
+    document.getElementById('loginBox').style.display = 'none';
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('labelSupervisorLogado').innerText = `${supervisorLogado.supervisao} - ${supervisorLogado.supervisor}`;
 
     try {
-      // 1. Busca redes vinculadas a esta supervisão
-      const snapRedes = await db.collection('redes')
-        .where('supervisao', '==', supervisaoLogada)
+      const snapshotMembros = await db.collection('membros')
+        .where('supervisao', '==', supervisorLogado.supervisao)
         .get();
 
-      redesDaSupervisao = [];
-      snapRedes.forEach(doc => {
-        redesDaSupervisao.push({ id: doc.id, ...doc.data() });
+      const snapshotRelatorios = await db.collection('relatorios')
+        .where('supervisao', '==', supervisorLogado.supervisao)
+        .get();
+
+      const membrosSup = [];
+      snapshotMembros.forEach(doc => {
+        const data = doc.data();
+        if (data.status !== "INATIVO") {
+          membrosSup.push(data);
+        }
       });
 
-      // Se a coleção 'redes' não for usada e os nomes vierem direto de membros/relatórios, ajustamos por distinct
-      if (redesDaSupervisao.length === 0) {
-        // Tenta descobrir as redes através dos relatórios ou membros caso a coleção redes não exista
-        const snapRel = await db.collection('relatorios').get();
-        let redesSet = new Set();
-        snapRel.forEach(doc => {
-          const data = doc.data();
-          if (data.supervisao === supervisaoLogada || !data.supervisao) {
-            if (data.rede) redesSet.add(data.rede);
-          }
-        });
-        redesDaSupervisao = Array.from(redesSet).map(r => ({ nomeRede: r }));
-      }
+      const relatoriosSup = [];
+      snapshotRelatorios.forEach(doc => relatoriosSup.push(doc.data()));
 
-      // 2. Busca todos os relatórios para mapear o Raio-X
-      const snapRelatorios = await db.collection('relatorios').get();
-      relatoriosCache = [];
-      snapRelatorios.forEach(doc => {
-        relatoriosCache.push({ id: doc.id, ...doc.data() });
-      });
-
-      renderizarRaioX();
+      renderizarPainelSupervisor(membrosSup, relatoriosSup);
     } catch (err) {
-      alert("Erro ao carregar dados do painel do supervisor.");
+      alert("Erro ao carregar dados do Firebase.");
       console.error(err);
     } finally {
-      document.getElementById('loadingSup').style.display = 'none';
+      document.getElementById('loading').style.display = 'none';
     }
   }
 
-  function renderizarRaioX() {
-    const container = document.getElementById('listaRaioXRedes');
-    container.innerHTML = '';
+  function renderizarPainelSupervisor(membrosSup, relatoriosSup) {
+    const redesDaSup = supervisorLogado.redes;
 
-    if (redesDaSupervisao.length === 0) {
-      container.innerHTML = `<div style="color: var(--text-muted);">Nenhuma rede encontrada para esta supervisão.</div>`;
-      document.getElementById('conteudoPainelSupervisor').style.display = 'block';
-      return;
-    }
+    let totalMembros = membrosSup.length;
+    let meta12 = 0, multi = 0, abaixo = 0;
 
-    redesDaSupervisao.forEach(redeObj => {
-      const nomeRede = redeObj.nomeRede || redeObj.nome || redeObj.id;
+    const tabelaRedesBody = document.getElementById('tabelaRedesBody');
+    tabelaRedesBody.innerHTML = '';
 
-      // Filtra relatórios desta rede
-      const relsRede = relatoriosCache.filter(r => r.rede === nomeRede);
-      // Ordena por data/envio se houver
-      relsRede.sort((a, b) => new Date(b.dataEncontro || 0) - new Date(a.dataEncontro || 0));
+    redesDaSup.forEach(r => {
+      const membrosRede = membrosSup.filter(m => m.rede === r.nome);
+      const qtd = membrosRede.length;
 
-      const ultimoRel = relsRede.length > 0 ? relsRede[0] : null;
+      const relsRede = relatoriosSup.filter(rel => rel.rede === r.nome);
+      const ultimoRel = relsRede.length > 0 ? relsRede[relsRede.length - 1] : null;
+      const dataUltimo = ultimoRel ? (ultimoRel.dataEncontro || 'Sem data') : 'Nenhum relatório';
 
-      let infoUltimoRel = "Nenhum relatório enviado ainda";
-      if (ultimoRel) {
-        infoUltimoRel = `Data: <span>${ultimoRel.dataEncontro || 'N/A'}</span> | Tema: <span>${ultimoRel.tema || 'N/A'}</span> | Presentes: <span>${ultimoRel.presentes ? ultimoRel.presentes.split(',').length : 0}</span>`;
+      let statusHtml = '';
+      if (qtd === 12) {
+        meta12++;
+        statusHtml = `<span class="tag tag-green">🟢 Ideal (12)</span>`;
+      } else if (qtd > 12) {
+        multi++;
+        statusHtml = `<span class="tag tag-blue">🚀 Multiplicar (${qtd})</span>`;
+      } else {
+        abaixo++;
+        statusHtml = `<span class="tag tag-yellow">⚠️ Abaixo (${qtd}/12)</span>`;
       }
 
-      const div = document.createElement('div');
-      div.className = 'rede-raiox-card';
-      div.innerHTML = `
-        <div class="rede-raiox-header">
-          <strong>Rede: ${nomeRede}</strong>
-          <button class="btn-ver-relatorios" onclick="abrirRelatoriosRede('${nomeRede}')">📋 Ver Relatórios (${relsRede.length})</button>
-        </div>
-        <div class="raiox-detalhes">
-          <strong>Último Relatório:</strong> ${infoUltimoRel}
-        </div>
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><strong>${r.nome}</strong></td>
+        <td>${r.lider}</td>
+        <td>${qtd}</td>
+        <td>${statusHtml}</td>
+        <td><small>${dataUltimo}</small></td>
       `;
-      container.appendChild(div);
+      tabelaRedesBody.appendChild(tr);
     });
 
-    document.getElementById('conteudoPainelSupervisor').style.display = 'block';
+    document.getElementById('mTotalMembros').innerText = totalMembros;
+    document.getElementById('mRedesMeta').innerText = meta12;
+    document.getElementById('mRedesMulti').innerText = multi;
+    document.getElementById('mRedesAlerta').innerText = abaixo;
+
+    // Matriz de Alertas
+    const tabelaAlertasBody = document.getElementById('tabelaAlertasBody');
+    tabelaAlertasBody.innerHTML = '';
+    let qtdAlertas = 0;
+
+    membrosSup.forEach(m => {
+      const nome = m.nome, rede = m.rede, whats = m.whatsapp || '';
+      let faltasSeguidas = 0;
+      const relsRede = relatoriosSup.filter(r => r.rede === rede);
+
+      for (let rel of [...relsRede].reverse()) {
+        const faltantesTxt = rel.faltantes ? rel.faltantes.toString() : '';
+        if (faltantesTxt.includes(nome)) faltasSeguidas++;
+        else break;
+      }
+
+      if (faltasSeguidas >= 2) {
+        qtdAlertas++;
+        const tipoAlerta = faltasSeguidas >= 3 ? `<span class="tag tag-danger">⛔ ${faltasSeguidas} Faltas (Não Pode Servir)</span>` : `<span class="tag tag-yellow">⚠️ ${faltasSeguidas} Faltas (Apascentamento)</span>`;
+        const linkWhats = whats ? `<a href="https://api.whatsapp.com/send?phone=55${whats.replace(/\D/g,'')}&text=${encodeURIComponent('Olá ' + nome + ', tudo bem? Sentimos sua falta na rede!')}" target="_blank" class="btn-whats">💬 Chamar</a>` : 'Sem WhatsApp';
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td><strong>${nome}</strong></td><td>${rede}</td><td>${tipoAlerta}</td><td>${linkWhats}</td>`;
+        tabelaAlertasBody.appendChild(tr);
+      }
+    });
+
+    if (qtdAlertas === 0) tabelaAlertasBody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Nenhum alerta de falta consecutiva no momento. 🟢</td></tr>`;
+
+    // Aniversariantes do Mês
+    const tabelaNiverBody = document.getElementById('tabelaNiverBody');
+    tabelaNiverBody.innerHTML = '';
+    const mesAtual = new Date().getMonth() + 1;
+    let qtdNiver = 0;
+
+    membrosSup.forEach(m => {
+      const nasc = m.nascimento;
+      if (nasc) {
+        const partes = nasc.toString().split('-');
+        if (partes.length === 3 && parseInt(partes[1]) === mesAtual) {
+          qtdNiver++;
+          const linkWhatsNiver = m.whatsapp ? `<a href="https://api.whatsapp.com/send?phone=55${m.whatsapp.replace(/\D/g,'')}&text=${encodeURIComponent('Parabéns ' + m.nome + '! Que o Senhor te abençoe muito em seu aniversário!')}" target="_blank" class="btn-whats">🎂 Parabéns</a>` : 'Sem WhatsApp';
+
+          const tr = document.createElement('tr');
+          tr.innerHTML = `<td><strong>${m.nome}</strong></td><td>${m.rede}</td><td>${partes[2]}/${partes[1]}</td><td>${linkWhatsNiver}</td>`;
+          tabelaNiverBody.appendChild(tr);
+        }
+      }
+    });
+
+    if (qtdNiver === 0) tabelaNiverBody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Nenhum aniversariante neste mês.</td></tr>`;
+
+    // RENDERIZAR ÁRVORE DE REDES E LIDERADOS NO FINAL
+    renderizarArvoreRedesELiderados(membrosSup);
+
+    document.getElementById('painelSupervisor').style.display = 'block';
   }
 
-  function abrirRelatoriosRede(nomeRede) {
-    document.getElementById('tituloModalRede').innerText = `📜 Relatórios da ${nomeRede}`;
-    const conteudoModal = document.getElementById('conteudoRelatoriosRede');
-    conteudoModal.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-muted);">Carregando relatórios...</div>`;
-    
-    document.getElementById('modalRelatoriosRede').style.display = 'flex';
+  function renderizarArvoreRedesELiderados(membrosSup) {
+    const container = document.getElementById('treeContainerRedes');
+    container.innerHTML = '';
 
-    const relsRede = relatoriosCache.filter(r => r.rede === nomeRede);
-    relsRede.sort((a, b) => new Date(b.dataEncontro || 0) - new Date(a.dataEncontro || 0));
+    const redesDaSup = supervisorLogado.redes;
 
-    if (relsRede.length === 0) {
-      conteudoModal.innerHTML = `<div style="color: var(--text-muted); text-align:center; padding: 20px;">Nenhum relatório cadastrado para esta rede.</div>`;
-      return;
-    }
+    redesDaSup.forEach(r => {
+      const membrosRede = membrosSup.filter(m => m.rede === r.nome);
 
-    let htmlRels = '';
-    relsRede.forEach(r => {
-      htmlRels += `
-        <div class="relatorio-item-sup">
-          <header>
-            <span>📅 Encontro: ${r.dataEncontro || 'N/A'} (${r.horario || ''})</span>
-            <span>📍 ${r.local || 'Local não informado'}</span>
-          </header>
-          <div style="font-size: 0.85rem; color: var(--text); line-height: 1.4; margin-top: 6px;">
-            <strong>Tema:</strong> ${r.tema || '-'}<br>
-            <strong>Presentes:</strong> ${r.presentes || 'Nenhum'}<br>
-            <strong>Visitantes:</strong> ${r.visitantes || 'Nenhum'}<br>
-            <span style="color: var(--danger);"><strong>Faltantes:</strong> ${r.faltantes || 'Nenhum'}</span><br>
-            <strong>Resumo da Palavra:</strong> ${r.resumoPalavra || '-'}<br>
-            <strong>Atividades:</strong> ${r.atividades || '-'}
+      let membrosHtml = '';
+      if (membrosRede.length === 0) {
+        membrosHtml = `<div style="padding: 10px; color: var(--text-muted); font-size: 0.85rem;">Nenhum liderado cadastrado nesta rede.</div>`;
+      } else {
+        membrosRede.forEach(m => {
+          const cat = m.categoria || 'Liderado';
+          const isBase = cat === 'Base da Rede';
+          membrosHtml += `
+            <div class="rede-item">
+              <span>👤 ${m.nome}</span>
+              <span class="tag" style="background:${isBase ? 'rgba(110,86,207,0.3)' : 'rgba(255,255,255,0.05)'}; color:${isBase ? '#A58BFF' : 'var(--text-muted)'};">${cat}</span>
+            </div>
+          `;
+        });
+      }
+
+      const card = document.createElement('div');
+      card.className = 'supervisao-card';
+      card.innerHTML = `
+        <div class="supervisao-header" onclick="toggleCard(this)">
+          <div class="supervisao-info">
+            <h3>📍 ${r.nome}</h3>
+            <p>Líder: <strong>${r.lider}</strong></p>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span class="supervisao-badge">${membrosRede.length} membros</span>
+            <span class="arrow-icon">▼</span>
           </div>
         </div>
+        <div class="redes-list">
+          ${membrosHtml}
+        </div>
       `;
+      container.appendChild(card);
     });
-
-    conteudoModal.innerHTML = htmlRels;
   }
 
-  function fecharModalRelatoriosRede() {
-    document.getElementById('modalRelatoriosRede').style.display = 'none';
+  function toggleCard(headerElement) {
+    const card = headerElement.parentElement;
+    card.classList.toggle('ativo');
   }
 </script>
 
