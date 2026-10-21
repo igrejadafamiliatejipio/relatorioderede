@@ -51,7 +51,6 @@
 
     .section-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; }
 
-    /* Destaque do Aniversariante do Dia */
     .niver-hoje-card {
       background: linear-gradient(135deg, rgba(35, 209, 96, 0.2) 0%, var(--input-bg) 100%);
       border: 2px solid var(--success);
@@ -85,17 +84,23 @@
     .btn-delete:hover { background: var(--danger); color: #FFF; }
 
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 999; display: none; }
-    .modal-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 24px; max-width: 480px; width: 100%; }
-    .modal-header { font-size: 1.2rem; font-weight: 700; margin-bottom: 16px; color: var(--text); }
+    .modal-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 24px; max-width: 520px; width: 100%; max-height: 85vh; overflow-y: auto; }
+    .modal-header { font-size: 1.2rem; font-weight: 700; margin-bottom: 16px; color: var(--text); display: flex; justify-content: space-between; align-items: center; }
     .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
 
     .btn-salvar { background: var(--primary); color: white; border: none; padding: 10px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; }
     .btn-salvar:hover { background: var(--primary-hover); }
     .btn-cancelar { background: #21262D; color: var(--text); border: 1px solid var(--card-border); padding: 10px 16px; border-radius: 8px; cursor: pointer; }
+    .btn-cancelar:hover { background: #30363D; }
 
-    .relatorio-item { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 10px; padding: 14px; margin-bottom: 12px; }
+    .relatorio-item { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 10px; padding: 14px; margin-bottom: 12px; cursor: pointer; transition: 0.2s; }
+    .relatorio-item:hover { border-color: var(--primary); transform: translateY(-2px); }
     .relatorio-header { display: flex; justify-content: space-between; font-weight: 600; font-size: 0.9rem; margin-bottom: 6px; }
     .relatorio-body { font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; }
+
+    .relatorio-detalhe-bloco { margin-bottom: 14px; background: var(--input-bg); padding: 12px; border-radius: 8px; border: 1px solid var(--card-border); }
+    .relatorio-detalhe-bloco label { font-size: 0.75rem; color: var(--primary); font-weight: bold; margin-bottom: 4px; text-transform: uppercase; }
+    .relatorio-detalhe-bloco p { font-size: 0.9rem; color: var(--text); line-height: 1.4; word-break: break-word; }
 
     .btn-whats { background: #23D160; color: #000; padding: 6px 12px; border-radius: 6px; font-size: 0.78rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
     .btn-whats:hover { background: #1EBE55; }
@@ -144,7 +149,7 @@
       <div class="health-count" id="qtdMembrosMembro">12</div>
     </div>
 
-    <!-- SEÇÃO DE ANIVERSARIANTES INSERIDA AQUI -->
+    <!-- SEÇÃO DE ANIVERSARIANTES -->
     <div id="secaoAniversariantesRede" style="margin-bottom: 32px;"></div>
 
     <div style="margin-bottom: 32px;">
@@ -155,7 +160,7 @@
     </div>
 
     <div>
-      <div class="section-title">📜 Últimos Relatórios Enviados</div>
+      <div class="section-title">📜 Últimos Relatórios Enviados <small style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;">(Clique em um relatório para ver completo)</small></div>
       <div id="listaRelatorios"></div>
     </div>
   </div>
@@ -163,7 +168,7 @@
   <div id="loading" class="loading-box" style="display: none;">Carregando dados do Firebase...</div>
 </div>
 
-<!-- Modal de Edição -->
+<!-- Modal de Edição de Membro -->
 <div id="modalEdicao" class="modal-overlay">
   <div class="modal-card">
     <div class="modal-header">✏️ Editar Membro</div>
@@ -203,6 +208,20 @@
   </div>
 </div>
 
+<!-- Modal de Visualização Completa do Relatório -->
+<div id="modalRelatorioDetalhes" class="modal-overlay">
+  <div class="modal-card">
+    <div class="modal-header">
+      <span>📋 Detalhes do Relatório</span>
+      <button onclick="fecharModalRelatorio()" style="background:none; border:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer;">✕</button>
+    </div>
+    <div id="conteudoDetalhesRelatorio"></div>
+    <div class="modal-footer">
+      <button class="btn-cancelar" onclick="fecharModalRelatorio()">Fechar</button>
+    </div>
+  </div>
+</div>
+
 <script>
   const firebaseConfig = {
     apiKey: "AIzaSyB7FJXs9wiRFYIs2ugZoWrw7jTXPR5weGk",
@@ -231,6 +250,7 @@
   ];
 
   let membrosLocais = [];
+  let relatoriosLocais = [];
 
   document.addEventListener("DOMContentLoaded", function() {
     carregarSupervisoes();
@@ -298,12 +318,12 @@
         }
       });
 
-      const relatoriosRede = [];
+      relatoriosLocais = [];
       snapshotRelatorios.forEach(doc => {
-        relatoriosRede.push(doc.data());
+        relatoriosLocais.push({ id: doc.id, ...doc.data() });
       });
 
-      renderizarPainel(membrosLocais, relatoriosRede);
+      renderizarPainel(membrosLocais, relatoriosLocais);
     } catch (err) {
       alert("Erro ao carregar dados do Firebase.");
       console.error(err);
@@ -389,7 +409,7 @@
       });
     }
 
-    // MONTAGEM DA SEÇÃO DE ANIVERSARIANTES (BOTÃO WHATSAPP SÓ PARA O DIA)
+    // ANIVERSARIANTES
     const secaoNivers = document.getElementById('secaoAniversariantesRede');
     let aniversariantesHojeHtml = '';
     let aniversariantesMesHtml = '';
@@ -442,7 +462,7 @@
       secaoNivers.style.display = 'none';
     }
 
-    // Renderiza Relatórios
+    // RELATÓRIOS CLICÁVEIS
     const containerRel = document.getElementById('listaRelatorios');
     containerRel.innerHTML = '';
     if (relatoriosRede.length === 0) {
@@ -451,6 +471,7 @@
       relatoriosRede.slice(-5).reverse().forEach(r => {
         const div = document.createElement('div');
         div.className = 'relatorio-item';
+        div.setAttribute('onclick', `abrirDetalhesRelatorio('${r.id}')`);
         div.innerHTML = `
           <div class="relatorio-header">
             <span>📅 ${r.dataEncontro || ''} (${r.horario || ''})</span>
@@ -467,6 +488,29 @@
     }
 
     document.getElementById('conteudoPainel').style.display = 'block';
+  }
+
+  function abrirDetalhesRelatorio(docId) {
+    const rel = relatoriosLocais.find(r => r.id === docId);
+    if (!rel) return;
+
+    const conteudo = document.getElementById('conteudoDetalhesRelatorio');
+    conteudo.innerHTML = `
+      <div class="relatorio-detalhe-bloco"><label>Data e Horário</label><p>${rel.dataEncontro || '-'} às ${rel.horario || '-'}</p></div>
+      <div class="relatorio-detalhe-bloco"><label>Local do Encontro</label><p>${rel.local || '-'}</p></div>
+      <div class="relatorio-detalhe-bloco"><label>Tema Ministrado</label><p>${rel.tema || '-'}</p></div>
+      <div class="relatorio-detalhe-bloco"><label>Membros Presentes</label><p>${rel.presentes || 'Nenhum registrado'}</p></div>
+      <div class="relatorio-detalhe-bloco"><label>Visitantes</label><p>${rel.visitantes || 'Nenhum'}</p></div>
+      <div class="relatorio-detalhe-bloco"><label>Faltantes e Justificativas</label><p style="color: var(--danger);">${rel.faltantes || 'Nenhum'}</p></div>
+      <div class="relatorio-detalhe-bloco"><label>Resumo da Palavra</label><p>${rel.resumoPalavra || '-'}</p></div>
+      <div class="relatorio-detalhe-bloco"><label>Atividades / Dinâmicas</label><p>${rel.atividades || '-'}</p></div>
+    `;
+
+    document.getElementById('modalRelatorioDetalhes').style.display = 'flex';
+  }
+
+  function fecharModalRelatorio() {
+    document.getElementById('modalRelatorioDetalhes').style.display = 'none';
   }
 
   function abrirModalEdicao(docId) {
