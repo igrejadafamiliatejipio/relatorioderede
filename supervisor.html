@@ -51,7 +51,7 @@
 
     .section-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
 
-    /* Novo Estilo de Árvore em Acordeão otimizado para Mobile */
+    /* Estilo de Árvore em Acordeão das Redes e Liderados */
     .tree-wrapper { margin-bottom: 32px; }
     .supervisao-card { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 12px; margin-bottom: 12px; overflow: hidden; transition: border-color 0.2s; }
     .supervisao-card:hover { border-color: var(--primary); }
@@ -65,10 +65,8 @@
     .redes-list { padding: 0 16px 16px 16px; display: none; border-top: 1px solid var(--card-border); background: var(--card-bg); }
     .supervisao-card.ativo .redes-list { display: block; }
 
-    .rede-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--card-border); font-size: 0.9rem; }
+    .rede-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--card-border); font-size: 0.9rem; }
     .rede-item:last-child { border-bottom: none; }
-    .rede-nome { font-weight: 600; color: var(--text); }
-    .rede-lider { font-size: 0.82rem; color: var(--text-muted); }
     .arrow-icon { transition: transform 0.3s; font-size: 0.8rem; color: var(--text-muted); }
     .supervisao-card.ativo .arrow-icon { transform: rotate(180deg); }
 
@@ -160,9 +158,9 @@
       </table>
     </div>
 
-    <!-- ÁRVORE GENEALÓGICA POSICIONADA EXATAMENTE NO FINAL DA PÁGINA -->
-    <div class="section-title">🌳 Árvore Genealógica (Visão Geral das Supervisões)</div>
-    <div class="tree-wrapper" id="treeContainerMobile"></div>
+    <!-- ÁRVORE DE REDES E LIDERADOS NO FINAL -->
+    <div class="section-title">🌳 Árvore de Redes e Liderados</div>
+    <div class="tree-wrapper" id="treeContainerRedes"></div>
   </div>
 
   <div id="loading" class="loading-box" style="display: none;">Carregando dados da supervisão do Firebase...</div>
@@ -350,42 +348,52 @@
 
     if (qtdNiver === 0) tabelaNiverBody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Nenhum aniversariante neste mês.</td></tr>`;
 
-    // RENDERIZAR ÁRVORE EM ACORDEÃO NO FINAL DA PÁGINA
-    renderizarArvoreMobile();
+    // RENDERIZAR ÁRVORE DE REDES E LIDERADOS NO FINAL
+    renderizarArvoreRedesELiderados(membrosSup);
 
     document.getElementById('painelSupervisor').style.display = 'block';
   }
 
-  function renderizarArvoreMobile() {
-    const container = document.getElementById('treeContainerMobile');
+  function renderizarArvoreRedesELiderados(membrosSup) {
+    const container = document.getElementById('treeContainerRedes');
     container.innerHTML = '';
 
-    supervisoresDB.forEach(item => {
-      let redesHtml = '';
-      item.redes.forEach(r => {
-        redesHtml += `
-          <div class="rede-item">
-            <span class="rede-nome">📍 ${r.nome}</span>
-            <span class="rede-lider">Líder: <strong>${r.lider}</strong></span>
-          </div>
-        `;
-      });
+    const redesDaSup = supervisorLogado.redes;
+
+    redesDaSup.forEach(r => {
+      const membrosRede = membrosSup.filter(m => m.rede === r.nome);
+
+      let membrosHtml = '';
+      if (membrosRede.length === 0) {
+        membrosHtml = `<div style="padding: 10px; color: var(--text-muted); font-size: 0.85rem;">Nenhum liderado cadastrado nesta rede.</div>`;
+      } else {
+        membrosRede.forEach(m => {
+          const cat = m.categoria || 'Liderado';
+          const isBase = cat === 'Base da Rede';
+          membrosHtml += `
+            <div class="rede-item">
+              <span>👤 ${m.nome}</span>
+              <span class="tag" style="background:${isBase ? 'rgba(110,86,207,0.3)' : 'rgba(255,255,255,0.05)'}; color:${isBase ? '#A58BFF' : 'var(--text-muted)'};">${cat}</span>
+            </div>
+          `;
+        });
+      }
 
       const card = document.createElement('div');
       card.className = 'supervisao-card';
       card.innerHTML = `
         <div class="supervisao-header" onclick="toggleCard(this)">
           <div class="supervisao-info">
-            <h3>${item.supervisao}</h3>
-            <p>Supervisor(a): <strong>${item.supervisor}</strong></p>
+            <h3>📍 ${r.nome}</h3>
+            <p>Líder: <strong>${r.lider}</strong></p>
           </div>
           <div style="display: flex; align-items: center; gap: 10px;">
-            <span class="supervisao-badge">${item.redes.length} redes</span>
+            <span class="supervisao-badge">${membrosRede.length} membros</span>
             <span class="arrow-icon">▼</span>
           </div>
         </div>
         <div class="redes-list">
-          ${redesHtml}
+          ${membrosHtml}
         </div>
       `;
       container.appendChild(card);
