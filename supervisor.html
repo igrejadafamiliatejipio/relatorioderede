@@ -88,6 +88,10 @@
 
     @media (max-width: 768px) { .metrics-grid { grid-template-columns: repeat(2, 1fr); } }
   </style>
+
+  <!-- Firebase SDK Compat -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
@@ -166,11 +170,22 @@
     </div>
   </div>
 
-  <div id="loading" class="loading-box" style="display: none;">Carregando dados da supervisão...</div>
+  <div id="loading" class="loading-box" style="display: none;">Carregando dados da supervisão do Firebase...</div>
 </div>
 
 <script>
-  const API_URL = "https://script.google.com/macros/s/AKfycbxWFDRZFXS0RQmErdlERXKy4D4e8DQUhbZsyVPwuetLqKAYzB5ATtcKU-GOnZwghmBfCw/exec";
+  const firebaseConfig = {
+    apiKey: "AIzaSyB7FJXs9wiRFYIs2ugZoWrw7jTXPR5weGk",
+    authDomain: "app-redes-iftejipio.firebaseapp.com",
+    projectId: "app-redes-iftejipio",
+    storageBucket: "app-redes-iftejipio.firebasestorage.app",
+    messagingSenderId: "954529090793",
+    appId: "1:954529090793:web:6702d102b6e5b178b6b478",
+    measurementId: "G-2MJ96WMYQ5"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
 
   const supervisoresDB = [
     { supervisao: "Supervisão Monte Hor", supervisor: "Luís Felipe", senha: "1001", redes: [{ nome: "Rede Moisés", lider: "Gabriel" }, { nome: "Rede Alfa", lider: "Plinio" }, { nome: "Rede Timóteo", lider: "Sotero" }, { nome: "Rede Next", lider: "Vyni Léo" }, { nome: "Rede Inconformados", lider: "Maurilio" }, { nome: "Rede Atalaia", lider: "Mancine" }] },
@@ -185,7 +200,6 @@
     { supervisao: "Supervisão Monte Seir", supervisor: "Karol Nogueira", senha: "1010", redes: [{ nome: "Rede Joy", lider: "Leticia" }, { nome: "Rede Legacy", lider: "Laura" }, { nome: "Rede Ramá", lider: "Raianny" }] }
   ];
 
-  let dadosBrutos = { membros: [], relatorios: [] };
   let supervisorLogado = null;
 
   document.addEventListener("DOMContentLoaded", carregarSupervisoes);
@@ -216,25 +230,33 @@
     document.getElementById('labelSupervisorLogado').innerText = `${supervisorLogado.supervisao} - ${supervisorLogado.supervisor}`;
 
     try {
-      // Passa a supervisão como parâmetro URL para o Apps Script filtrar no servidor
-      const url = `${API_URL}?action=getDados&supervisao=${encodeURIComponent(supervisorLogado.supervisao)}`;
-      const resp = await fetch(url);
-      dadosBrutos = await resp.json();
-      renderizarPainelSupervisor();
+      // Consultas diretas e ultrarrápidas ao Firebase
+      const snapshotMembros = await db.collection('membros')
+        .where('supervisao', '==', supervisorLogado.supervisao)
+        .where('status', '!=', 'INATIVO')
+        .get();
+
+      const snapshotRelatorios = await db.collection('relatorios')
+        .where('supervisao', '==', supervisorLogado.supervisao)
+        .get();
+
+      const membrosSup = [];
+      snapshotMembros.forEach(doc => membrosSup.push(doc.data()));
+
+      const relatoriosSup = [];
+      snapshotRelatorios.forEach(doc => relatoriosSup.push(doc.data()));
+
+      renderizarPainelSupervisor(membrosSup, relatoriosSup);
     } catch (err) {
-      alert("Erro ao carregar dados da planilha. Tente novamente.");
+      alert("Erro ao carregar dados do Firebase.");
       console.log(err);
     } finally {
       document.getElementById('loading').style.display = 'none';
     }
   }
 
-  function renderizarPainelSupervisor() {
+  function renderizarPainelSupervisor(membrosSup, relatoriosSup) {
     const redesDaSup = supervisorLogado.redes;
-    const nomesRedes = redesDaSup.map(r => r.nome);
-
-    const membrosSup = dadosBrutos.membros.slice(1);
-    const relatoriosSup = dadosBrutos.relatorios.slice(1).reverse();
 
     document.getElementById('treeSupervisaoNome').innerText = supervisorLogado.supervisao;
     document.getElementById('treeSupervisorNome').innerText = supervisorLogado.supervisor;
@@ -249,7 +271,7 @@
     tabelaRedesBody.innerHTML = '';
 
     redesDaSup.forEach(r => {
-      const membrosRede = membrosSup.filter(m => m[3] === r.nome);
+      const membrosRede = membrosSup.filter(m => m.rede === r.nome);
       const qtd = membrosRede.length;
 
       const leaderCard = document.createElement('div');
@@ -260,11 +282,11 @@
         membersListHtml = `<div style="font-size:0.75rem; color:var(--text-muted); text-align:center;">Nenhum liderado</div>`;
       } else {
         membrosRede.forEach(m => {
-          const cat = m[9] || 'Liderado';
+          const cat = m.categoria || 'Liderado';
           const isBase = cat === 'Base da Rede';
           membersListHtml += `
             <div class="tree-member-item ${isBase ? 'base' : ''}">
-              <span>${m[5]}</span>
+              <span>${m.nome}</span>
               <span class="tag-mini" style="background:${isBase ? 'rgba(110,86,207,0.3)' : 'rgba(255,255,255,0.05)'}">${isBase ? 'Base' : 'Liderado'}</span>
             </div>
           `;
@@ -280,8 +302,9 @@
       `;
       treeLeadersContainer.appendChild(leaderCard);
 
-      const ultimoRel = relatoriosSup.find(rel => rel[3] === r.nome);
-      const dataUltimo = ultimoRel ? ultimoRel[5] : 'Nenhum relatório';
+      const relsRede = relatoriosSup.filter(rel => rel.rede === r.nome);
+      const ultimoRel = relsRede.length > 0 ? relsRede[relsRede.length - 1] : null;
+      const dataUltimo = ultimoRel ? ultimoRel.dataEncontro : 'Nenhum relatório';
 
       let statusHtml = '';
       if (qtd === 12) {
@@ -311,17 +334,18 @@
     document.getElementById('mRedesMulti').innerText = multi;
     document.getElementById('mRedesAlerta').innerText = abaixo;
 
+    // Matriz de Alertas de Faltas
     const tabelaAlertasBody = document.getElementById('tabelaAlertasBody');
     tabelaAlertasBody.innerHTML = '';
     let qtdAlertas = 0;
 
     membrosSup.forEach(m => {
-      const nome = m[5], rede = m[3], whats = m[7] || '';
+      const nome = m.nome, rede = m.rede, whats = m.whatsapp || '';
       let faltasSeguidas = 0;
-      const relsRede = relatoriosSup.filter(r => r[3] === rede);
+      const relsRede = relatoriosSup.filter(r => r.rede === rede);
 
-      for (let rel of relsRede) {
-        const faltantesTxt = rel[10] ? rel[10].toString() : '';
+      for (let rel of relsRede.reverse()) {
+        const faltantesTxt = rel.faltantes ? rel.faltantes.toString() : '';
         if (faltantesTxt.includes(nome)) faltasSeguidas++;
         else break;
       }
@@ -339,21 +363,22 @@
 
     if (qtdAlertas === 0) tabelaAlertasBody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Nenhum alerta de falta consecutiva no momento. 🟢</td></tr>`;
 
+    // Aniversariantes do Mês
     const tabelaNiverBody = document.getElementById('tabelaNiverBody');
     tabelaNiverBody.innerHTML = '';
     const mesAtual = new Date().getMonth() + 1;
     let qtdNiver = 0;
 
     membrosSup.forEach(m => {
-      const nasc = m[6];
+      const nasc = m.nascimento;
       if (nasc) {
         const partes = nasc.toString().split('-');
         if (partes.length === 3 && parseInt(partes[1]) === mesAtual) {
           qtdNiver++;
-          const linkWhatsNiver = m[7] ? `<a href="https://api.whatsapp.com/send?phone=55${m[7].replace(/\D/g,'')}&text=${encodeURIComponent('Parabéns ' + m[5] + '! Que o Senhor te abençoe muito em seu aniversário!')}" target="_blank" class="btn-whats">🎂 Parabéns</a>` : 'Sem WhatsApp';
+          const linkWhatsNiver = m.whatsapp ? `<a href="https://api.whatsapp.com/send?phone=55${m.whatsapp.replace(/\D/g,'')}&text=${encodeURIComponent('Parabéns ' + m.nome + '! Que o Senhor te abençoe muito em seu aniversário!')}" target="_blank" class="btn-whats">🎂 Parabéns</a>` : 'Sem WhatsApp';
 
           const tr = document.createElement('tr');
-          tr.innerHTML = `<td><strong>${m[5]}</strong></td><td>${m[3]}</td><td>${partes[2]}/${partes[1]}</td><td>${linkWhatsNiver}</td>`;
+          tr.innerHTML = `<td><strong>${m.nome}</strong></td><td>${m.rede}</td><td>${partes[2]}/${partes[1]}</td><td>${linkWhatsNiver}</td>`;
           tabelaNiverBody.appendChild(tr);
         }
       }
