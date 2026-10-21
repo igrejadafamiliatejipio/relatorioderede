@@ -499,10 +499,9 @@
     membrosLocais.forEach((m, index) => {
       const nome = m.nome;
       const estaPresente = presentesAtuais.includes(nome);
-      const estaFaltando = faltantesAtuais.includes(nome);
 
       let justificativaTexto = '';
-      if (estaFaltando) {
+      if (!estaPresente) {
         // Tenta extrair a justificativa salva anteriormente, se houver
         const regex = new RegExp(nome + '\\s*\\(Justificativa:\\s*([^\\)]+)\\)', 'i');
         const match = faltantesAtuais.match(regex);
@@ -511,8 +510,8 @@
         }
       }
 
-      const marcado = (estaPresente || (!estaPresente && !estaFaltando)) ? 'checked' : '';
-      const displayBox = marcado ? 'none' : 'block';
+      const marcado = estaPresente ? 'checked' : '';
+      const displayBox = estaPresente ? 'none' : 'block';
 
       chamadaHtml += `
         <div class="chamada-item">
