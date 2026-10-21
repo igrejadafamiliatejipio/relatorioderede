@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Importador de Dados para o Firebase - TOPO</title>
+  <title>Gerenciador e Importador - Firebase - TOPO</title>
   <style>
     body { background: #0D0F12; color: #F0F6FC; font-family: sans-serif; padding: 40px 20px; display: flex; justify-content: center; }
     .card { background: #161B22; border: 1px solid #30363D; border-radius: 12px; padding: 30px; max-width: 600px; width: 100%; }
@@ -10,8 +10,10 @@
     .box { background: #0D1117; border: 1px solid #30363D; padding: 16px; border-radius: 8px; margin-bottom: 20px; }
     label { display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 8px; text-transform: uppercase; color: #8B949E; }
     input[type="file"] { margin-top: 6px; }
-    button { background: #6E56CF; color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; font-size: 1rem; }
+    button { background: #6E56CF; color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; font-size: 1rem; margin-bottom: 10px; }
     button:hover { background: #5B45B0; }
+    button.btn-danger { background: #E5534B; }
+    button.btn-danger:hover { background: #C93B32; }
     #log { background: #000; color: #23D160; padding: 12px; font-family: monospace; font-size: 0.85rem; border-radius: 6px; max-height: 200px; overflow-y: auto; margin-top: 16px; display: none; }
   </style>
   
@@ -22,19 +24,25 @@
 <body>
 
 <div class="card">
-  <h1>📤 Importar Planilha CSV para o Firebase</h1>
+  <h1>⚙️ Gerenciamento de Dados do Firebase</h1>
   
+  <div class="box" style="border-color: rgba(229,83,75,0.4);">
+    <label style="color: #E5534B;">Passo 1: Limpar Dados Duplicados</label>
+    <p style="font-size: 0.82rem; color: #8B949E; margin-bottom: 12px;">Apaga todos os membros e relatórios atuais para começar do zero.</p>
+    <button class="btn-danger" onclick="limparBancoDeDados()">🗑️ Zerar Banco de Dados</button>
+  </div>
+
   <div class="box">
-    <label>1. Arquivo CSV da aba Membros</label>
+    <label>2. Arquivo CSV da aba Membros</label>
     <input type="file" id="fileMembros" accept=".csv">
   </div>
 
   <div class="box">
-    <label>2. Arquivo CSV da aba Relatorios</label>
+    <label>3. Arquivo CSV da aba Relatorios</label>
     <input type="file" id="fileRelatorios" accept=".csv">
   </div>
 
-  <button onclick="iniciarImportacao()">Iniciar Importação</button>
+  <button onclick="iniciarImportacao()">📥 Iniciar Importação Limpa</button>
 
   <div id="log"></div>
 </div>
@@ -58,6 +66,26 @@
     logBox.style.display = 'block';
     logBox.innerHTML += `<div>> ${txt}</div>`;
     logBox.scrollTop = logBox.scrollHeight;
+  }
+
+  async function limparBancoDeDados() {
+    if (!confirm("Tem certeza absoluta que deseja apagar TODOS os membros e relatórios do Firebase?")) return;
+
+    logMsg("Limpando coleção 'membros'...");
+    const snapM = await db.collection('membros').get();
+    const batchM = db.batch();
+    snapM.forEach(doc => batchM.delete(doc.ref));
+    await batchM.commit();
+    logMsg("✅ Coleção 'membros' limpa!");
+
+    logMsg("Limpando coleção 'relatorios'...");
+    const snapR = await db.collection('relatorios').get();
+    const batchR = db.batch();
+    snapR.forEach(doc => batchR.delete(doc.ref));
+    await batchR.commit();
+    logMsg("✅ Coleção 'relatorios' limpa!");
+
+    alert("Banco de dados zerado com sucesso!");
   }
 
   function parseCSV(text) {
@@ -134,7 +162,7 @@
       logMsg("✅ Relatórios importados com sucesso!");
     }
 
-    logMsg("🎉 PROCESSO CONCLUÍDO! Seu Firebase já está com todos os dados.");
+    logMsg("🎉 PROCESSO CONCLUÍDO! Banco limpo e importado sem duplicações.");
   }
 </script>
 
