@@ -77,7 +77,9 @@
     .tag-danger { background: rgba(229, 83, 75, 0.2); color: var(--danger); border: 1px solid rgba(229, 83, 75, 0.4); }
     .tag-niver { background: rgba(35, 209, 96, 0.2); color: var(--success); border: 1px solid rgba(35, 209, 96, 0.4); }
 
-    .actions-group { display: flex; gap: 6px; }
+    .actions-group { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+    .btn-whats-mini { background: #23D160; color: #000; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 0.8rem; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
+    .btn-whats-mini:hover { background: #1EBE55; }
     .btn-edit { background: rgba(56, 139, 253, 0.15); color: var(--info); border: 1px solid rgba(56, 139, 253, 0.3); padding: 6px 10px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.8rem; }
     .btn-edit:hover { background: var(--info); color: #FFF; }
     .btn-delete { background: rgba(229, 83, 75, 0.15); color: var(--danger); border: 1px solid rgba(229, 83, 75, 0.3); padding: 6px 10px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.8rem; }
@@ -367,7 +369,7 @@
       membrosRede.forEach(m => {
         const nome = m.nome;
         const nascimento = m.nascimento || '';
-        const whats = m.whatsapp || 'Sem WhatsApp';
+        const whats = m.whatsapp || '';
         const batizado = m.batizado || 'Não';
         const categoria = m.categoria || 'Liderado';
 
@@ -394,13 +396,17 @@
         if (faltasSeguidas === 2) tagsHTML += `<span class="tag tag-warning">⚠️ Alerta de Apascentamento (2 faltas)</span>`;
         if (faltasSeguidas >= 3) tagsHTML += `<span class="tag tag-danger">⛔ Não Pode Servir (${faltasSeguidas} faltas)</span>`;
 
+        // Botão de WhatsApp para cada membro
+        const linkWhatsMembro = whats ? `<a href="https://api.whatsapp.com/send?phone=55${whats.replace(/\D/g,'')}&text=${encodeURIComponent('Olá ' + nome + ', tudo bem? Passando para saber como você está e dizer que oro por sua vida!')}" target="_blank" class="btn-whats-mini">💬 WhatsApp</a>` : '';
+
         div.innerHTML = `
           <div class="membro-main">
             <strong>${nome}</strong>
-            <small>📱 ${whats} | Batizado: ${batizado}</small>
+            <small>📱 ${whats || 'Sem WhatsApp'} | Batizado: ${batizado}</small>
             <div class="tags">${tagsHTML}</div>
           </div>
           <div class="actions-group">
+            ${linkWhatsMembro}
             <button class="btn-edit" onclick="abrirModalEdicao('${m.id}')">✏️ Editar</button>
             <button class="btn-delete" onclick="inativarMembro('${m.id}', '${nome}')">Remover</button>
           </div>
