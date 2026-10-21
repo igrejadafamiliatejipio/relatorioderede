@@ -29,16 +29,11 @@
     .btn-voltar:hover { background: #30363D; }
 
     .header { text-align: center; margin-bottom: 24px; }
-    .header h1 { font-size: 1.75rem; font-weight: 700; }
+    .header h1 { font-size: 1.75rem; font-weight: 700; margin-top: 6px; }
     .badge-topo { display: inline-block; background: var(--primary); color: #FFF; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 8px; }
 
-    .section-selector { background: var(--input-bg); padding: 16px; border-radius: 12px; border: 1px solid var(--card-border); margin-bottom: 24px; }
-    .row { display: flex; gap: 12px; }
-    .row .form-group { flex: 1; }
-
-    label { display: block; font-weight: 500; font-size: 0.85rem; margin-bottom: 6px; color: var(--text-muted); text-transform: uppercase; }
-    select, input { width: 100%; padding: 12px 14px; background-color: var(--card-bg); border: 1px solid var(--card-border); border-radius: 8px; font-size: 0.95rem; color: var(--text); outline: none; }
-    select option { background-color: var(--card-bg); color: var(--text); }
+    .info-rede-box { background: var(--input-bg); border: 1px solid var(--card-border); padding: 14px; border-radius: 8px; margin-bottom: 24px; text-align: center; font-size: 0.9rem; color: var(--text-muted); }
+    .info-rede-box strong { color: var(--text); }
 
     .health-card { padding: 18px; border-radius: 12px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; border: 1px solid transparent; }
     .health-card.green { background: rgba(35, 209, 96, 0.1); border-color: rgba(35, 209, 96, 0.3); color: var(--success); }
@@ -129,17 +124,8 @@
     <p>Acompanhe a saúde, frequência e liderados em tempo real</p>
   </div>
 
-  <div class="section-selector">
-    <div class="row">
-      <div class="form-group">
-        <label for="selectSupervisao">Supervisão</label>
-        <select id="selectSupervisao"><option value="">Selecione a Supervisão</option></select>
-      </div>
-      <div class="form-group">
-        <label for="selectRede">Rede</label>
-        <select id="selectRede" disabled><option value="">Selecione a Supervisão primeiro</option></select>
-      </div>
-    </div>
+  <div class="info-rede-box" id="infoRedeLogada">
+    Carregando informações da rede...
   </div>
 
   <div id="conteudoPainel" style="display: none;">
@@ -151,7 +137,7 @@
       <div class="health-count" id="qtdMembrosMembro">12</div>
     </div>
 
-    <!-- SEÇÃO DE ANIVERSARIANTES -->
+    <!-- ANIVERSARIANTES -->
     <div id="secaoAniversariantesRede" style="margin-bottom: 32px;"></div>
 
     <div style="margin-bottom: 32px;">
@@ -167,7 +153,7 @@
     </div>
   </div>
 
-  <div id="loading" class="loading-box" style="display: none;">Carregando dados do Firebase...</div>
+  <div id="loading" class="loading-box" style="display: block;">Carregando dados da rede do Firebase...</div>
 </div>
 
 <!-- Modal de Edição de Membro -->
@@ -238,78 +224,38 @@
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
 
-  const supervisoresDB = [
-    { supervisao: "Supervisão Monte Hor", supervisor: "Luís Felipe", redes: [{ nome: "Rede Moisés", lider: "Gabriel" }, { nome: "Rede Alfa", lider: "Plinio" }, { nome: "Rede Timóteo", lider: "Sotero" }, { nome: "Rede Next", lider: "Vyni Léo" }, { nome: "Rede Inconformados", lider: "Maurilio" }, { nome: "Rede Atalaia", lider: "Mancine" }] },
-    { supervisao: "Supervisão Monte Tabor", supervisor: "Danylo Brissantt", redes: [{ nome: "Hazak", lider: "Vitinho" }, { nome: "Monte Pisga", lider: "Ezequiel" }, { nome: "Escolhidos", lider: "João" }, { nome: "Paroikos", lider: "Iago" }, { nome: "Atos", lider: "Arley" }, { nome: "Karygma", lider: "Richard" }] },
-    { supervisao: "Supervisão Monte Nebo", supervisor: "Emanuel Henrique", redes: [{ nome: "Rede Invictos", lider: "Éden" }, { nome: "Rede Ekballo", lider: "Cristian" }, { nome: "Rede Ousadia", lider: "Wallyson" }, { nome: "Rede Maranata", lider: "Richarlyson" }, { nome: "Rede Ruah", lider: "Vinícius" }] },
-    { supervisao: "Supervisão Monte Horebe", supervisor: "Andryo Henrique", redes: [{ nome: "Rede Aljava", lider: "Taycilio" }, { nome: "Rede Sal da Terra", lider: "Marcelo Flexa" }, { nome: "Rede Ekklesia", lider: "Rodrigo" }, { nome: "Rede Forjados", lider: "Alef" }] },
-    { supervisao: "Supervisão Monte Carmelo", supervisor: "Diana Guerra", redes: [{ nome: "Rede Flame", lider: "Cecília" }, { nome: "Rede Aurora", lider: "Ester" }, { nome: "Rede Colossenses", lider: "Ingrid" }, { nome: "Rede Perazim", lider: "Íris" }, { nome: "Rede Rise", lider: "Gabriela" }] },
-    { supervisao: "Supervisão Monte Moriá", supervisor: "Larissa Neves", redes: [{ nome: "Rede Peregrina", lider: "Saiwry" }, { nome: "Rede Lume", lider: "Myrella" }, { nome: "Rede Promessa", lider: "Júlia" }, { nome: "Rede Áquila", lider: "Thaynara" }, { nome: "Rede Carmesim", lider: "Lívia" }, { nome: "Rede Emunah", lider: "Mayara" }, { nome: "Rede Margaridas", lider: "Lara" }] },
-    { supervisao: "Supervisão Monte Sinai", supervisor: "Sara Gomes", redes: [{ nome: "Rede Jardim", lider: "Joana" }, { nome: "Rede Dunamis", lider: "Mikaele" }, { nome: "Rede Grace", lider: "Fernanda" }, { nome: "Rede Graciosa", lider: "Gleicy" }, { nome: "Rede Zoe", lider: "Karol" }, { nome: "Rede Lamparinas", lider: "Laura Ester" }] },
-    { supervisao: "Supervisão Monte Sião", supervisor: "Clara Dione", redes: [{ nome: "Rede Águias", lider: "Anny" }, { nome: "Rede Hope", lider: "Laysa" }, { nome: "Rede Bloom", lider: "Clara" }, { nome: "Rede Herdeiras", lider: "Mika" }] },
-    { supervisao: "Supervisão Monte das Oliveiras", supervisor: "Letícia Sampaio", redes: [{ nome: "Monte das Oliveiras", lider: "Letícia Sampaio" }, { nome: "Rede Lily", lider: "Dayanne Lethicia" }, { nome: "Rede Liz", lider: "Letícia Rodrigues" }, { nome: "Rede Âmbar", lider: "Gabriella A." }] },
-    { supervisao: "Supervisão Monte Seir", supervisor: "Karol Nogueira", redes: [{ nome: "Rede Joy", lider: "Leticia" }, { nome: "Rede Legacy", lider: "Laura" }, { nome: "Rede Ramá", lider: "Raianny" }] }
-  ];
-
+  let dadosSessao = {};
   let membrosLocais = [];
   let relatoriosLocais = [];
 
-  document.addEventListener("DOMContentLoaded", function() {
-    carregarSupervisoes();
-    document.getElementById('selectSupervisao').addEventListener('change', atualizarRedes);
-    document.getElementById('selectRede').addEventListener('change', carregarDadosDashboard);
-  });
+  document.addEventListener("DOMContentLoaded", async function() {
+    const supervisao = sessionStorage.getItem('topo_supervisao');
+    const rede = sessionStorage.getItem('topo_rede');
+    const lider = sessionStorage.getItem('topo_lider');
 
-  function carregarSupervisoes() {
-    const selectSup = document.getElementById('selectSupervisao');
-    supervisoresDB.forEach((item, index) => {
-      const opt = document.createElement('option');
-      opt.value = index;
-      opt.textContent = `${item.supervisao} (${item.supervisor})`;
-      selectSup.appendChild(opt);
-    });
-  }
-
-  function atualizarRedes() {
-    const indexSup = document.getElementById('selectSupervisao').value;
-    const selectRede = document.getElementById('selectRede');
-    selectRede.innerHTML = '';
-    document.getElementById('conteudoPainel').style.display = 'none';
-
-    if (indexSup === "") {
-      selectRede.disabled = true;
-      selectRede.innerHTML = '<option value="">Selecione a Supervisão primeiro</option>';
+    if (!rede) {
+      alert("Nenhuma rede selecionada. Faça o login novamente.");
+      window.location.href = "lider.html";
       return;
     }
 
-    const sup = supervisoresDB[indexSup];
-    selectRede.disabled = false;
-    selectRede.innerHTML = '<option value="">Selecione a Rede</option>';
-    sup.redes.forEach((r, idx) => {
-      const opt = document.createElement('option');
-      opt.value = idx;
-      opt.textContent = `${r.nome} (Líder: ${r.lider})`;
-      selectRede.appendChild(opt);
-    });
-  }
+    dadosSessao = { supervisao, rede, lider };
+    document.getElementById('infoRedeLogada').innerHTML = `Visualizando painel da: <strong>${rede}</strong> (Líder: ${lider})`;
+
+    await carregarDadosDashboard();
+  });
 
   async function carregarDadosDashboard() {
-    const indexSup = document.getElementById('selectSupervisao').value;
-    const indexRede = document.getElementById('selectRede').value;
-    if (indexSup === "" || indexRede === "") return;
-
-    const nomeRede = supervisoresDB[indexSup].redes[indexRede].nome;
-
     document.getElementById('loading').style.display = 'block';
     document.getElementById('conteudoPainel').style.display = 'none';
 
     try {
       const snapshotMembros = await db.collection('membros')
-        .where('rede', '==', nomeRede)
+        .where('rede', '==', dadosSessao.rede)
         .get();
 
       const snapshotRelatorios = await db.collection('relatorios')
-        .where('rede', '==', nomeRede)
+        .where('rede', '==', dadosSessao.rede)
         .get();
 
       membrosLocais = [];
@@ -396,7 +342,6 @@
         if (faltasSeguidas === 2) tagsHTML += `<span class="tag tag-warning">⚠️ Alerta de Apascentamento (2 faltas)</span>`;
         if (faltasSeguidas >= 3) tagsHTML += `<span class="tag tag-danger">⛔ Não Pode Servir (${faltasSeguidas} faltas)</span>`;
 
-        // Botão de WhatsApp para cada membro
         const linkWhatsMembro = whats ? `<a href="https://api.whatsapp.com/send?phone=55${whats.replace(/\D/g,'')}&text=${encodeURIComponent('Olá ' + nome + ', tudo bem? Passando para saber como você está e dizer que oro por sua vida!')}" target="_blank" class="btn-whats-mini">💬 WhatsApp</a>` : '';
 
         div.innerHTML = `
@@ -468,7 +413,7 @@
       secaoNivers.style.display = 'none';
     }
 
-    // RELATÓRIOS CLICÁVEIS
+    // RELATÓRIOS
     const containerRel = document.getElementById('listaRelatorios');
     containerRel.innerHTML = '';
     if (relatoriosRede.length === 0) {
