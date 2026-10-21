@@ -85,6 +85,19 @@
     .btn-whats { background: #23D160; color: #000; padding: 5px 10px; border-radius: 6px; font-size: 0.78rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
     .btn-whats:hover { background: #1EBE55; }
 
+    .btn-ver-relatorios { background: rgba(56, 139, 253, 0.15); color: var(--info); border: 1px solid rgba(56, 139, 253, 0.3); padding: 4px 10px; border-radius: 6px; font-size: 0.78rem; font-weight: 600; cursor: pointer; text-decoration: none; }
+    .btn-ver-relatorios:hover { background: var(--info); color: #FFF; }
+
+    /* Estilos do Modal de Relatórios */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 999; display: none; }
+    .modal-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 24px; max-width: 600px; width: 100%; max-height: 85vh; overflow-y: auto; }
+    .modal-header { font-size: 1.2rem; font-weight: 700; margin-bottom: 16px; color: var(--text); display: flex; justify-content: space-between; align-items: center; }
+    .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+    .btn-cancelar { background: #21262D; color: var(--text); border: 1px solid var(--card-border); padding: 8px 14px; border-radius: 8px; cursor: pointer; }
+    .btn-cancelar:hover { background: #30363D; }
+    .relatorio-item-sup { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 8px; padding: 12px; margin-bottom: 10px; }
+    .relatorio-item-sup header { display: flex; justify-content: space-between; font-weight: 600; font-size: 0.88rem; margin-bottom: 4px; color: var(--primary); }
+
     .loading-box { text-align: center; padding: 40px; color: var(--text-muted); }
 
     @media (max-width: 768px) { .metrics-grid { grid-template-columns: repeat(2, 1fr); } }
@@ -166,6 +179,24 @@
   <div id="loading" class="loading-box" style="display: none;">Carregando dados da supervisão do Firebase...</div>
 </div>
 
+<!-- Modal para Exibir os Relatórios da Rede Selecionada -->
+<div id="modalRelatoriosRede" class="modal-overlay">
+  <div class="modal-card">
+    <div class="modal-header">
+      <span id="tituloModalRede">📜 Relatórios da Rede</span>
+      <button onclick="fecharModalRelatoriosRede()" style="background:none; border:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer;">✕</button>
+    </div>
+    
+    <div id="conteudoRelatoriosRede">
+      Carregando relatórios...
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancelar" onclick="fecharModalRelatoriosRede()">Fechar</button>
+    </div>
+  </div>
+</div>
+
 <script>
   const firebaseConfig = {
     apiKey: "AIzaSyB7FJXs9wiRFYIs2ugZoWrw7jTXPR5weGk",
@@ -194,6 +225,7 @@
   ];
 
   let supervisorLogado = null;
+  let relatoriosCacheSup = []; // Cache para abrir os relatórios na modal
 
   document.addEventListener("DOMContentLoaded", carregarSupervisoes);
 
@@ -220,7 +252,7 @@
     supervisorLogado = supSelecionada;
     document.getElementById('loginBox').style.display = 'none';
     document.getElementById('loading').style.display = 'block';
-    document.getElementById('labelSupervisorLogado').innerText = `${supervisorLogado.supervisao} - ${supervisorLogado.supervisor}`;
+    document.getElementById('labelSupervisorLogado').innerText = `${supervisorLogado.supervisao} -${supervisorLogado.supervisor}`;
 
     try {
       const snapshotMembros = await db.collection('membros')
@@ -239,10 +271,10 @@
         }
       });
 
-      const relatoriosSup = [];
-      snapshotRelatorios.forEach(doc => relatoriosSup.push(doc.data()));
+      relatoriosCacheSup = [];
+      snapshotRelatorios.forEach(doc => relatoriosCacheSup.push(doc.data()));
 
-      renderizarPainelSupervisor(membrosSup, relatoriosSup);
+      renderizarPainelSupervisor(membrosSup, relatoriosCacheSup);
     } catch (err) {
       alert("Erro ao carregar dados do Firebase.");
       console.error(err);
@@ -265,8 +297,15 @@
       const qtd = membrosRede.length;
 
       const relsRede = relatoriosSup.filter(rel => rel.rede === r.nome);
-      const ultimoRel = relsRede.length > 0 ? relsRede[relsRede.length - 1] : null;
-      const dataUltimo = ultimoRel ? (ultimoRel.dataEncontro || 'Sem data') : 'Nenhum relatório';
+      relsRede.sort((a, b) => new Date(b.dataEncontro || 0) - new Date(a.dataEncontro || 0));
+      const ultimoRel = relsRede.length > 0 ? relsRede[0] : null;
+      
+      let infoUltimoRel = "Nenhum relatório";
+      if (ultimoRel) {
+        infoUltimoRel = `${ultimoRel.dataEncontro || 'Sem data'} (<button class="btn-ver-relatorios" onclick="abrirRelatoriosRede('${r.nome}')">Ver (${relsRede.length})</button>)`;
+      } else {
+        infoUltimoRel = `Nenhum (<button class="btn-ver-relatorios" onclick="abrirRelatoriosRede('${r.nome}')">Ver (0)</button>)`;
+      }
 
       let statusHtml = '';
       if (qtd === 12) {
@@ -286,7 +325,7 @@
         <td>${r.lider}</td>
         <td>${qtd}</td>
         <td>${statusHtml}</td>
-        <td><small>${dataUltimo}</small></td>
+        <td><small>${infoUltimoRel}</small></td>
       `;
       tabelaRedesBody.appendChild(tr);
     });
@@ -318,93 +357,4 @@
         const linkWhats = whats ? `<a href="https://api.whatsapp.com/send?phone=55${whats.replace(/\D/g,'')}&text=${encodeURIComponent('Olá ' + nome + ', tudo bem? Sentimos sua falta na rede!')}" target="_blank" class="btn-whats">💬 Chamar</a>` : 'Sem WhatsApp';
 
         const tr = document.createElement('tr');
-        tr.innerHTML = `<td><strong>${nome}</strong></td><td>${rede}</td><td>${tipoAlerta}</td><td>${linkWhats}</td>`;
-        tabelaAlertasBody.appendChild(tr);
-      }
-    });
-
-    if (qtdAlertas === 0) tabelaAlertasBody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Nenhum alerta de falta consecutiva no momento. 🟢</td></tr>`;
-
-    // Aniversariantes do Mês
-    const tabelaNiverBody = document.getElementById('tabelaNiverBody');
-    tabelaNiverBody.innerHTML = '';
-    const mesAtual = new Date().getMonth() + 1;
-    let qtdNiver = 0;
-
-    membrosSup.forEach(m => {
-      const nasc = m.nascimento;
-      if (nasc) {
-        const partes = nasc.toString().split('-');
-        if (partes.length === 3 && parseInt(partes[1]) === mesAtual) {
-          qtdNiver++;
-          const linkWhatsNiver = m.whatsapp ? `<a href="https://api.whatsapp.com/send?phone=55${m.whatsapp.replace(/\D/g,'')}&text=${encodeURIComponent('Parabéns ' + m.nome + '! Que o Senhor te abençoe muito em seu aniversário!')}" target="_blank" class="btn-whats">🎂 Parabéns</a>` : 'Sem WhatsApp';
-
-          const tr = document.createElement('tr');
-          tr.innerHTML = `<td><strong>${m.nome}</strong></td><td>${m.rede}</td><td>${partes[2]}/${partes[1]}</td><td>${linkWhatsNiver}</td>`;
-          tabelaNiverBody.appendChild(tr);
-        }
-      }
-    });
-
-    if (qtdNiver === 0) tabelaNiverBody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Nenhum aniversariante neste mês.</td></tr>`;
-
-    // RENDERIZAR ÁRVORE DE REDES E LIDERADOS NO FINAL
-    renderizarArvoreRedesELiderados(membrosSup);
-
-    document.getElementById('painelSupervisor').style.display = 'block';
-  }
-
-  function renderizarArvoreRedesELiderados(membrosSup) {
-    const container = document.getElementById('treeContainerRedes');
-    container.innerHTML = '';
-
-    const redesDaSup = supervisorLogado.redes;
-
-    redesDaSup.forEach(r => {
-      const membrosRede = membrosSup.filter(m => m.rede === r.nome);
-
-      let membrosHtml = '';
-      if (membrosRede.length === 0) {
-        membrosHtml = `<div style="padding: 10px; color: var(--text-muted); font-size: 0.85rem;">Nenhum liderado cadastrado nesta rede.</div>`;
-      } else {
-        membrosRede.forEach(m => {
-          const cat = m.categoria || 'Liderado';
-          const isBase = cat === 'Base da Rede';
-          membrosHtml += `
-            <div class="rede-item">
-              <span>👤 ${m.nome}</span>
-              <span class="tag" style="background:${isBase ? 'rgba(110,86,207,0.3)' : 'rgba(255,255,255,0.05)'}; color:${isBase ? '#A58BFF' : 'var(--text-muted)'};">${cat}</span>
-            </div>
-          `;
-        });
-      }
-
-      const card = document.createElement('div');
-      card.className = 'supervisao-card';
-      card.innerHTML = `
-        <div class="supervisao-header" onclick="toggleCard(this)">
-          <div class="supervisao-info">
-            <h3>📍 ${r.nome}</h3>
-            <p>Líder: <strong>${r.lider}</strong></p>
-          </div>
-          <div style="display: flex; align-items: center; gap: 10px;">
-            <span class="supervisao-badge">${membrosRede.length} membros</span>
-            <span class="arrow-icon">▼</span>
-          </div>
-        </div>
-        <div class="redes-list">
-          ${membrosHtml}
-        </div>
-      `;
-      container.appendChild(card);
-    });
-  }
-
-  function toggleCard(headerElement) {
-    const card = headerElement.parentElement;
-    card.classList.toggle('ativo');
-  }
-</script>
-
-</body>
-</html>
+        tr.innerHTML = `<td><strong>${nome}</strong></td><td>${rede}</td><td>${tipoAlerta}</td><td>${linkWhats}
