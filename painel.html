@@ -492,13 +492,19 @@
     document.getElementById('btnAtivarEdicao').style.display = 'none';
     document.getElementById('btnSalvarRelatorio').style.display = 'inline-block';
 
-    const presentesStr = rel.presentes ? rel.presentes.toString().toLowerCase() : '';
+    const presentesStr = rel.presentes ? rel.presentes.toString() : '';
     const faltantesStr = rel.faltantes ? rel.faltantes.toString() : '';
 
     let chamadaHtml = '';
     membrosLocais.forEach((m, index) => {
       const nome = m.nome;
-      const estaPresente = presentesStr.includes(nome.toLowerCase());
+
+      let estaPresente = false;
+      if (presentesStr.toLowerCase().includes(nome.toLowerCase())) {
+        estaPresente = true;
+      } else if (!faltantesStr.toLowerCase().includes(nome.toLowerCase())) {
+        estaPresente = presentesStr.trim() === ''; 
+      }
 
       let justificativaTexto = '';
       if (!estaPresente) {
