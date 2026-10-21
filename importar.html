@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Importador de Dados para o Firebase - TOPO</title>
+  <style>
+    body { background: #0D0F12; color: #F0F6FC; font-family: sans-serif; padding: 40px 20px; display: flex; justify-content: center; }
+    .card { background: #161B22; border: 1px solid #30363D; border-radius: 12px; padding: 30px; max-width: 600px; width: 100%; }
+    h1 { font-size: 1.4rem; margin-bottom: 20px; color: #6E56CF; }
+    .box { background: #0D1117; border: 1px solid #30363D; padding: 16px; border-radius: 8px; margin-bottom: 20px; }
+    label { display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 8px; text-transform: uppercase; color: #8B949E; }
+    input[type="file"] { margin-top: 6px; }
+    button { background: #6E56CF; color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; font-size: 1rem; }
+    button:hover { background: #5B45B0; }
+    #log { background: #000; color: #23D160; padding: 12px; font-family: monospace; font-size: 0.85rem; border-radius: 6px; max-height: 200px; overflow-y: auto; margin-top: 16px; display: none; }
+  </style>
+  
+  <!-- Firebase SDK Compat -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+<div class="card">
+  <h1>📤 Importar Planilha CSV para o Firebase</h1>
+  
+  <div class="box">
+    <label>1. Arquivo CSV da aba Membros</label>
+    <input type="file" id="fileMembros" accept=".csv">
+  </div>
+
+  <div class="box">
+    <label>2. Arquivo CSV da aba Relatorios</label>
+    <input type="file" id="fileRelatorios" accept=".csv">
+  </div>
+
+  <button onclick="iniciarImportacao()">Iniciar Importação</button>
+
+  <div id="log"></div>
+</div>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyB7FJXs9wiRFYIs2ugZoWrw7jTXPR5weGk",
+    authDomain: "app-redes-iftejipio.firebaseapp.com",
+    projectId: "app-redes-iftejipio",
+    storageBucket: "app-redes-iftejipio.firebasestorage.app",
+    messagingSenderId: "954529090793",
+    appId: "1:954529090793:web:6702d102b6e5b178b6b478",
+    measurementId: "G-2MJ96WMYQ5"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  function logMsg(txt) {
+    const logBox = document.getElementById('log');
+    logBox.style.display = 'block';
+    logBox.innerHTML += `<div>> ${txt}</div>`;
+    logBox.scrollTop = logBox.scrollHeight;
+  }
+
+  function parseCSV(text) {
+    const lines = text.split('\n').filter(l => l.trim().length > 0);
+    const result = [];
+    for (let i = 1; i < lines.length; i++) {
+      const row = lines[i].split(',').map(item => item.replace(/^"|"$/g, '').trim());
+      result.push(row);
+    }
+    return result;
+  }
+
+  async function iniciarImportacao() {
+    const fileM = document.getElementById('fileMembros').files[0];
+    const fileR = document.getElementById('fileRelatorios').files[0];
+
+    if (!fileM && !fileR) {
+      alert("Selecione pelo menos um arquivo CSV.");
+      return;
+    }
+
+    if (fileM) {
+      logMsg("Lendo arquivo Membros.csv...");
+      const textM = await fileM.text();
+      const rowsM = parseCSV(textM);
+      logMsg(`Importando ${rowsM.length} membros...`);
+
+      for (let r of rowsM) {
+        if (r.length >= 6) {
+          await db.collection('membros').add({
+            dataCadastro: r[0] || new Date().toISOString(),
+            supervisao: r[1] || '',
+            supervisor: r[2] || '',
+            rede: r[3] || '',
+            lider: r[4] || '',
+            nome: r[5] || '',
+            nascimento: r[6] || '',
+            whatsapp: r[7] || '',
+            batizado: r[8] || 'Não',
+            categoria: r[9] || 'Liderado',
+            status: r[10] || 'ATIVO'
+          });
+        }
+      }
+      logMsg("✅ Membros importados com sucesso!");
+    }
+
+    if (fileR) {
+      logMsg("Lendo arquivo Relatorios.csv...");
+      const textR = await fileR.text();
+      const rowsR = parseCSV(textR);
+      logMsg(`Importando ${rowsR.length} relatórios...`);
+
+      for (let r of rowsR) {
+        if (r.length >= 5) {
+          await db.collection('relatorios').add({
+            dataEnvio: r[0] || new Date().toISOString(),
+            supervisao: r[1] || '',
+            supervisor: r[2] || '',
+            rede: r[3] || '',
+            lider: r[4] || '',
+            dataEncontro: r[5] || '',
+            horario: r[6] || '',
+            local: r[7] || '',
+            presentes: r[8] || '',
+            visitantes: r[9] || '',
+            faltantes: r[10] || '',
+            tema: r[11] || '',
+            resumoPalavra: r[12] || '',
+            atividades: r[13] || ''
+          });
+        }
+      }
+      logMsg("✅ Relatórios importados com sucesso!");
+    }
+
+    logMsg("🎉 PROCESSO CONCLUÍDO! Seu Firebase já está com todos os dados.");
+  }
+</script>
+
+</body>
+</html>
