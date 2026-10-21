@@ -28,8 +28,11 @@
     .btn-voltar:hover { background: #30363D; }
 
     .header { text-align: center; margin-bottom: 24px; }
-    .header h1 { font-size: 1.6rem; font-weight: 700; }
+    .header h1 { font-size: 1.6rem; font-weight: 700; margin-top: 6px; }
     .badge-topo { display: inline-block; background: var(--primary); color: #FFF; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 8px; }
+
+    .info-rede-box { background: var(--input-bg); border: 1px solid var(--card-border); padding: 14px; border-radius: 8px; margin-bottom: 20px; text-align: center; font-size: 0.9rem; color: var(--text-muted); }
+    .info-rede-box strong { color: var(--text); }
 
     .form-group { margin-bottom: 16px; text-align: left; }
     .row { display: flex; gap: 12px; }
@@ -40,7 +43,6 @@
     input:focus, select:focus, textarea:focus { border-color: var(--primary); }
     textarea { resize: vertical; min-height: 80px; }
 
-    /* Lista de Chamada de Membros */
     .chamada-container { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 10px; padding: 16px; margin-bottom: 16px; max-height: 320px; overflow-y: auto; }
     .chamada-item { display: flex; flex-direction: column; gap: 8px; padding: 10px 0; border-bottom: 1px solid var(--card-border); }
     .chamada-item:last-child { border-bottom: none; }
@@ -72,18 +74,11 @@
     <h1>📋 Relatório Semanal de Rede</h1>
   </div>
 
-  <form id="formRelatorio">
-    <div class="row">
-      <div class="form-group">
-        <label>Supervisão</label>
-        <select id="selectSupervisao" required><option value="">Selecione...</option></select>
-      </div>
-      <div class="form-group">
-        <label>Rede</label>
-        <select id="selectRede" disabled required><option value="">Selecione a Supervisão</option></select>
-      </div>
-    </div>
+  <div class="info-rede-box" id="infoRedeLogada">
+    Carregando informações da rede...
+  </div>
 
+  <form id="formRelatorio">
     <div class="row">
       <div class="form-group">
         <label>Data do Encontro</label>
@@ -100,11 +95,10 @@
       <input type="text" id="inputLocal" placeholder="Ex: Casa do Líder / Anexo da Igreja" required>
     </div>
 
-    <!-- LISTA DE CHAMADA DINÂMICA -->
     <div class="form-group">
       <label>Chamada de Membros (Marque os presentes)</label>
       <div id="chamadaContainer" class="chamada-container">
-        <span style="color: var(--text-muted); font-size: 0.85rem;">Selecione a Supervisão e a Rede para carregar os membros.</span>
+        <span style="color: var(--text-muted); font-size: 0.85rem;">Carregando membros...</span>
       </div>
     </div>
 
@@ -146,72 +140,32 @@
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
 
-  const supervisoresDB = [
-    { supervisao: "Supervisão Monte Hor", supervisor: "Luís Felipe", redes: [{ nome: "Rede Moisés", lider: "Gabriel" }, { nome: "Rede Alfa", lider: "Plinio" }, { nome: "Rede Timóteo", lider: "Sotero" }, { nome: "Rede Next", lider: "Vyni Léo" }, { nome: "Rede Inconformados", lider: "Maurilio" }, { nome: "Rede Atalaia", lider: "Mancine" }] },
-    { supervisao: "Supervisão Monte Tabor", supervisor: "Danylo Brissantt", redes: [{ nome: "Hazak", lider: "Vitinho" }, { nome: "Monte Pisga", lider: "Ezequiel" }, { nome: "Escolhidos", lider: "João" }, { nome: "Paroikos", lider: "Iago" }, { nome: "Atos", lider: "Arley" }, { nome: "Karygma", lider: "Richard" }] },
-    { supervisao: "Supervisão Monte Nebo", supervisor: "Emanuel Henrique", redes: [{ nome: "Rede Invictos", lider: "Éden" }, { nome: "Rede Ekballo", lider: "Cristian" }, { nome: "Rede Ousadia", lider: "Wallyson" }, { nome: "Rede Maranata", lider: "Richarlyson" }, { nome: "Rede Ruah", lider: "Vinícius" }] },
-    { supervisao: "Supervisão Monte Horebe", supervisor: "Andryo Henrique", redes: [{ nome: "Rede Aljava", lider: "Taycilio" }, { nome: "Rede Sal da Terra", lider: "Marcelo Flexa" }, { nome: "Rede Ekklesia", lider: "Rodrigo" }, { nome: "Rede Forjados", lider: "Alef" }] },
-    { supervisao: "Supervisão Monte Carmelo", supervisor: "Diana Guerra", redes: [{ nome: "Rede Flame", lider: "Cecília" }, { nome: "Rede Aurora", lider: "Ester" }, { nome: "Rede Colossenses", lider: "Ingrid" }, { nome: "Rede Perazim", lider: "Íris" }, { nome: "Rede Rise", lider: "Gabriela" }] },
-    { supervisao: "Supervisão Monte Moriá", supervisor: "Larissa Neves", redes: [{ nome: "Rede Peregrina", lider: "Saiwry" }, { nome: "Rede Lume", lider: "Myrella" }, { nome: "Rede Promessa", lider: "Júlia" }, { nome: "Rede Áquila", lider: "Thaynara" }, { nome: "Rede Carmesim", lider: "Lívia" }, { nome: "Rede Emunah", lider: "Mayara" }, { nome: "Rede Margaridas", lider: "Lara" }] },
-    { supervisao: "Supervisão Monte Sinai", supervisor: "Sara Gomes", redes: [{ nome: "Rede Jardim", lider: "Joana" }, { nome: "Rede Dunamis", lider: "Mikaele" }, { nome: "Rede Grace", lider: "Fernanda" }, { nome: "Rede Graciosa", lider: "Gleicy" }, { nome: "Rede Zoe", lider: "Karol" }, { nome: "Rede Lamparinas", lider: "Laura Ester" }] },
-    { supervisao: "Supervisão Monte Sião", supervisor: "Clara Dione", redes: [{ nome: "Rede Águias", lider: "Anny" }, { nome: "Rede Hope", lider: "Laysa" }, { nome: "Rede Bloom", lider: "Clara" }, { nome: "Rede Herdeiras", lider: "Mika" }] },
-    { supervisao: "Supervisão Monte das Oliveiras", supervisor: "Letícia Sampaio", redes: [{ nome: "Monte das Oliveiras", lider: "Letícia Sampaio" }, { nome: "Rede Lily", lider: "Dayanne Lethicia" }, { nome: "Rede Liz", lider: "Letícia Rodrigues" }, { nome: "Rede Âmbar", lider: "Gabriella A." }] },
-    { supervisao: "Supervisão Monte Seir", supervisor: "Karol Nogueira", redes: [{ nome: "Rede Joy", lider: "Leticia" }, { nome: "Rede Legacy", lider: "Laura" }, { nome: "Rede Ramá", lider: "Raianny" }] }
-  ];
-
+  let dadosSessao = {};
   let membrosRedeAtual = [];
 
-  document.addEventListener("DOMContentLoaded", () => {
-    const selSup = document.getElementById('selectSupervisao');
-    supervisoresDB.forEach((item, index) => {
-      const opt = document.createElement('option');
-      opt.value = index;
-      opt.textContent = `${item.supervisao} (${item.supervisor})`;
-      selSup.appendChild(opt);
-    });
+  document.addEventListener("DOMContentLoaded", async () => {
+    const supervisao = sessionStorage.getItem('topo_supervisao');
+    const rede = sessionStorage.getItem('topo_rede');
+    const lider = sessionStorage.getItem('topo_lider');
 
-    selSup.addEventListener('change', atualizarRedes);
-    document.getElementById('selectRede').addEventListener('change', carregarMembrosRede);
+    if (!rede) {
+      alert("Nenhuma rede selecionada. Faça o login novamente.");
+      window.location.href = "lider.html";
+      return;
+    }
+
+    dadosSessao = { supervisao, supervisor: sessionStorage.getItem('topo_supervisor'), rede, lider };
+    document.getElementById('infoRedeLogada').innerHTML = `Enviando relatório da: <strong>${rede}</strong> (Líder: ${lider})`;
+
+    await carregarMembrosRede();
   });
 
-  function atualizarRedes() {
-    const indexSup = document.getElementById('selectSupervisao').value;
-    const selRede = document.getElementById('selectRede');
-    selRede.innerHTML = '';
-    document.getElementById('chamadaContainer').innerHTML = '<span style="color: var(--text-muted); font-size: 0.85rem;">Selecione a Supervisão e a Rede para carregar os membros.</span>';
-
-    if (indexSup === "") {
-      selRede.disabled = true;
-      selRede.innerHTML = '<option value="">Selecione a Supervisão</option>';
-      return;
-    }
-
-    selRede.disabled = false;
-    selRede.innerHTML = '<option value="">Selecione a Rede</option>';
-    supervisoresDB[indexSup].redes.forEach((r, idx) => {
-      const opt = document.createElement('option');
-      opt.value = idx;
-      opt.textContent = `${r.nome} (Líder: ${r.lider})`;
-      selRede.appendChild(opt);
-    });
-  }
-
   async function carregarMembrosRede() {
-    const indexSup = document.getElementById('selectSupervisao').value;
-    const indexRede = document.getElementById('selectRede').value;
     const container = document.getElementById('chamadaContainer');
-
-    if (indexSup === "" || indexRede === "") {
-      container.innerHTML = '<span style="color: var(--text-muted); font-size: 0.85rem;">Selecione a Supervisão e a Rede para carregar os membros.</span>';
-      return;
-    }
-
-    const nomeRede = supervisoresDB[indexSup].redes[indexRede].nome;
-    container.innerHTML = '<span style="color: var(--text-muted); font-size: 0.85rem;">Carregando membros da rede...</span>';
 
     try {
       const snapshot = await db.collection('membros')
-        .where('rede', '==', nomeRede)
+        .where('rede', '==', dadosSessao.rede)
         .get();
 
       membrosRedeAtual = [];
@@ -273,12 +227,6 @@
     btn.disabled = true;
     btn.innerText = "Enviando para o Firebase...";
 
-    const indexSup = document.getElementById('selectSupervisao').value;
-    const indexRede = document.getElementById('selectRede').value;
-
-    const supObj = supervisoresDB[indexSup];
-    const redeObj = supObj.redes[indexRede];
-
     let presentesArr = [];
     let faltantesArr = [];
 
@@ -295,10 +243,10 @@
 
     const novoRelatorio = {
       dataEnvio: new Date().toISOString(),
-      supervisao: supObj.supervisao,
-      supervisor: supObj.supervisor,
-      rede: redeObj.nome,
-      lider: redeObj.lider,
+      supervisao: dadosSessao.supervisao,
+      supervisor: dadosSessao.supervisor,
+      rede: dadosSessao.rede,
+      lider: dadosSessao.lider,
       dataEncontro: document.getElementById('inputDataEncontro').value,
       horario: document.getElementById('inputHorario').value,
       local: document.getElementById('inputLocal').value.trim(),
@@ -314,13 +262,12 @@
       await db.collection('relatorios').add(novoRelatorio);
       alert("✅ Relatório enviado com sucesso!");
       document.getElementById('formRelatorio').reset();
-      document.getElementById('selectRede').disabled = true;
-      document.getElementById('chamadaContainer').innerHTML = '<span style="color: var(--text-muted); font-size: 0.85rem;">Selecione a Supervisão e a Rede para carregar os membros.</span>';
+      await carregarMembrosRede();
     } catch (err) {
       alert("Erro ao enviar relatório. Tente novamente.");
       console.error(err);
     } finally {
-      btn.disabled5 = false;
+      btn.disabled = false;
       btn.innerText = "Enviar Relatório";
     }
   });
