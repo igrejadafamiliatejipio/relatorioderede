@@ -20,99 +20,27 @@
       --info: #388BFD;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); padding: 24px 12px; display: flex; justify-content: center; min-height: 100vh; }
+    .container { max-width: 800px; width: 100%; background: var(--card-bg); padding: 28px; border-radius: 16px; border: 1px solid var(--card-border); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); }
 
-    body {
-      background-color: var(--bg);
-      color: var(--text);
-      padding: 24px 12px;
-      display: flex;
-      justify-content: center;
-      min-height: 100vh;
-    }
-
-    .container {
-      max-width: 800px;
-      width: 100%;
-      background: var(--card-bg);
-      padding: 28px;
-      border-radius: 16px;
-      border: 1px solid var(--card-border);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-    }
-
-    .top-nav {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-
-    .btn-voltar {
-      background: #21262D;
-      color: var(--text);
-      border: 1px solid var(--card-border);
-      padding: 6px 12px;
-      border-radius: 6px;
-      font-size: 0.85rem;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
+    .top-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .btn-voltar { background: #21262D; color: var(--text); border: 1px solid var(--card-border); padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; text-decoration: none; }
     .btn-voltar:hover { background: #30363D; }
 
-    .header {
-      text-align: center;
-      margin-bottom: 24px;
-    }
-
+    .header { text-align: center; margin-bottom: 24px; }
     .header h1 { font-size: 1.75rem; font-weight: 700; }
+    .badge-topo { display: inline-block; background: var(--primary); color: #FFF; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 8px; }
 
-    .badge-topo {
-      display: inline-block;
-      background: var(--primary);
-      color: #FFF;
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      letter-spacing: 1px;
-      margin-bottom: 8px;
-    }
-
-    .section-selector {
-      background: var(--input-bg);
-      padding: 16px;
-      border-radius: 12px;
-      border: 1px solid var(--card-border);
-      margin-bottom: 24px;
-    }
-
+    .section-selector { background: var(--input-bg); padding: 16px; border-radius: 12px; border: 1px solid var(--card-border); margin-bottom: 24px; }
     .row { display: flex; gap: 12px; }
     .row .form-group { flex: 1; }
 
-    label {
-      display: block; font-weight: 500; font-size: 0.85rem;
-      margin-bottom: 6px; color: var(--text-muted); text-transform: uppercase;
-    }
-
-    select, input {
-      width: 100%; padding: 12px 14px; background-color: var(--card-bg);
-      border: 1px solid var(--card-border); border-radius: 8px; font-size: 0.95rem; color: var(--text); outline: none;
-    }
+    label { display: block; font-weight: 500; font-size: 0.85rem; margin-bottom: 6px; color: var(--text-muted); text-transform: uppercase; }
+    select, input { width: 100%; padding: 12px 14px; background-color: var(--card-bg); border: 1px solid var(--card-border); border-radius: 8px; font-size: 0.95rem; color: var(--text); outline: none; }
     select option { background-color: var(--card-bg); color: var(--text); }
 
-    /* Cards de Métricas */
-    .health-card {
-      padding: 18px; border-radius: 12px; margin-bottom: 24px;
-      display: flex; align-items: center; justify-content: space-between; border: 1px solid transparent;
-    }
+    .health-card { padding: 18px; border-radius: 12px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; border: 1px solid transparent; }
     .health-card.green { background: rgba(35, 209, 96, 0.1); border-color: rgba(35, 209, 96, 0.3); color: var(--success); }
     .health-card.yellow { background: rgba(227, 179, 65, 0.1); border-color: rgba(227, 179, 65, 0.3); color: var(--warning); }
     .health-card.blue { background: rgba(56, 139, 253, 0.1); border-color: rgba(56, 139, 253, 0.3); color: var(--info); }
@@ -123,12 +51,7 @@
 
     .section-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; }
 
-    .membro-card {
-      background: var(--input-bg); border: 1px solid var(--card-border);
-      padding: 14px 16px; border-radius: 10px; margin-bottom: 10px;
-      display: flex; justify-content: space-between; align-items: center; gap: 12px;
-    }
-
+    .membro-card { background: var(--input-bg); border: 1px solid var(--card-border); padding: 14px 16px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
     .membro-main strong { font-size: 1rem; color: var(--text); display: block; }
     .membro-main small { color: var(--text-muted); font-size: 0.82rem; }
 
@@ -141,31 +64,13 @@
     .tag-niver { background: rgba(35, 209, 96, 0.2); color: var(--success); border: 1px solid rgba(35, 209, 96, 0.4); }
 
     .actions-group { display: flex; gap: 6px; }
-
-    .btn-edit {
-      background: rgba(56, 139, 253, 0.15); color: var(--info); border: 1px solid rgba(56, 139, 253, 0.3);
-      padding: 6px 10px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.8rem;
-    }
+    .btn-edit { background: rgba(56, 139, 253, 0.15); color: var(--info); border: 1px solid rgba(56, 139, 253, 0.3); padding: 6px 10px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.8rem; }
     .btn-edit:hover { background: var(--info); color: #FFF; }
-
-    .btn-delete {
-      background: rgba(229, 83, 75, 0.15); color: var(--danger); border: 1px solid rgba(229, 83, 75, 0.3);
-      padding: 6px 10px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.8rem;
-    }
+    .btn-delete { background: rgba(229, 83, 75, 0.15); color: var(--danger); border: 1px solid rgba(229, 83, 75, 0.3); padding: 6px 10px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.8rem; }
     .btn-delete:hover { background: var(--danger); color: #FFF; }
 
-    /* Modal de Edição */
-    .modal-overlay {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.7); display: flex; align-items: center; justify-content: center;
-      padding: 16px; z-index: 999; display: none;
-    }
-
-    .modal-card {
-      background: var(--card-bg); border: 1px solid var(--card-border);
-      border-radius: 14px; padding: 24px; max-width: 480px; width: 100%;
-    }
-
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 999; display: none; }
+    .modal-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 24px; max-width: 480px; width: 100%; }
     .modal-header { font-size: 1.2rem; font-weight: 700; margin-bottom: 16px; color: var(--text); }
     .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
 
@@ -179,13 +84,12 @@
 
     .loading-box { text-align: center; padding: 40px; color: var(--text-muted); }
 
-    @media (max-width: 500px) {
-      .row { flex-direction: column; gap: 8px; }
-      .container { padding: 20px 16px; }
-      .membro-card { flex-direction: column; align-items: flex-start; }
-      .actions-group { width: 100%; justify-content: flex-end; margin-top: 8px; }
-    }
+    @media (max-width: 500px) { .row { flex-direction: column; gap: 8px; } .membro-card { flex-direction: column; align-items: flex-start; } .actions-group { width: 100%; justify-content: flex-end; margin-top: 8px; } }
   </style>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
@@ -200,7 +104,6 @@
     <p>Acompanhe a saúde, frequência e liderados em tempo real</p>
   </div>
 
-  <!-- Seleção da Rede -->
   <div class="section-selector">
     <div class="row">
       <div class="form-group">
@@ -214,7 +117,6 @@
     </div>
   </div>
 
-  <!-- Conteúdo do Dashboard -->
   <div id="conteudoPainel" style="display: none;">
     <div id="cardSaude" class="health-card green">
       <div class="health-info">
@@ -237,15 +139,14 @@
     </div>
   </div>
 
-  <div id="loading" class="loading-box" style="display: none;">Carregando dados da planilha...</div>
+  <div id="loading" class="loading-box" style="display: none;">Carregando dados do Firebase...</div>
 </div>
 
-<!-- Janela Flutuante (Modal) de Edição de Membro -->
+<!-- Modal de Edição -->
 <div id="modalEdicao" class="modal-overlay">
   <div class="modal-card">
     <div class="modal-header">✏️ Editar Membro</div>
-    <input type="hidden" id="editNomeOriginal">
-    <input type="hidden" id="editRede">
+    <input type="hidden" id="editDocId">
 
     <div class="form-group" style="margin-bottom: 12px;">
       <label>Nome Completo</label>
@@ -282,9 +183,20 @@
 </div>
 
 <script>
-  const API_URL = "https://script.google.com/macros/s/AKfycbxWFDRZFXS0RQmErdlERXKy4D4e8DQUhbZsyVPwuetLqKAYzB5ATtcKU-GOnZwghmBfCw/exec";
+  const firebaseConfig = {
+    apiKey: "AIzaSyB7FJXs9wiRFYIs2ugZoWrw7jTXPR5weGk",
+    authDomain: "app-redes-iftejipio.firebaseapp.com",
+    projectId: "app-redes-iftejipio",
+    storageBucket: "app-redes-iftejipio.firebasestorage.app",
+    messagingSenderId: "954529090793",
+    appId: "1:954529090793:web:6702d102b6e5b178b6b478",
+    measurementId: "G-2MJ96WMYQ5"
+  };
 
-  const dadosTopo = [
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  const supervisoresDB = [
     { supervisao: "Supervisão Monte Hor", supervisor: "Luís Felipe", redes: [{ nome: "Rede Moisés", lider: "Gabriel" }, { nome: "Rede Alfa", lider: "Plinio" }, { nome: "Rede Timóteo", lider: "Sotero" }, { nome: "Rede Next", lider: "Vyni Léo" }, { nome: "Rede Inconformados", lider: "Maurilio" }, { nome: "Rede Atalaia", lider: "Mancine" }] },
     { supervisao: "Supervisão Monte Tabor", supervisor: "Danylo Brissantt", redes: [{ nome: "Hazak", lider: "Vitinho" }, { nome: "Monte Pisga", lider: "Ezequiel" }, { nome: "Escolhidos", lider: "João" }, { nome: "Paroikos", lider: "Iago" }, { nome: "Atos", lider: "Arley" }, { nome: "Karygma", lider: "Richard" }] },
     { supervisao: "Supervisão Monte Nebo", supervisor: "Emanuel Henrique", redes: [{ nome: "Rede Invictos", lider: "Éden" }, { nome: "Rede Ekballo", lider: "Cristian" }, { nome: "Rede Ousadia", lider: "Wallyson" }, { nome: "Rede Maranata", lider: "Richarlyson" }, { nome: "Rede Ruah", lider: "Vinícius" }] },
@@ -297,7 +209,7 @@
     { supervisao: "Supervisão Monte Seir", supervisor: "Karol Nogueira", redes: [{ nome: "Rede Joy", lider: "Leticia" }, { nome: "Rede Legacy", lider: "Laura" }, { nome: "Rede Ramá", lider: "Raianny" }] }
   ];
 
-  let dadosBrutos = { membros: [], relatorios: [] };
+  let membrosLocais = [];
 
   document.addEventListener("DOMContentLoaded", function() {
     carregarSupervisoes();
@@ -307,7 +219,7 @@
 
   function carregarSupervisoes() {
     const selectSup = document.getElementById('selectSupervisao');
-    dadosTopo.forEach((item, index) => {
+    supervisoresDB.forEach((item, index) => {
       const opt = document.createElement('option');
       opt.value = index;
       opt.textContent = `${item.supervisao} (${item.supervisor})`;
@@ -327,7 +239,7 @@
       return;
     }
 
-    const sup = dadosTopo[indexSup];
+    const sup = supervisoresDB[indexSup];
     selectRede.disabled = false;
     selectRede.innerHTML = '<option value="">Selecione a Rede</option>';
     sup.redes.forEach((r, idx) => {
@@ -343,29 +255,41 @@
     const indexRede = document.getElementById('selectRede').value;
     if (indexSup === "" || indexRede === "") return;
 
+    const nomeRede = supervisoresDB[indexSup].redes[indexRede].nome;
+
     document.getElementById('loading').style.display = 'block';
     document.getElementById('conteudoPainel').style.display = 'none';
 
     try {
-      const resp = await fetch(`${API_URL}?action=getDados`);
-      dadosBrutos = await resp.json();
-      renderizarPainel();
+      const snapshotMembros = await db.collection('membros')
+        .where('rede', '==', nomeRede)
+        .where('status', '!=', 'INATIVO')
+        .get();
+
+      const snapshotRelatorios = await db.collection('relatorios')
+        .where('rede', '==', nomeRede)
+        .get();
+
+      membrosLocais = [];
+      snapshotMembros.forEach(doc => {
+        membrosLocais.push({ id: doc.id, ...doc.data() });
+      });
+
+      const relatoriosRede = [];
+      snapshotRelatorios.forEach(doc => {
+        relatoriosRede.push(doc.data());
+      });
+
+      renderizarPainel(membrosLocais, relatoriosRede);
     } catch (err) {
-      alert("Erro ao carregar dados da planilha.");
+      alert("Erro ao carregar dados do Firebase.");
       console.log(err);
     } finally {
       document.getElementById('loading').style.display = 'none';
     }
   }
 
-  function renderizarPainel() {
-    const indexSup = document.getElementById('selectSupervisao').value;
-    const indexRede = document.getElementById('selectRede').value;
-    const nomeRede = dadosTopo[indexSup].redes[indexRede].nome;
-
-    const membrosRede = dadosBrutos.membros.slice(1).filter(m => m[3] === nomeRede && m[10] !== "INATIVO");
-    const relatoriosRede = dadosBrutos.relatorios.slice(1).filter(r => r[3] === nomeRede).reverse();
-
+  function renderizarPainel(membrosRede, relatoriosRede) {
     const total = membrosRede.length;
     const cardSaude = document.getElementById('cardSaude');
     const titSaude = document.getElementById('tituloSaude');
@@ -396,20 +320,17 @@
       const mesAtual = new Date().getMonth() + 1;
 
       membrosRede.forEach(m => {
-        const nome = m[5];
-        const nascimento = m[6] || '';
-        const whats = m[7] || 'Sem WhatsApp';
-        const batizado = m[8] || 'Não';
-        const categoria = m[9] || 'Liderado';
+        const nome = m.nome;
+        const nascimento = m.nascimento || '';
+        const whats = m.whatsapp || 'Sem WhatsApp';
+        const batizado = m.batizado || 'Não';
+        const categoria = m.categoria || 'Liderado';
 
         let faltasSeguidas = 0;
-        for (let r of relatoriosRede) {
-          const faltantesTxt = r[10] ? r[10].toString() : '';
-          if (faltantesTxt.includes(nome)) {
-            faltasSeguidas++;
-          } else {
-            break;
-          }
+        for (let r of relatoriosRede.reverse()) {
+          const faltantesTxt = r.faltantes ? r.faltantes.toString() : '';
+          if (faltantesTxt.includes(nome)) faltasSeguidas++;
+          else break;
         }
 
         let isNiver = false;
@@ -425,11 +346,8 @@
 
         let tagsHTML = `<span class="tag ${categoria === 'Base da Rede' ? 'tag-base' : 'tag-liderado'}">${categoria}</span>`;
         if (isNiver) tagsHTML += `<span class="tag tag-niver">🎂 Aniversariante do Mês</span>`;
-        if (faltasSeguidas === 2) tagsHTML += `<span class="tag tag-warning">⚠️ Alerta de Apascentamento (2 faltas seguidas)</span>`;
-        if (faltasSeguidas >= 3) tagsHTML += `<span class="tag tag-danger">⛔ Não Pode Servir (${faltasSeguidas} faltas seguidas)</span>`;
-
-        // Prepara dados formatados para a janela de edição
-        const nascFormatted = nascimento ? nascimento.toString().substring(0,10) : '';
+        if (faltasSeguidas === 2) tagsHTML += `<span class="tag tag-warning">⚠️ Alerta de Apascentamento (2 faltas)</span>`;
+        if (faltasSeguidas >= 3) tagsHTML += `<span class="tag tag-danger">⛔ Não Pode Servir (${faltasSeguidas} faltas)</span>`;
 
         div.innerHTML = `
           <div class="membro-main">
@@ -438,8 +356,8 @@
             <div class="tags">${tagsHTML}</div>
           </div>
           <div class="actions-group">
-            <button class="btn-edit" onclick="abrirModalEdicao('${nome}', '${nascFormatted}', '${whats}', '${batizado}', '${categoria}', '${nomeRede}')">✏️ Editar</button>
-            <button class="btn-delete" onclick="inativarMembro('${nome}', '${nomeRede}')">Remover</button>
+            <button class="btn-edit" onclick="abrirModalEdicao('${m.id}')">✏️ Editar</button>
+            <button class="btn-delete" onclick="inativarMembro('${m.id}', '${nome}')">Remover</button>
           </div>
         `;
         containerMembros.appendChild(div);
@@ -456,13 +374,13 @@
         div.className = 'relatorio-item';
         div.innerHTML = `
           <div class="relatorio-header">
-            <span>📅 ${r[5]} (${r[6]})</span>
-            <span style="color: var(--primary);">📍 ${r[7]}</span>
+            <span>📅 ${r.dataEncontro} (${r.horario})</span>
+            <span style="color: var(--primary);">📍 ${r.local}</span>
           </div>
           <div class="relatorio-body">
-            <strong>Tema:</strong> ${r[11]}<br>
-            <strong>Presentes:</strong> ${r[8]}<br>
-            <span style="color: var(--danger);"><strong>Faltantes:</strong> ${r[10]}</span>
+            <strong>Tema:</strong> ${r.tema}<br>
+            <strong>Presentes:</strong> ${r.presentes}<br>
+            <span style="color: var(--danger);"><strong>Faltantes:</strong> ${r.faltantes || 'Nenhum'}</span>
           </div>
         `;
         containerRel.appendChild(div);
@@ -472,15 +390,16 @@
     document.getElementById('conteudoPainel').style.display = 'block';
   }
 
-  // Funções da Janela de Edição
-  function abrirModalEdicao(nome, nascimento, whats, batizado, categoria, rede) {
-    document.getElementById('editNomeOriginal').value = nome;
-    document.getElementById('editRede').value = rede;
-    document.getElementById('editNome').value = nome;
-    document.getElementById('editNascimento').value = nascimento;
-    document.getElementById('editWhatsapp').value = whats === 'Sem WhatsApp' ? '' : whats;
-    document.getElementById('editBatizado').value = batizado;
-    document.getElementById('editCategoria').value = categoria;
+  function abrirModalEdicao(docId) {
+    const membro = membrosLocais.find(m => m.id === docId);
+    if (!membro) return;
+
+    document.getElementById('editDocId').value = docId;
+    document.getElementById('editNome').value = membro.nome;
+    document.getElementById('editNascimento').value = membro.nascimento || '';
+    document.getElementById('editWhatsapp').value = membro.whatsapp || '';
+    document.getElementById('editBatizado').value = membro.batizado || 'Não';
+    document.getElementById('editCategoria').value = membro.categoria || 'Liderado';
 
     document.getElementById('modalEdicao').style.display = 'flex';
   }
@@ -490,69 +409,50 @@
   }
 
   async function salvarEdicaoMembro() {
-    const nomeOrig = document.getElementById('editNomeOriginal').value;
-    const rede = document.getElementById('editRede').value;
+    const docId = document.getElementById('editDocId').value;
     const novoNome = document.getElementById('editNome').value.trim();
     const novoNasc = document.getElementById('editNascimento').value;
     const novoWhats = document.getElementById('editWhatsapp').value.trim();
     const novoBatizado = document.getElementById('editBatizado').value;
     const novaCategoria = document.getElementById('editCategoria').value;
 
-    if (!novoNome) {
-      alert("Por favor, informe o nome.");
-      return;
-    }
+    if (!novoNome) return alert("Informe o nome.");
 
     fecharModalEdicao();
     document.getElementById('loading').style.display = 'block';
 
     try {
-      await fetch(API_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          tipo: "EDITAR_MEMBRO",
-          nomeOriginal: nomeOrig,
-          rede: rede,
-          nome: novoNome,
-          nascimento: novoNasc,
-          whatsapp: novoWhats,
-          batizado: novoBatizado,
-          categoria: novaCategoria
-        })
+      await db.collection('membros').doc(docId).update({
+        nome: novoNome,
+        nascimento: novoNasc,
+        whatsapp: novoWhats,
+        batizado: novoBatizado,
+        categoria: novaCategoria
       });
 
-      alert("Membro atualizado com sucesso!");
+      alert("Membro atualizado no Firebase com sucesso!");
       carregarDadosDashboard();
     } catch (err) {
-      alert("Erro ao editar o membro.");
-      console.log(err);
+      alert("Erro ao atualizar membro.");
+      console.error(err);
       document.getElementById('loading').style.display = 'none';
     }
   }
 
-  async function inativarMembro(nome, rede) {
-    if (!confirm(`Tem certeza que deseja remover ${nome} da ${rede}?`)) return;
+  async function inativarMembro(docId, nome) {
+    if (!confirm(`Tem certeza que deseja remover ${nome}?`)) return;
 
     document.getElementById('loading').style.display = 'block';
     try {
-      await fetch(API_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          tipo: "INATIVAR_MEMBRO",
-          nome: nome,
-          rede: rede
-        })
+      await db.collection('membros').doc(docId).update({
+        status: "INATIVO"
       });
 
       alert(`${nome} foi removido(a) com sucesso.`);
       carregarDadosDashboard();
     } catch (err) {
       alert("Erro ao remover membro.");
-      console.log(err);
+      console.error(err);
       document.getElementById('loading').style.display = 'none';
     }
   }
