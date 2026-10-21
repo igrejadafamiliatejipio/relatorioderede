@@ -72,10 +72,7 @@
       margin-bottom: 24px;
     }
 
-    .header h1 {
-      font-size: 1.75rem;
-      font-weight: 700;
-    }
+    .header h1 { font-size: 1.75rem; font-weight: 700; }
 
     .badge-topo {
       display: inline-block;
@@ -97,141 +94,96 @@
       margin-bottom: 24px;
     }
 
-    .row {
-      display: flex;
-      gap: 12px;
-    }
-
+    .row { display: flex; gap: 12px; }
     .row .form-group { flex: 1; }
 
     label {
-      display: block;
-      font-weight: 500;
-      font-size: 0.85rem;
-      margin-bottom: 6px;
-      color: var(--text-muted);
-      text-transform: uppercase;
+      display: block; font-weight: 500; font-size: 0.85rem;
+      margin-bottom: 6px; color: var(--text-muted); text-transform: uppercase;
     }
 
-    select {
-      width: 100%;
-      padding: 12px 14px;
-      background-color: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 8px;
-      font-size: 0.95rem;
-      color: var(--text);
-      outline: none;
+    select, input {
+      width: 100%; padding: 12px 14px; background-color: var(--card-bg);
+      border: 1px solid var(--card-border); border-radius: 8px; font-size: 0.95rem; color: var(--text); outline: none;
     }
-
     select option { background-color: var(--card-bg); color: var(--text); }
 
-    /* Cards de Métricas e Saúde */
+    /* Cards de Métricas */
     .health-card {
-      padding: 18px;
-      border-radius: 12px;
-      margin-bottom: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border: 1px solid transparent;
+      padding: 18px; border-radius: 12px; margin-bottom: 24px;
+      display: flex; align-items: center; justify-content: space-between; border: 1px solid transparent;
     }
-
-    .health-card.green {
-      background: rgba(35, 209, 96, 0.1);
-      border-color: rgba(35, 209, 96, 0.3);
-      color: var(--success);
-    }
-
-    .health-card.yellow {
-      background: rgba(227, 179, 65, 0.1);
-      border-color: rgba(227, 179, 65, 0.3);
-      color: var(--warning);
-    }
-
-    .health-card.blue {
-      background: rgba(56, 139, 253, 0.1);
-      border-color: rgba(56, 139, 253, 0.3);
-      color: var(--info);
-    }
+    .health-card.green { background: rgba(35, 209, 96, 0.1); border-color: rgba(35, 209, 96, 0.3); color: var(--success); }
+    .health-card.yellow { background: rgba(227, 179, 65, 0.1); border-color: rgba(227, 179, 65, 0.3); color: var(--warning); }
+    .health-card.blue { background: rgba(56, 139, 253, 0.1); border-color: rgba(56, 139, 253, 0.3); color: var(--info); }
 
     .health-info h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 4px; }
     .health-info p { font-size: 0.88rem; opacity: 0.9; }
     .health-count { font-size: 2rem; font-weight: 800; }
 
-    /* Lista de Membros */
-    .section-title {
-      font-size: 1.1rem;
-      font-weight: 600;
-      margin-bottom: 14px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+    .section-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; }
 
     .membro-card {
-      background: var(--input-bg);
-      border: 1px solid var(--card-border);
-      padding: 14px 16px;
-      border-radius: 10px;
-      margin-bottom: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
+      background: var(--input-bg); border: 1px solid var(--card-border);
+      padding: 14px 16px; border-radius: 10px; margin-bottom: 10px;
+      display: flex; justify-content: space-between; align-items: center; gap: 12px;
     }
 
     .membro-main strong { font-size: 1rem; color: var(--text); display: block; }
     .membro-main small { color: var(--text-muted); font-size: 0.82rem; }
 
     .tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
-
-    .tag {
-      font-size: 0.72rem;
-      padding: 3px 8px;
-      border-radius: 12px;
-      font-weight: 600;
-    }
-
+    .tag { font-size: 0.72rem; padding: 3px 8px; border-radius: 12px; font-weight: 600; }
     .tag-base { background: rgba(110, 86, 207, 0.2); color: #A58BFF; border: 1px solid rgba(110, 86, 207, 0.4); }
     .tag-liderado { background: rgba(139, 148, 158, 0.2); color: var(--text-muted); border: 1px solid rgba(139, 148, 158, 0.3); }
     .tag-warning { background: rgba(227, 179, 65, 0.2); color: var(--warning); border: 1px solid rgba(227, 179, 65, 0.4); }
     .tag-danger { background: rgba(229, 83, 75, 0.2); color: var(--danger); border: 1px solid rgba(229, 83, 75, 0.4); }
     .tag-niver { background: rgba(35, 209, 96, 0.2); color: var(--success); border: 1px solid rgba(35, 209, 96, 0.4); }
 
+    .actions-group { display: flex; gap: 6px; }
+
+    .btn-edit {
+      background: rgba(56, 139, 253, 0.15); color: var(--info); border: 1px solid rgba(56, 139, 253, 0.3);
+      padding: 6px 10px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.8rem;
+    }
+    .btn-edit:hover { background: var(--info); color: #FFF; }
+
     .btn-delete {
-      background: rgba(229, 83, 75, 0.15);
-      color: var(--danger);
-      border: 1px solid rgba(229, 83, 75, 0.3);
-      padding: 6px 10px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 0.8rem;
+      background: rgba(229, 83, 75, 0.15); color: var(--danger); border: 1px solid rgba(229, 83, 75, 0.3);
+      padding: 6px 10px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.8rem;
     }
     .btn-delete:hover { background: var(--danger); color: #FFF; }
 
-    /* Relatórios Anteriores */
-    .relatorio-item {
-      background: var(--input-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 10px;
-      padding: 14px;
-      margin-bottom: 12px;
+    /* Modal de Edição */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.7); display: flex; align-items: center; justify-content: center;
+      padding: 16px; z-index: 999; display: none;
     }
+
+    .modal-card {
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: 14px; padding: 24px; max-width: 480px; width: 100%;
+    }
+
+    .modal-header { font-size: 1.2rem; font-weight: 700; margin-bottom: 16px; color: var(--text); }
+    .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+
+    .btn-salvar { background: var(--primary); color: white; border: none; padding: 10px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+    .btn-salvar:hover { background: var(--primary-hover); }
+    .btn-cancelar { background: #21262D; color: var(--text); border: 1px solid var(--card-border); padding: 10px 16px; border-radius: 8px; cursor: pointer; }
+
+    .relatorio-item { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 10px; padding: 14px; margin-bottom: 12px; }
     .relatorio-header { display: flex; justify-content: space-between; font-weight: 600; font-size: 0.9rem; margin-bottom: 6px; }
     .relatorio-body { font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; }
 
-    .loading-box {
-      text-align: center;
-      padding: 40px;
-      color: var(--text-muted);
-    }
+    .loading-box { text-align: center; padding: 40px; color: var(--text-muted); }
 
     @media (max-width: 500px) {
       .row { flex-direction: column; gap: 8px; }
       .container { padding: 20px 16px; }
       .membro-card { flex-direction: column; align-items: flex-start; }
+      .actions-group { width: 100%; justify-content: flex-end; margin-top: 8px; }
     }
   </style>
 </head>
@@ -239,7 +191,7 @@
 
 <div class="container">
   <div class="top-nav">
-    <a href="index.html" class="btn-voltar">← Voltar ao Início</a>
+    <a href="lider.html" class="btn-voltar">← Voltar ao Menu</a>
   </div>
 
   <div class="header">
@@ -253,23 +205,17 @@
     <div class="row">
       <div class="form-group">
         <label for="selectSupervisao">Supervisão</label>
-        <select id="selectSupervisao">
-          <option value="">Selecione a Supervisão</option>
-        </select>
+        <select id="selectSupervisao"><option value="">Selecione a Supervisão</option></select>
       </div>
-
       <div class="form-group">
         <label for="selectRede">Rede</label>
-        <select id="selectRede" disabled>
-          <option value="">Selecione a Supervisão primeiro</option>
-        </select>
+        <select id="selectRede" disabled><option value="">Selecione a Supervisão primeiro</option></select>
       </div>
     </div>
   </div>
 
   <!-- Conteúdo do Dashboard -->
   <div id="conteudoPainel" style="display: none;">
-    <!-- Card de Saúde da Rede -->
     <div id="cardSaude" class="health-card green">
       <div class="health-info">
         <h3 id="tituloSaude">Rede Equilibrada</h3>
@@ -278,7 +224,6 @@
       <div class="health-count" id="qtdMembrosMembro">12</div>
     </div>
 
-    <!-- Lista de Liderados -->
     <div style="margin-bottom: 32px;">
       <div class="section-title">
         <span>👥 Liderados da Rede (<span id="totalMembrosLista">0</span>)</span>
@@ -286,15 +231,53 @@
       <div id="listaMembros"></div>
     </div>
 
-    <!-- Histórico de Relatórios -->
     <div>
       <div class="section-title">📜 Últimos Relatórios Enviados</div>
       <div id="listaRelatorios"></div>
     </div>
   </div>
 
-  <div id="loading" class="loading-box" style="display: none;">
-    Carregando dados da planilha...
+  <div id="loading" class="loading-box" style="display: none;">Carregando dados da planilha...</div>
+</div>
+
+<!-- Janela Flutuante (Modal) de Edição de Membro -->
+<div id="modalEdicao" class="modal-overlay">
+  <div class="modal-card">
+    <div class="modal-header">✏️ Editar Membro</div>
+    <input type="hidden" id="editNomeOriginal">
+    <input type="hidden" id="editRede">
+
+    <div class="form-group" style="margin-bottom: 12px;">
+      <label>Nome Completo</label>
+      <input type="text" id="editNome">
+    </div>
+    <div class="form-group" style="margin-bottom: 12px;">
+      <label>Data de Nascimento</label>
+      <input type="date" id="editNascimento">
+    </div>
+    <div class="form-group" style="margin-bottom: 12px;">
+      <label>WhatsApp</label>
+      <input type="text" id="editWhatsapp">
+    </div>
+    <div class="form-group" style="margin-bottom: 12px;">
+      <label>Batizado?</label>
+      <select id="editBatizado">
+        <option value="Sim">Sim</option>
+        <option value="Não">Não</option>
+      </select>
+    </div>
+    <div class="form-group" style="margin-bottom: 12px;">
+      <label>Categoria</label>
+      <select id="editCategoria">
+        <option value="Liderado">Liderado</option>
+        <option value="Base da Rede">Base da Rede</option>
+      </select>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancelar" onclick="fecharModalEdicao()">Cancelar</button>
+      <button class="btn-salvar" onclick="salvarEdicaoMembro()">Salvar Alterações</button>
+    </div>
   </div>
 </div>
 
@@ -335,7 +318,6 @@
   function atualizarRedes() {
     const indexSup = document.getElementById('selectSupervisao').value;
     const selectRede = document.getElementById('selectRede');
-
     selectRede.innerHTML = '';
     document.getElementById('conteudoPainel').style.display = 'none';
 
@@ -348,7 +330,6 @@
     const sup = dadosTopo[indexSup];
     selectRede.disabled = false;
     selectRede.innerHTML = '<option value="">Selecione a Rede</option>';
-
     sup.redes.forEach((r, idx) => {
       const opt = document.createElement('option');
       opt.value = idx;
@@ -360,7 +341,6 @@
   async function carregarDadosDashboard() {
     const indexSup = document.getElementById('selectSupervisao').value;
     const indexRede = document.getElementById('selectRede').value;
-
     if (indexSup === "" || indexRede === "") return;
 
     document.getElementById('loading').style.display = 'block';
@@ -371,7 +351,7 @@
       dadosBrutos = await resp.json();
       renderizarPainel();
     } catch (err) {
-      alert("Erro ao carregar os dados da planilha.");
+      alert("Erro ao carregar dados da planilha.");
       console.log(err);
     } finally {
       document.getElementById('loading').style.display = 'none';
@@ -383,15 +363,9 @@
     const indexRede = document.getElementById('selectRede').value;
     const nomeRede = dadosTopo[indexSup].redes[indexRede].nome;
 
-    // 1. Filtrar Membros Ativos da Rede
-    // Colunas na planilha Membros: [0:Data, 1:Sup, 2:Supervisor, 3:Rede, 4:Lider, 5:Nome, 6:Nasc, 7:Whats, 8:Batizado, 9:Categoria, 10:Status]
     const membrosRede = dadosBrutos.membros.slice(1).filter(m => m[3] === nomeRede && m[10] !== "INATIVO");
-
-    // 2. Filtrar Relatórios da Rede (ordenados do mais recente para o mais antigo)
-    // Colunas na planilha Relatorios: [0:Data, 1:Sup, 2:Supervisor, 3:Rede, 4:Lider, 5:DataEnc, 6:Hora, 7:Local, 8:Presentes, 9:Visitantes, 10:Faltantes]
     const relatoriosRede = dadosBrutos.relatorios.slice(1).filter(r => r[3] === nomeRede).reverse();
 
-    // 3. Atualizar Saúde da Rede (Meta: 12 pessoas)
     const total = membrosRede.length;
     const cardSaude = document.getElementById('cardSaude');
     const titSaude = document.getElementById('tituloSaude');
@@ -400,8 +374,8 @@
 
     if (total === 12) {
       cardSaude.className = "health-card green";
-      titSaude.innerText = " Redes em Tamanho Ideal";
-      descSaude.innerText = "A rede possui exatamente 12 membros ativas.";
+      titSaude.innerText = "Rede Equilibrada";
+      descSaude.innerText = "Tamanho ideal atingido (12 membros ativas).";
     } else if (total < 12) {
       cardSaude.className = "health-card yellow";
       titSaude.innerText = "⚠️ Alerta de Crescimento";
@@ -412,7 +386,6 @@
       descSaude.innerText = `A rede ultrapassou 12 membros (${total}) e está pronta para multiplicar!`;
     }
 
-    // 4. Renderizar Membros e Alertas de Falta
     const containerMembros = document.getElementById('listaMembros');
     document.getElementById('totalMembrosLista').innerText = total;
     containerMembros.innerHTML = '';
@@ -426,20 +399,19 @@
         const nome = m[5];
         const nascimento = m[6] || '';
         const whats = m[7] || 'Sem WhatsApp';
+        const batizado = m[8] || 'Não';
         const categoria = m[9] || 'Liderado';
 
-        // Calcular Faltas Consecutivas
         let faltasSeguidas = 0;
         for (let r of relatoriosRede) {
           const faltantesTxt = r[10] ? r[10].toString() : '';
           if (faltantesTxt.includes(nome)) {
             faltasSeguidas++;
           } else {
-            break; // Quebra a contagem se a pessoa esteve presente
+            break;
           }
         }
 
-        // Checar Aniversariante do Mês
         let isNiver = false;
         if (nascimento) {
           const partesNasc = nascimento.toString().split('-');
@@ -448,7 +420,6 @@
           }
         }
 
-        // Criar elemento HTML
         const div = document.createElement('div');
         div.className = 'membro-card';
 
@@ -457,23 +428,26 @@
         if (faltasSeguidas === 2) tagsHTML += `<span class="tag tag-warning">⚠️ Alerta de Apascentamento (2 faltas seguidas)</span>`;
         if (faltasSeguidas >= 3) tagsHTML += `<span class="tag tag-danger">⛔ Não Pode Servir (${faltasSeguidas} faltas seguidas)</span>`;
 
+        // Prepara dados formatados para a janela de edição
+        const nascFormatted = nascimento ? nascimento.toString().substring(0,10) : '';
+
         div.innerHTML = `
           <div class="membro-main">
             <strong>${nome}</strong>
-            <small>📱 ${whats}</small>
+            <small>📱 ${whats} | Batizado: ${batizado}</small>
             <div class="tags">${tagsHTML}</div>
           </div>
-          <button class="btn-delete" onclick="inativarMembro('${nome}', '${nomeRede}')">Remover</button>
+          <div class="actions-group">
+            <button class="btn-edit" onclick="abrirModalEdicao('${nome}', '${nascFormatted}', '${whats}', '${batizado}', '${categoria}', '${nomeRede}')">✏️ Editar</button>
+            <button class="btn-delete" onclick="inativarMembro('${nome}', '${nomeRede}')">Remover</button>
+          </div>
         `;
-
         containerMembros.appendChild(div);
       });
     }
 
-    // 5. Renderizar Histórico de Relatórios
     const containerRel = document.getElementById('listaRelatorios');
     containerRel.innerHTML = '';
-
     if (relatoriosRede.length === 0) {
       containerRel.innerHTML = `<div style="color: var(--text-muted); font-size: 0.9rem;">Nenhum relatório enviado para esta rede até o momento.</div>`;
     } else {
@@ -498,11 +472,70 @@
     document.getElementById('conteudoPainel').style.display = 'block';
   }
 
+  // Funções da Janela de Edição
+  function abrirModalEdicao(nome, nascimento, whats, batizado, categoria, rede) {
+    document.getElementById('editNomeOriginal').value = nome;
+    document.getElementById('editRede').value = rede;
+    document.getElementById('editNome').value = nome;
+    document.getElementById('editNascimento').value = nascimento;
+    document.getElementById('editWhatsapp').value = whats === 'Sem WhatsApp' ? '' : whats;
+    document.getElementById('editBatizado').value = batizado;
+    document.getElementById('editCategoria').value = categoria;
+
+    document.getElementById('modalEdicao').style.display = 'flex';
+  }
+
+  function fecharModalEdicao() {
+    document.getElementById('modalEdicao').style.display = 'none';
+  }
+
+  async function salvarEdicaoMembro() {
+    const nomeOrig = document.getElementById('editNomeOriginal').value;
+    const rede = document.getElementById('editRede').value;
+    const novoNome = document.getElementById('editNome').value.trim();
+    const novoNasc = document.getElementById('editNascimento').value;
+    const novoWhats = document.getElementById('editWhatsapp').value.trim();
+    const novoBatizado = document.getElementById('editBatizado').value;
+    const novaCategoria = document.getElementById('editCategoria').value;
+
+    if (!novoNome) {
+      alert("Por favor, informe o nome.");
+      return;
+    }
+
+    fecharModalEdicao();
+    document.getElementById('loading').style.display = 'block';
+
+    try {
+      await fetch(API_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tipo: "EDITAR_MEMBRO",
+          nomeOriginal: nomeOrig,
+          rede: rede,
+          nome: novoNome,
+          nascimento: novoNasc,
+          whatsapp: novoWhats,
+          batizado: novoBatizado,
+          categoria: novaCategoria
+        })
+      });
+
+      alert("Membro atualizado com sucesso!");
+      carregarDadosDashboard();
+    } catch (err) {
+      alert("Erro ao editar o membro.");
+      console.log(err);
+      document.getElementById('loading').style.display = 'none';
+    }
+  }
+
   async function inativarMembro(nome, rede) {
     if (!confirm(`Tem certeza que deseja remover ${nome} da ${rede}?`)) return;
 
     document.getElementById('loading').style.display = 'block';
-
     try {
       await fetch(API_URL, {
         method: 'POST',
