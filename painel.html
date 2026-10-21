@@ -96,8 +96,9 @@
     .relatorio-body { font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; }
 
     .relatorio-detalhe-bloco { margin-bottom: 14px; background: var(--input-bg); padding: 12px; border-radius: 8px; border: 1px solid var(--card-border); }
-    .relatorio-detalhe-bloco label { font-size: 0.75rem; color: var(--primary); font-weight: bold; margin-bottom: 4px; text-transform: uppercase; }
+    .relatorio-detalhe-bloco label { font-size: 0.75rem; color: var(--primary); font-weight: bold; margin-bottom: 4px; text-transform: uppercase; display: block; }
     .relatorio-detalhe-bloco p { font-size: 0.9rem; color: var(--text); line-height: 1.4; word-break: break-word; }
+    .relatorio-detalhe-bloco textarea, .relatorio-detalhe-bloco input { width: 100%; padding: 10px; background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text); border-radius: 6px; font-size: 0.9rem; margin-top: 4px; }
 
     .btn-whats { background: #23D160; color: #000; padding: 6px 12px; border-radius: 6px; font-size: 0.78rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
     .btn-whats:hover { background: #1EBE55; }
@@ -148,7 +149,7 @@
     </div>
 
     <div>
-      <div class="section-title">📜 Últimos Relatórios Enviados <small style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;">(Clique em um relatório para ver completo)</small></div>
+      <div class="section-title">📜 Últimos Relatórios Enviados <small style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;">(Clique em um relatório para ver ou editar)</small></div>
       <div id="listaRelatorios"></div>
     </div>
   </div>
@@ -196,16 +197,23 @@
   </div>
 </div>
 
-<!-- Modal de Visualização Completa do Relatório -->
+<!-- Modal de Visualização e Edição Completa do Relatório -->
 <div id="modalRelatorioDetalhes" class="modal-overlay">
   <div class="modal-card">
     <div class="modal-header">
       <span>📋 Detalhes do Relatório</span>
       <button onclick="fecharModalRelatorio()" style="background:none; border:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer;">✕</button>
     </div>
+    <input type="hidden" id="detalheRelId">
+    
     <div id="conteudoDetalhesRelatorio"></div>
-    <div class="modal-footer">
-      <button class="btn-cancelar" onclick="fecharModalRelatorio()">Fechar</button>
+
+    <div class="modal-footer" style="justify-content: space-between;">
+      <button class="btn-salvar" onclick="ativarEdicaoRelatorio()" id="btnAtivarEdicao">✏️ Editar Relatório</button>
+      <div style="display: flex; gap: 10px;">
+        <button class="btn-salvar" onclick="salvarEdicaoRelatorio()" id="btnSalvarRelatorio" style="display: none;">Salvar Alterações</button>
+        <button class="btn-cancelar" onclick="fecharModalRelatorio()">Fechar</button>
+      </div>
     </div>
   </div>
 </div>
@@ -322,6 +330,7 @@
         let faltasSeguidas = 0;
         for (let r of [...relatoriosRede].reverse()) {
           const faltantesTxt = r.faltantes ? r.faltantes.toString() : '';
+          // Verifica correspondência exata ou contém o nome
           if (faltantesTxt.includes(nome)) faltasSeguidas++;
           else break;
         }
@@ -445,6 +454,15 @@
     const rel = relatoriosLocais.find(r => r.id === docId);
     if (!rel) return;
 
+    document.getElementById('detalheRelId').value = docId;
+    document.getElementById('btnAtivarEdicao').style.display = 'inline-block';
+    document.getElementById('btnSalvarRelatorio').style.display = 'none';
+
+    renderizarDetalhesModoLeitura(rel);
+    document.getElementById('modalRelatorioDetalhes').style.display = 'flex';
+  }
+
+  function renderizarDetalhesModoLeitura(rel) {
     const conteudo = document.getElementById('conteudoDetalhesRelatorio');
     conteudo.innerHTML = `
       <div class="relatorio-detalhe-bloco"><label>Data e Horário</label><p>${rel.dataEncontro || '-'} às ${rel.horario || '-'}</p></div>
@@ -456,8 +474,59 @@
       <div class="relatorio-detalhe-bloco"><label>Resumo da Palavra</label><p>${rel.resumoPalavra || '-'}</p></div>
       <div class="relatorio-detalhe-bloco"><label>Atividades / Dinâmicas</label><p>${rel.atividades || '-'}</p></div>
     `;
+  }
 
-    document.getElementById('modalRelatorioDetalhes').style.display = 'flex';
+  function ativarEdicaoRelatorio() {
+    const docId = document.getElementById('detalheRelId').value;
+    const rel = relatoriosLocais.find(r => r.id === docId);
+    if (!rel) return;
+
+    document.getElementById('btnAtivarEdicao').style.display = 'none';
+    document.getElementById('btnSalvarRelatorio').style.display = 'inline-block';
+
+    const conteudo = document.getElementById('conteudoDetalhesRelatorio');
+    conteudo.innerHTML = `
+      <div class="row" style="display:flex; gap:10px; margin-bottom:10px;">
+        <div class="relatorio-detalhe-bloco" style="flex:1;"><label>Data</label><input type="date" id="editRelData" value="${rel.dataEncontro || ''}"></div>
+        <div class="relatorio-detalhe-bloco" style="flex:1;"><label>Horário</label><input type="time" id="editRelHorario" value="${rel.horario || ''}"></div>
+      </div>
+      <div class="relatorio-detalhe-bloco"><label>Local do Encontro</label><input type="text" id="editRelLocal" value="${rel.local || ''}"></div>
+      <div class="relatorio-detalhe-bloco"><label>Tema Ministrado</label><input type="text" id="editRelTema" value="${rel.tema || ''}"></div>
+      <div class="relatorio-detalhe-bloco"><label>Membros Presentes</label><textarea id="editRelPresentes" style="min-height:60px;">${rel.presentes || ''}</textarea></div>
+      <div class="relatorio-detalhe-bloco"><label>Visitantes</label><input type="text" id="editRelVisitantes" value="${rel.visitantes || ''}"></div>
+      <div class="relatorio-detalhe-bloco"><label>Faltantes e Justificativas</label><textarea id="editRelFaltantes" style="min-height:60px; color:var(--danger);">${rel.faltantes || ''}</textarea></div>
+      <div class="relatorio-detalhe-bloco"><label>Resumo da Palavra</label><textarea id="editRelResumo">${rel.resumoPalavra || ''}</textarea></div>
+      <div class="relatorio-detalhe-bloco"><label>Atividades / Dinâmicas</label><textarea id="editRelAtividades">${rel.atividades || ''}</textarea></div>
+    `;
+  }
+
+  async function salvarEdicaoRelatorio() {
+    const docId = document.getElementById('detalheRelId').value;
+
+    const atualizacao = {
+      dataEncontro: document.getElementById('editRelData').value,
+      horario: document.getElementById('editRelHorario').value,
+      local: document.getElementById('editRelLocal').value.trim(),
+      tema: document.getElementById('editRelTema').value.trim(),
+      presentes: document.getElementById('editRelPresentes').value.trim(),
+      visitantes: document.getElementById('editRelVisitantes').value.trim(),
+      faltantes: document.getElementById('editRelFaltantes').value.trim(),
+      resumoPalavra: document.getElementById('editRelResumo').value.trim(),
+      atividades: document.getElementById('editRelAtividades').value.trim()
+    };
+
+    fecharModalRelatorio();
+    document.getElementById('loading').style.display = 'block';
+
+    try {
+      await db.collection('relatorios').doc(docId).update(atualizacao);
+      alert("✅ Relatório atualizado com sucesso!");
+      await carregarDadosDashboard();
+    } catch (err) {
+      alert("Erro ao atualizar relatório no Firebase.");
+      console.error(err);
+      document.getElementById('loading').style.display = 'none';
+    }
   }
 
   function fecharModalRelatorio() {
