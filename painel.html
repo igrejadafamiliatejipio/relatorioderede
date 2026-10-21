@@ -339,7 +339,7 @@
         let faltasSeguidas = 0;
         for (let r of [...relatoriosRede].reverse()) {
           const faltantesTxt = r.faltantes ? r.faltantes.toString() : '';
-          if (faltantesTxt.includes(nome)) faltasSeguidas++;
+          if (faltantesTxt.toLowerCase().includes(nome.toLowerCase())) faltasSeguidas++;
           else break;
         }
 
@@ -492,24 +492,32 @@
     document.getElementById('btnAtivarEdicao').style.display = 'none';
     document.getElementById('btnSalvarRelatorio').style.display = 'inline-block';
 
-    const presentesStr = rel.presentes ? rel.presentes.toString() : '';
-    const faltantesStr = rel.faltantes ? rel.faltantes.toString() : '';
+    const presentesStr = rel.presentes ? rel.presentes.toString().toLowerCase() : '';
+    const faltantesStr = rel.faltantes ? rel.faltantes.toString().toLowerCase() : '';
 
     let chamadaHtml = '';
     membrosLocais.forEach((m, index) => {
       const nome = m.nome;
+      const nomeLower = nome.toLowerCase();
 
-      let estaPresente = false;
-      if (presentesStr.toLowerCase().includes(nome.toLowerCase())) {
+      // REGRA DEFINITIVA: 
+      // 1. Se o nome estiver explicitamente nos presentes -> Marcado
+      // 2. Se o nome estiver explicitamente nos faltantes -> Desmarcado
+      // 3. Se não estiver em nenhum dos dois -> Padrão marcado (ou desmarcado, como preferir)
+      let estaPresente = true; // Padrão
+
+      if (presentesStr.includes(nomeLower)) {
         estaPresente = true;
-      } else if (!faltantesStr.toLowerCase().includes(nome.toLowerCase())) {
-        estaPresente = presentesStr.trim() === ''; 
+      } else if (faltantesStr.includes(nomeLower)) {
+        estaPresente = false;
+      } else if (presentesStr !== "" && !presentesStr.includes(nomeLower)) {
+        estaPresente = false;
       }
 
       let justificativaTexto = '';
       if (!estaPresente) {
-        const regex = new RegExp(nome + '\\s*\\(Justificativa:\\s*([^\\)]+)\\)', 'i');
-        const match = faltantesStr.match(regex);
+        const regex = new RegExp(nome.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&') + '\\s*\\(Justificativa:\\s*([^\\)]+)\\)', 'i');
+        const match = rel.faltantes ? rel.faltantes.toString().match(regex) : null;
         if (match && match[1]) {
           justificativaTexto = match[1].trim();
         }
