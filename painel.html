@@ -81,7 +81,7 @@
     .btn-delete:hover { background: var(--danger); color: #FFF; }
 
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 999; display: none; }
-    .modal-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 24px; max-width: 520px; width: 100%; max-height: 85vh; overflow-y: auto; }
+    .modal-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 24px; max-width: 580px; width: 100%; max-height: 85vh; overflow-y: auto; }
     .modal-header { font-size: 1.2rem; font-weight: 700; margin-bottom: 16px; color: var(--text); display: flex; justify-content: space-between; align-items: center; }
     .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
 
@@ -99,6 +99,15 @@
     .relatorio-detalhe-bloco label { font-size: 0.75rem; color: var(--primary); font-weight: bold; margin-bottom: 4px; text-transform: uppercase; display: block; }
     .relatorio-detalhe-bloco p { font-size: 0.9rem; color: var(--text); line-height: 1.4; word-break: break-word; }
     .relatorio-detalhe-bloco textarea, .relatorio-detalhe-bloco input { width: 100%; padding: 10px; background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text); border-radius: 6px; font-size: 0.9rem; margin-top: 4px; }
+
+    .chamada-container { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 10px; padding: 16px; margin-bottom: 16px; max-height: 280px; overflow-y: auto; }
+    .chamada-item { display: flex; flex-direction: column; gap: 8px; padding: 10px 0; border-bottom: 1px solid var(--card-border); }
+    .chamada-item:last-child { border-bottom: none; }
+    .chamada-info { display: flex; justify-content: space-between; align-items: center; }
+    .chamada-info label { display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--text); font-size: 0.95rem; text-transform: none; font-weight: 600; margin-bottom: 0; }
+    .chamada-info input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; }
+    .justificativa-box { display: none; margin-left: 26px; }
+    .justificativa-box input { font-size: 0.85rem; padding: 8px 10px; background: var(--card-bg); }
 
     .btn-whats { background: #23D160; color: #000; padding: 6px 12px; border-radius: 6px; font-size: 0.78rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
     .btn-whats:hover { background: #1EBE55; }
@@ -330,7 +339,6 @@
         let faltasSeguidas = 0;
         for (let r of [...relatoriosRede].reverse()) {
           const faltantesTxt = r.faltantes ? r.faltantes.toString() : '';
-          // Verifica correspondência exata ou contém o nome
           if (faltantesTxt.includes(nome)) faltasSeguidas++;
           else break;
         }
@@ -484,33 +492,104 @@
     document.getElementById('btnAtivarEdicao').style.display = 'none';
     document.getElementById('btnSalvarRelatorio').style.display = 'inline-block';
 
+    const presentesAtuais = rel.presentes ? rel.presentes.toString() : '';
+    const faltantesAtuais = rel.faltantes ? rel.faltantes.toString() : '';
+
+    let chamadaHtml = '';
+    membrosLocais.forEach((m, index) => {
+      const nome = m.nome;
+      const estaPresente = presentesAtuais.includes(nome);
+      const estaFaltando = faltantesAtuais.includes(nome);
+
+      let justificativaTexto = '';
+      if (estaFaltando) {
+        // Tenta extrair a justificativa salva anteriormente, se houver
+        const regex = new RegExp(nome + '\\s*\\(Justificativa:\\s*([^\\)]+)\\)', 'i');
+        const match = faltantesAtuais.match(regex);
+        if (match && match[1]) {
+          justificativaTexto = match[1].trim();
+        }
+      }
+
+      const marcado = (estaPresente || (!estaPresente && !estaFaltando)) ? 'checked' : '';
+      const displayBox = marcado ? 'none' : 'block';
+
+      chamadaHtml += `
+        <div class="chamada-item">
+          <div class="chamada-info">
+            <label>
+              <input type="checkbox" id="edit_membro_${index}" value="${nome}" ${marcado} onchange="toggleJustificativaEdit(${index})">
+              <span>${nome}</span>
+            </label>
+          </div>
+          <div class="justificativa-box" id="edit_box_just_${index}" style="display: ${displayBox};">
+            <input type="text" id="edit_just_${index}" placeholder="Justificativa da falta..." value="${justificativaTexto}">
+          </div>
+        </div>
+      `;
+    });
+
     const conteudo = document.getElementById('conteudoDetalhesRelatorio');
     conteudo.innerHTML = `
-      <div class="row" style="display:flex; gap:10px; margin-bottom:10px;">
-        <div class="relatorio-detalhe-bloco" style="flex:1;"><label>Data</label><input type="date" id="editRelData" value="${rel.dataEncontro || ''}"></div>
-        <div class="relatorio-detalhe-bloco" style="flex:1;"><label>Horário</label><input type="time" id="editRelHorario" value="${rel.horario || ''}"></div>
+      <div style="display:flex; gap:10px; margin-bottom:12px;">
+        <div class="relatorio-detalhe-bloco" style="flex:1; margin-bottom:0;"><label>Data</label><input type="date" id="editRelData" value="${rel.dataEncontro || ''}"></div>
+        <div class="relatorio-detalhe-bloco" style="flex:1; margin-bottom:0;"><label>Horário</label><input type="time" id="editRelHorario" value="${rel.horario || ''}"></div>
       </div>
       <div class="relatorio-detalhe-bloco"><label>Local do Encontro</label><input type="text" id="editRelLocal" value="${rel.local || ''}"></div>
-      <div class="relatorio-detalhe-bloco"><label>Tema Ministrado</label><input type="text" id="editRelTema" value="${rel.tema || ''}"></div>
-      <div class="relatorio-detalhe-bloco"><label>Membros Presentes</label><textarea id="editRelPresentes" style="min-height:60px;">${rel.presentes || ''}</textarea></div>
+      
+      <div class="relatorio-detalhe-bloco">
+        <label>Chamada de Membros (Marque os presentes)</label>
+        <div id="chamadaContainerEdit" class="chamada-container" style="max-height: 200px; overflow-y: auto;">
+          ${chamadaHtml}
+        </div>
+      </div>
+
       <div class="relatorio-detalhe-bloco"><label>Visitantes</label><input type="text" id="editRelVisitantes" value="${rel.visitantes || ''}"></div>
-      <div class="relatorio-detalhe-bloco"><label>Faltantes e Justificativas</label><textarea id="editRelFaltantes" style="min-height:60px; color:var(--danger);">${rel.faltantes || ''}</textarea></div>
+      <div class="relatorio-detalhe-bloco"><label>Tema Ministrado</label><input type="text" id="editRelTema" value="${rel.tema || ''}"></div>
       <div class="relatorio-detalhe-bloco"><label>Resumo da Palavra</label><textarea id="editRelResumo">${rel.resumoPalavra || ''}</textarea></div>
       <div class="relatorio-detalhe-bloco"><label>Atividades / Dinâmicas</label><textarea id="editRelAtividades">${rel.atividades || ''}</textarea></div>
     `;
   }
 
+  function toggleJustificativaEdit(index) {
+    const checkbox = document.getElementById(`edit_membro_${index}`);
+    const boxJust = document.getElementById(`edit_box_just_${index}`);
+    if (!checkbox.checked) {
+      boxJust.style.display = 'block';
+    } else {
+      boxJust.style.display = 'none';
+      document.getElementById(`edit_just_${index}`).value = '';
+    }
+  }
+
   async function salvarEdicaoRelatorio() {
     const docId = document.getElementById('detalheRelId').value;
+
+    let presentesArr = [];
+    let faltantesArr = [];
+
+    membrosLocais.forEach((m, index) => {
+      const checkbox = document.getElementById(`edit_membro_${index}`);
+      if (checkbox) {
+        const nome = m.nome;
+        if (checkbox.checked) {
+          presentesArr.push(nome);
+        } else {
+          const txtJust = document.getElementById(`edit_just_${index}`).value.trim();
+          const textoFalta = txtJust ? `${nome} (Justificativa: ${txtJust})` : `${nome} (Não justificou)`;
+          faltantesArr.push(textoFalta);
+        }
+      }
+    });
 
     const atualizacao = {
       dataEncontro: document.getElementById('editRelData').value,
       horario: document.getElementById('editRelHorario').value,
       local: document.getElementById('editRelLocal').value.trim(),
       tema: document.getElementById('editRelTema').value.trim(),
-      presentes: document.getElementById('editRelPresentes').value.trim(),
+      presentes: presentesArr.join(', '),
       visitantes: document.getElementById('editRelVisitantes').value.trim(),
-      faltantes: document.getElementById('editRelFaltantes').value.trim(),
+      faltantes: faltantesArr.join(', '),
       resumoPalavra: document.getElementById('editRelResumo').value.trim(),
       atividades: document.getElementById('editRelAtividades').value.trim()
     };
