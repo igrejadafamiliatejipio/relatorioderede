@@ -51,23 +51,26 @@
 
     .section-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
 
-    .tree-wrapper { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 24px 16px; margin-bottom: 32px; overflow-x: auto; }
-    .tree-container { display: flex; flex-direction: column; align-items: center; min-width: 600px; }
-    .tree-supervisor-node { background: linear-gradient(135deg, rgba(110, 86, 207, 0.3) 0%, var(--card-bg) 100%); border: 2px solid var(--primary); padding: 12px 24px; border-radius: 12px; text-align: center; box-shadow: 0 4px 18px rgba(110, 86, 207, 0.25); }
-    .tree-supervisor-node h3 { font-size: 1.1rem; font-weight: 700; color: var(--text); }
-    .tree-supervisor-node span { font-size: 0.75rem; color: #A58BFF; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    /* Novo Estilo de Árvore em Acordeão otimizado para Mobile */
+    .tree-wrapper { margin-bottom: 32px; }
+    .supervisao-card { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 12px; margin-bottom: 12px; overflow: hidden; transition: border-color 0.2s; }
+    .supervisao-card:hover { border-color: var(--primary); }
 
-    .tree-line-v { width: 2px; height: 24px; background: var(--card-border); }
-    .tree-leaders-row { display: flex; gap: 16px; justify-content: center; align-items: flex-start; width: 100%; }
-    .tree-leader-card { background: var(--card-bg); border: 1px solid var(--card-border); border-top: 3px solid var(--info); border-radius: 12px; padding: 14px; flex: 1; min-width: 170px; max-width: 210px; }
-    .tree-leader-header { text-align: center; padding-bottom: 10px; border-bottom: 1px solid var(--card-border); margin-bottom: 10px; }
-    .tree-leader-header strong { font-size: 0.95rem; color: var(--text); display: block; }
-    .tree-leader-header small { font-size: 0.75rem; color: var(--info); font-weight: 600; }
+    .supervisao-header { padding: 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+    .supervisao-info h3 { font-size: 1.05rem; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+    .supervisao-info p { font-size: 0.82rem; color: var(--text-muted); }
+    
+    .supervisao-badge { background: rgba(110, 86, 207, 0.2); color: #A58BFF; border: 1px solid rgba(110, 86, 207, 0.4); padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
 
-    .tree-members-list { display: flex; flex-direction: column; gap: 6px; }
-    .tree-member-item { background: var(--input-bg); border: 1px solid var(--card-border); padding: 6px 10px; border-radius: 6px; font-size: 0.78rem; display: flex; justify-content: space-between; align-items: center; }
-    .tree-member-item.base { border-color: rgba(110, 86, 207, 0.3); }
-    .tree-member-item .tag-mini { font-size: 0.65rem; padding: 2px 4px; border-radius: 4px; font-weight: 600; }
+    .redes-list { padding: 0 16px 16px 16px; display: none; border-top: 1px solid var(--card-border); background: var(--card-bg); }
+    .supervisao-card.ativo .redes-list { display: block; }
+
+    .rede-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--card-border); font-size: 0.9rem; }
+    .rede-item:last-child { border-bottom: none; }
+    .rede-nome { font-weight: 600; color: var(--text); }
+    .rede-lider { font-size: 0.82rem; color: var(--text-muted); }
+    .arrow-icon { transition: transform 0.3s; font-size: 0.8rem; color: var(--text-muted); }
+    .supervisao-card.ativo .arrow-icon { transform: rotate(180deg); }
 
     .table-container { width: 100%; overflow-x: auto; margin-bottom: 24px; border: 1px solid var(--card-border); border-radius: 10px; }
     table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; }
@@ -127,18 +130,6 @@
       <div class="metric-card"><h4>Em Alerta (< 12)</h4><div class="value" id="mRedesAlerta" style="color: var(--warning);">0</div></div>
     </div>
 
-    <div class="section-title">🌳 Árvore Genealógica da Supervisão</div>
-    <div class="tree-wrapper">
-      <div class="tree-container">
-        <div class="tree-supervisor-node">
-          <span id="treeSupervisaoNome">Supervisão</span>
-          <h3 id="treeSupervisorNome">Nome do Supervisor</h3>
-        </div>
-        <div class="tree-line-v"></div>
-        <div class="tree-leaders-row" id="treeLeadersContainer"></div>
-      </div>
-    </div>
-
     <div class="section-title">📊 Raio-X das Redes da Supervisão</div>
     <div class="table-container">
       <table>
@@ -168,6 +159,10 @@
         <tbody id="tabelaNiverBody"></tbody>
       </table>
     </div>
+
+    <!-- ÁRVORE GENEALÓGICA POSICIONADA EXATAMENTE NO FINAL DA PÁGINA -->
+    <div class="section-title">🌳 Árvore Genealógica (Visão Geral das Supervisões)</div>
+    <div class="tree-wrapper" id="treeContainerMobile"></div>
   </div>
 
   <div id="loading" class="loading-box" style="display: none;">Carregando dados da supervisão do Firebase...</div>
@@ -261,12 +256,6 @@
   function renderizarPainelSupervisor(membrosSup, relatoriosSup) {
     const redesDaSup = supervisorLogado.redes;
 
-    document.getElementById('treeSupervisaoNome').innerText = supervisorLogado.supervisao;
-    document.getElementById('treeSupervisorNome').innerText = supervisorLogado.supervisor;
-
-    const treeLeadersContainer = document.getElementById('treeLeadersContainer');
-    treeLeadersContainer.innerHTML = '';
-
     let totalMembros = membrosSup.length;
     let meta12 = 0, multi = 0, abaixo = 0;
 
@@ -276,34 +265,6 @@
     redesDaSup.forEach(r => {
       const membrosRede = membrosSup.filter(m => m.rede === r.nome);
       const qtd = membrosRede.length;
-
-      const leaderCard = document.createElement('div');
-      leaderCard.className = 'tree-leader-card';
-
-      let membersListHtml = '';
-      if (membrosRede.length === 0) {
-        membersListHtml = `<div style="font-size:0.75rem; color:var(--text-muted); text-align:center;">Nenhum liderado</div>`;
-      } else {
-        membrosRede.forEach(m => {
-          const cat = m.categoria || 'Liderado';
-          const isBase = cat === 'Base da Rede';
-          membersListHtml += `
-            <div class="tree-member-item ${isBase ? 'base' : ''}">
-              <span>${m.nome}</span>
-              <span class="tag-mini" style="background:${isBase ? 'rgba(110,86,207,0.3)' : 'rgba(255,255,255,0.05)'}">${isBase ? 'Base' : 'Liderado'}</span>
-            </div>
-          `;
-        });
-      }
-
-      leaderCard.innerHTML = `
-        <div class="tree-leader-header">
-          <strong>${r.lider}</strong>
-          <small>${r.nome} (${qtd})</small>
-        </div>
-        <div class="tree-members-list">${membersListHtml}</div>
-      `;
-      treeLeadersContainer.appendChild(leaderCard);
 
       const relsRede = relatoriosSup.filter(rel => rel.rede === r.nome);
       const ultimoRel = relsRede.length > 0 ? relsRede[relsRede.length - 1] : null;
@@ -337,6 +298,7 @@
     document.getElementById('mRedesMulti').innerText = multi;
     document.getElementById('mRedesAlerta').innerText = abaixo;
 
+    // Matriz de Alertas
     const tabelaAlertasBody = document.getElementById('tabelaAlertasBody');
     tabelaAlertasBody.innerHTML = '';
     let qtdAlertas = 0;
@@ -365,6 +327,7 @@
 
     if (qtdAlertas === 0) tabelaAlertasBody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Nenhum alerta de falta consecutiva no momento. 🟢</td></tr>`;
 
+    // Aniversariantes do Mês
     const tabelaNiverBody = document.getElementById('tabelaNiverBody');
     tabelaNiverBody.innerHTML = '';
     const mesAtual = new Date().getMonth() + 1;
@@ -387,7 +350,51 @@
 
     if (qtdNiver === 0) tabelaNiverBody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Nenhum aniversariante neste mês.</td></tr>`;
 
+    // RENDERIZAR ÁRVORE EM ACORDEÃO NO FINAL DA PÁGINA
+    renderizarArvoreMobile();
+
     document.getElementById('painelSupervisor').style.display = 'block';
+  }
+
+  function renderizarArvoreMobile() {
+    const container = document.getElementById('treeContainerMobile');
+    container.innerHTML = '';
+
+    supervisoresDB.forEach(item => {
+      let redesHtml = '';
+      item.redes.forEach(r => {
+        redesHtml += `
+          <div class="rede-item">
+            <span class="rede-nome">📍 ${r.nome}</span>
+            <span class="rede-lider">Líder: <strong>${r.lider}</strong></span>
+          </div>
+        `;
+      });
+
+      const card = document.createElement('div');
+      card.className = 'supervisao-card';
+      card.innerHTML = `
+        <div class="supervisao-header" onclick="toggleCard(this)">
+          <div class="supervisao-info">
+            <h3>${item.supervisao}</h3>
+            <p>Supervisor(a): <strong>${item.supervisor}</strong></p>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span class="supervisao-badge">${item.redes.length} redes</span>
+            <span class="arrow-icon">▼</span>
+          </div>
+        </div>
+        <div class="redes-list">
+          ${redesHtml}
+        </div>
+      `;
+      container.appendChild(card);
+    });
+  }
+
+  function toggleCard(headerElement) {
+    const card = headerElement.parentElement;
+    card.classList.toggle('ativo');
   }
 </script>
 
