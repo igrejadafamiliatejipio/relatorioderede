@@ -14,558 +14,199 @@
       --text-muted: #8B949E;
       --primary: #6E56CF;
       --primary-hover: #5B45B0;
-      --success: #23D160;
-      --success-hover: #1EBE55;
-      --danger: #E5534B;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); padding: 24px 12px; display: flex; justify-content: center; min-height: 100vh; }
+    .container { max-width: 600px; width: 100%; background: var(--card-bg); padding: 28px; border-radius: 16px; border: 1px solid var(--card-border); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); }
+    
+    .top-nav { display: flex; justify-content: space-between; margin-bottom: 20px; }
+    .btn-voltar { background: #21262D; color: var(--text); border: 1px solid var(--card-border); padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; text-decoration: none; }
+    .btn-voltar:hover { background: #30363D; }
 
-    body {
-      background-color: var(--bg);
-      color: var(--text);
-      padding: 24px 12px;
-      display: flex;
-      justify-content: center;
-      min-height: 100vh;
-    }
+    .header { text-align: center; margin-bottom: 24px; }
+    .header h1 { font-size: 1.6rem; font-weight: 700; }
+    .badge-topo { display: inline-block; background: var(--primary); color: #FFF; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 8px; }
 
-    .container {
-      max-width: 650px;
-      width: 100%;
-      background: var(--card-bg);
-      padding: 28px;
-      border-radius: 16px;
-      border: 1px solid var(--card-border);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-    }
+    .form-group { margin-bottom: 16px; text-align: left; }
+    .row { display: flex; gap: 12px; }
+    .row .form-group { flex: 1; }
 
-    .top-nav {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
+    label { display: block; font-weight: 500; font-size: 0.82rem; margin-bottom: 6px; color: var(--text-muted); text-transform: uppercase; }
+    input, select { width: 100%; padding: 12px 14px; background-color: var(--input-bg); border: 1px solid var(--card-border); border-radius: 8px; font-size: 0.95rem; color: var(--text); outline: none; }
+    input:focus, select:focus { border-color: var(--primary); }
+    select option { background-color: var(--card-bg); color: var(--text); }
 
-    .btn-voltar {
-      background: #21262D;
-      color: var(--text);
-      border: 1px solid var(--card-border);
-      padding: 6px 12px;
-      border-radius: 6px;
-      font-size: 0.85rem;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: background 0.2s ease;
-    }
-    .btn-voltar:hover {
-      background: #30363D;
-    }
+    .btn { background-color: var(--primary); color: white; border: none; padding: 14px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 1rem; width: 100%; margin-top: 10px; transition: 0.2s; }
+    .btn:hover { background-color: var(--primary-hover); }
 
-    .header {
-      text-align: center;
-      margin-bottom: 24px;
-    }
-
-    .header h1 {
-      font-size: 1.75rem;
-      font-weight: 700;
-      color: var(--text);
-    }
-
-    .header p {
-      color: var(--text-muted);
-      font-size: 0.9rem;
-      margin-top: 6px;
-    }
-
-    .badge-topo {
-      display: inline-block;
-      background: var(--primary);
-      color: #FFF;
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      letter-spacing: 1px;
-      margin-bottom: 8px;
-    }
-
-    .section {
-      margin-bottom: 20px;
-      padding-bottom: 16px;
-      border-bottom: 1px solid var(--card-border);
-    }
-
-    .section-title {
-      font-size: 1.05rem;
-      font-weight: 600;
-      margin-bottom: 14px;
-      color: var(--text);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .form-group {
-      margin-bottom: 14px;
-    }
-
-    label {
-      display: block;
-      font-weight: 500;
-      font-size: 0.85rem;
-      margin-bottom: 6px;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    input[type="text"],
-    input[type="date"],
-    input[type="tel"],
-    select {
-      width: 100%;
-      padding: 12px 14px;
-      background-color: var(--input-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 8px;
-      font-size: 0.95rem;
-      color: var(--text);
-      outline: none;
-      transition: all 0.2s ease;
-    }
-
-    input::placeholder {
-      color: #484F58;
-    }
-
-    input:focus, select:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(110, 86, 207, 0.25);
-    }
-
-    select option {
-      background-color: var(--card-bg);
-      color: var(--text);
-    }
-
-    .row {
-      display: flex;
-      gap: 12px;
-    }
-
-    .row .form-group {
-      flex: 1;
-    }
-
-    .btn {
-      background-color: var(--primary);
-      color: white;
-      border: none;
-      padding: 12px 18px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 0.95rem;
-      transition: all 0.2s ease;
-      text-align: center;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-
-    .btn:hover {
-      background-color: var(--primary-hover);
-      transform: translateY(-1px);
-    }
-
-    .btn-success {
-      background-color: var(--success);
-      color: #000;
-      font-weight: 700;
-    }
-    .btn-success:hover {
-      background-color: var(--success-hover);
-    }
-
-    .btn-secondary {
-      background-color: #21262D;
-      color: var(--text);
-      border: 1px solid var(--card-border);
-    }
-    .btn-secondary:hover {
-      background-color: #30363D;
-    }
-
-    .actions {
-      display: flex;
-      gap: 12px;
-      margin-top: 20px;
-    }
-
-    .actions .btn {
-      flex: 1;
-    }
-
-    .cadastrados-box {
-      margin-top: 24px;
-      background: var(--input-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
-      padding: 16px;
-    }
-
-    .membro-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 12px;
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 8px;
-      margin-bottom: 8px;
-      font-size: 0.9rem;
-    }
-
-    .badge-status {
-      font-size: 0.75rem;
-      padding: 2px 8px;
-      border-radius: 12px;
-      font-weight: 600;
-    }
-
-    .badge-base {
-      background: rgba(110, 86, 207, 0.2);
-      color: #A58BFF;
-      border: 1px solid rgba(110, 86, 207, 0.4);
-    }
-
-    .badge-liderado {
-      background: rgba(139, 148, 158, 0.2);
-      color: var(--text-muted);
-      border: 1px solid rgba(139, 148, 158, 0.3);
-    }
-
-    @media (max-width: 500px) {
-      .row, .actions {
-        flex-direction: column;
-        gap: 8px;
-      }
-      .container {
-        padding: 20px 16px;
-      }
-    }
+    @media (max-width: 500px) { .row { flex-direction: column; gap: 0; } }
   </style>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
 <div class="container">
   <div class="top-nav">
-    <a href="index.html" class="btn-voltar">← Voltar ao Início</a>
+    <a href="lider.html" class="btn-voltar">← Voltar ao Menu</a>
   </div>
 
   <div class="header">
     <span class="badge-topo">MINISTÉRIO TOPO</span>
     <h1>👤 Cadastro de Membros</h1>
-    <p>Selecione a rede e cadastre os participantes</p>
   </div>
 
-  <form id="formCadastro" onsubmit="event.preventDefault();">
-    <div class="section">
-      <div class="section-title">📌 Seleção da Rede</div>
-      
-      <div class="row">
-        <div class="form-group">
-          <label for="selectSupervisao">Supervisão</label>
-          <select id="selectSupervisao">
-            <option value="">Selecione a Supervisão</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label for="selectRede">Rede</label>
-          <select id="selectRede" disabled>
-            <option value="">Selecione primeiro a Supervisão</option>
-          </select>
-        </div>
-      </div>
-
+  <form id="formCadastro">
+    <div class="row">
       <div class="form-group">
-        <label for="liderRede">Líder responsável</label>
-        <input type="text" id="liderRede" placeholder="Identificado automaticamente" readonly style="opacity: 0.7;">
+        <label>Supervisão</label>
+        <select id="selectSupervisao" required><option value="">Selecione...</option></select>
       </div>
-    </div>
-
-    <div class="section" id="blocoMembro">
-      <div class="section-title">👤 Dados do Participante</div>
-
       <div class="form-group">
-        <label for="nomeCompleto">Nome Completo *</label>
-        <input type="text" id="nomeCompleto" placeholder="Ex: João da Silva">
-      </div>
-
-      <div class="row">
-        <div class="form-group">
-          <label for="dataNascimento">Data de Nascimento</label>
-          <input type="date" id="dataNascimento">
-        </div>
-
-        <div class="form-group">
-          <label for="whatsapp">WhatsApp</label>
-          <input type="tel" id="whatsapp" placeholder="(81) 99999-9999">
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="form-group">
-          <label for="batizado">Já é batizado?</label>
-          <select id="batizado">
-            <option value="Não">Não</option>
-            <option value="Sim">Sim</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label for="encontroDeus">Já foi ao Encontro com Deus?</label>
-          <select id="encontroDeus">
-            <option value="Não">Não (Liderado)</option>
-            <option value="Sim">Sim (Base da Rede)</option>
-          </select>
-        </div>
+        <label>Rede</label>
+        <select id="selectRede" disabled required><option value="">Selecione a Supervisão</option></select>
       </div>
     </div>
 
-    <div class="actions">
-      <button type="button" id="btnSalvarEOutro" class="btn btn-secondary">➕ Cadastrar e Adicionar Outro</button>
-      <button type="button" id="btnFinalizar" class="btn btn-success">✅ Finalizar Cadastros</button>
+    <div class="form-group">
+      <label>Nome Completo do Membro</label>
+      <input type="text" id="inputNome" placeholder="Ex: João da Silva" required>
     </div>
+
+    <div class="row">
+      <div class="form-group">
+        <label>Data de Nascimento</label>
+        <input type="date" id="inputNascimento" required>
+      </div>
+      <div class="form-group">
+        <label>WhatsApp (com DDD)</label>
+        <input type="tel" id="inputWhatsapp" placeholder="81988887777" required>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="form-group">
+        <label>Já é Batizado(a)?</label>
+        <select id="selectBatizado" required>
+          <option value="Sim">Sim</option>
+          <option value="Não">Não</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Categoria na Rede</label>
+        <select id="selectCategoria" required>
+          <option value="Liderado">Liderado</option>
+          <option value="Base da Rede">Base da Rede</option>
+        </select>
+      </div>
+    </div>
+
+    <button type="submit" class="btn" id="btnSalvar">Salvar Cadastro</button>
   </form>
-
-  <div class="cadastrados-box" id="caixaSessao" style="display: none;">
-    <div class="section-title">📋 Cadastrados nesta sessão (<span id="qtdSessao">0</span>)</div>
-    <div id="listaSessao"></div>
-  </div>
 </div>
 
 <script>
-  const API_URL = "https://script.google.com/macros/s/AKfycbxWFDRZFXS0RQmErdlERXKy4D4e8DQUhbZsyVPwuetLqKAYzB5ATtcKU-GOnZwghmBfCw/exec";
+  const firebaseConfig = {
+    apiKey: "AIzaSyB7FJXs9wiRFYIs2ugZoWrw7jTXPR5weGk",
+    authDomain: "app-redes-iftejipio.firebaseapp.com",
+    projectId: "app-redes-iftejipio",
+    storageBucket: "app-redes-iftejipio.firebasestorage.app",
+    messagingSenderId: "954529090793",
+    appId: "1:954529090793:web:6702d102b6e5b178b6b478",
+    measurementId: "G-2MJ96WMYQ5"
+  };
 
-  const dadosTopo = [
-    {
-      supervisao: "Supervisão Monte Hor", supervisor: "Luís Felipe",
-      redes: [{ nome: "Rede Moisés", lider: "Gabriel" }, { nome: "Rede Alfa", lider: "Plinio" }, { nome: "Rede Timóteo", lider: "Sotero" }, { nome: "Rede Next", lider: "Vyni Léo" }, { nome: "Rede Inconformados", lider: "Maurilio" }, { nome: "Rede Atalaia", lider: "Mancine" }]
-    },
-    {
-      supervisao: "Supervisão Monte Tabor", supervisor: "Danylo Brissantt",
-      redes: [{ nome: "Hazak", lider: "Vitinho" }, { nome: "Monte Pisga", lider: "Ezequiel" }, { nome: "Escolhidos", lider: "João" }, { nome: "Paroikos", lider: "Iago" }, { nome: "Atos", lider: "Arley" }, { nome: "Karygma", lider: "Richard" }]
-    },
-    {
-      supervisao: "Supervisão Monte Nebo", supervisor: "Emanuel Henrique",
-      redes: [{ nome: "Rede Invictos", lider: "Éden" }, { nome: "Rede Ekballo", lider: "Cristian" }, { nome: "Rede Ousadia", lider: "Wallyson" }, { nome: "Rede Maranata", lider: "Richarlyson" }, { nome: "Rede Ruah", lider: "Vinícius" }]
-    },
-    {
-      supervisao: "Supervisão Monte Horebe", supervisor: "Andryo Henrique",
-      redes: [{ nome: "Rede Aljava", lider: "Taycilio" }, { nome: "Rede Sal da Terra", lider: "Marcelo Flexa" }, { nome: "Rede Ekklesia", lider: "Rodrigo" }, { nome: "Rede Forjados", lider: "Alef" }]
-    },
-    {
-      supervisao: "Supervisão Monte Carmelo", supervisor: "Diana Guerra",
-      redes: [{ nome: "Rede Flame", lider: "Cecília" }, { nome: "Rede Aurora", lider: "Ester" }, { nome: "Rede Colossenses", lider: "Ingrid" }, { nome: "Rede Perazim", lider: "Íris" }, { nome: "Rede Rise", lider: "Gabriela" }]
-    },
-    {
-      supervisao: "Supervisão Monte Moriá", supervisor: "Larissa Neves",
-      redes: [{ nome: "Rede Peregrina", lider: "Saiwry" }, { nome: "Rede Lume", lider: "Myrella" }, { nome: "Rede Promessa", lider: "Júlia" }, { nome: "Rede Áquila", lider: "Thaynara" }, { nome: "Rede Carmesim", lider: "Lívia" }, { nome: "Rede Emunah", lider: "Mayara" }, { nome: "Rede Margaridas", lider: "Lara" }]
-    },
-    {
-      supervisao: "Supervisão Monte Sinai", supervisor: "Sara Gomes",
-      redes: [{ nome: "Rede Jardim", lider: "Joana" }, { nome: "Rede Dunamis", lider: "Mikaele" }, { nome: "Rede Grace", lider: "Fernanda" }, { nome: "Rede Graciosa", lider: "Gleicy" }, { nome: "Rede Zoe", lider: "Karol" }, { nome: "Rede Lamparinas", lider: "Laura Ester" }]
-    },
-    {
-      supervisao: "Supervisão Monte Sião", supervisor: "Clara Dione",
-      redes: [{ nome: "Rede Águias", lider: "Anny" }, { nome: "Rede Hope", lider: "Laysa" }, { nome: "Rede Bloom", lider: "Clara" }, { nome: "Rede Herdeiras", lider: "Mika" }]
-    },
-    {
-      supervisao: "Supervisão Monte das Oliveiras", supervisor: "Letícia Sampaio",
-      redes: [{ nome: "Monte das Oliveiras", lider: "Letícia Sampaio" }, { nome: "Rede Lily", lider: "Dayanne Lethicia" }, { nome: "Rede Liz", lider: "Letícia Rodrigues" }, { nome: "Rede Âmbar", lider: "Gabriella A." }]
-    },
-    {
-      supervisao: "Supervisão Monte Seir", supervisor: "Karol Nogueira",
-      redes: [{ nome: "Rede Joy", lider: "Leticia" }, { nome: "Rede Legacy", lider: "Laura" }, { nome: "Rede Ramá", lider: "Raianny" }]
-    }
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  const supervisoresDB = [
+    { supervisao: "Supervisão Monte Hor", supervisor: "Luís Felipe", redes: [{ nome: "Rede Moisés", lider: "Gabriel" }, { nome: "Rede Alfa", lider: "Plinio" }, { nome: "Rede Timóteo", lider: "Sotero" }, { nome: "Rede Next", lider: "Vyni Léo" }, { nome: "Rede Inconformados", lider: "Maurilio" }, { nome: "Rede Atalaia", lider: "Mancine" }] },
+    { supervisao: "Supervisão Monte Tabor", supervisor: "Danylo Brissantt", redes: [{ nome: "Hazak", lider: "Vitinho" }, { nome: "Monte Pisga", lider: "Ezequiel" }, { nome: "Escolhidos", lider: "João" }, { nome: "Paroikos", lider: "Iago" }, { nome: "Atos", lider: "Arley" }, { nome: "Karygma", lider: "Richard" }] },
+    { supervisao: "Supervisão Monte Nebo", supervisor: "Emanuel Henrique", redes: [{ nome: "Rede Invictos", lider: "Éden" }, { nome: "Rede Ekballo", lider: "Cristian" }, { nome: "Rede Ousadia", lider: "Wallyson" }, { nome: "Rede Maranata", lider: "Richarlyson" }, { nome: "Rede Ruah", lider: "Vinícius" }] },
+    { supervisao: "Supervisão Monte Horebe", supervisor: "Andryo Henrique", redes: [{ nome: "Rede Aljava", lider: "Taycilio" }, { nome: "Rede Sal da Terra", lider: "Marcelo Flexa" }, { nome: "Rede Ekklesia", lider: "Rodrigo" }, { nome: "Rede Forjados", lider: "Alef" }] },
+    { supervisao: "Supervisão Monte Carmelo", supervisor: "Diana Guerra", redes: [{ nome: "Rede Flame", lider: "Cecília" }, { nome: "Rede Aurora", lider: "Ester" }, { nome: "Rede Colossenses", lider: "Ingrid" }, { nome: "Rede Perazim", lider: "Íris" }, { nome: "Rede Rise", lider: "Gabriela" }] },
+    { supervisao: "Supervisão Monte Moriá", supervisor: "Larissa Neves", redes: [{ nome: "Rede Peregrina", lider: "Saiwry" }, { nome: "Rede Lume", lider: "Myrella" }, { nome: "Rede Promessa", lider: "Júlia" }, { nome: "Rede Áquila", lider: "Thaynara" }, { nome: "Rede Carmesim", lider: "Lívia" }, { nome: "Rede Emunah", lider: "Mayara" }, { nome: "Rede Margaridas", lider: "Lara" }] },
+    { supervisao: "Supervisão Monte Sinai", supervisor: "Sara Gomes", redes: [{ nome: "Rede Jardim", lider: "Joana" }, { nome: "Rede Dunamis", lider: "Mikaele" }, { nome: "Rede Grace", lider: "Fernanda" }, { nome: "Rede Graciosa", lider: "Gleicy" }, { nome: "Rede Zoe", lider: "Karol" }, { nome: "Rede Lamparinas", lider: "Laura Ester" }] },
+    { supervisao: "Supervisão Monte Sião", supervisor: "Clara Dione", redes: [{ nome: "Rede Águias", lider: "Anny" }, { nome: "Rede Hope", lider: "Laysa" }, { nome: "Rede Bloom", lider: "Clara" }, { nome: "Rede Herdeiras", lider: "Mika" }] },
+    { supervisao: "Supervisão Monte das Oliveiras", supervisor: "Letícia Sampaio", redes: [{ nome: "Monte das Oliveiras", lider: "Letícia Sampaio" }, { nome: "Rede Lily", lider: "Dayanne Lethicia" }, { nome: "Rede Liz", lider: "Letícia Rodrigues" }, { nome: "Rede Âmbar", lider: "Gabriella A." }] },
+    { supervisao: "Supervisão Monte Seir", supervisor: "Karol Nogueira", redes: [{ nome: "Rede Joy", lider: "Leticia" }, { nome: "Rede Legacy", lider: "Laura" }, { nome: "Rede Ramá", lider: "Raianny" }] }
   ];
 
-  let cadastradosSessao = [];
-
-  document.addEventListener("DOMContentLoaded", function() {
-    carregarSupervisoes();
-
-    document.getElementById('selectSupervisao').addEventListener('change', atualizarRedes);
-    document.getElementById('selectRede').addEventListener('change', atualizarLider);
-
-    document.getElementById('btnSalvarEOutro').addEventListener('click', () => processarCadastro(false));
-    document.getElementById('btnFinalizar').addEventListener('click', () => processarCadastro(true));
-  });
-
-  function carregarSupervisoes() {
-    const selectSup = document.getElementById('selectSupervisao');
-    dadosTopo.forEach((item, index) => {
+  document.addEventListener("DOMContentLoaded", () => {
+    const selSup = document.getElementById('selectSupervisao');
+    supervisoresDB.forEach((item, index) => {
       const opt = document.createElement('option');
       opt.value = index;
       opt.textContent = `${item.supervisao} (${item.supervisor})`;
-      selectSup.appendChild(opt);
+      selSup.appendChild(opt);
     });
-  }
+
+    selSup.addEventListener('change', atualizarRedes);
+  });
 
   function atualizarRedes() {
     const indexSup = document.getElementById('selectSupervisao').value;
-    const selectRede = document.getElementById('selectRede');
-    const inputLider = document.getElementById('liderRede');
-
-    selectRede.innerHTML = '';
-    inputLider.value = '';
+    const selRede = document.getElementById('selectRede');
+    selRede.innerHTML = '';
 
     if (indexSup === "") {
-      selectRede.disabled = true;
-      selectRede.innerHTML = '<option value="">Selecione primeiro a Supervisão</option>';
+      selRede.disabled = true;
+      selRede.innerHTML = '<option value="">Selecione a Supervisão</option>';
       return;
     }
 
-    const supSelecionada = dadosTopo[indexSup];
-    selectRede.disabled = false;
-    selectRede.innerHTML = '<option value="">Selecione a Rede</option>';
-
-    supSelecionada.redes.forEach((rede, index) => {
+    selRede.disabled = false;
+    selRede.innerHTML = '<option value="">Selecione a Rede</option>';
+    supervisoresDB[indexSup].redes.forEach((r, idx) => {
       const opt = document.createElement('option');
-      opt.value = index;
-      opt.textContent = `${rede.nome} (Líder: ${rede.lider})`;
-      selectRede.appendChild(opt);
+      opt.value = idx;
+      opt.textContent = `${r.nome} (Líder: ${r.lider})`;
+      selRede.appendChild(opt);
     });
   }
 
-  function atualizarLider() {
-    const indexSup = document.getElementById('selectSupervisao').value;
-    const indexRede = document.getElementById('selectRede').value;
-    const inputLider = document.getElementById('liderRede');
-
-    if (indexSup !== "" && indexRede !== "") {
-      inputLider.value = dadosTopo[indexSup].redes[indexRede].lider;
-    } else {
-      inputLider.value = '';
-    }
-  }
-
-  async function processarCadastro(isFinalizar) {
-    const btnOutro = document.getElementById('btnSalvarEOutro');
-    const btnFin = document.getElementById('btnFinalizar');
+  document.getElementById('formCadastro').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn = document.getElementById('btnSalvar');
+    btn.disabled = true;
+    btn.innerText = "Salvando no Firebase...";
 
     const indexSup = document.getElementById('selectSupervisao').value;
     const indexRede = document.getElementById('selectRede').value;
-    const nome = document.getElementById('nomeCompleto').value.trim();
 
-    if (indexSup === "" || indexRede === "") {
-      alert("Por favor, selecione a Supervisão e a Rede primeiro!");
-      return;
-    }
-
-    if (!nome) {
-      alert("O nome completo da pessoa é obrigatório!");
-      document.getElementById('nomeCompleto').focus();
-      return;
-    }
-
-    btnOutro.disabled = true;
-    btnFin.disabled = true;
-
-    const supObj = dadosTopo[indexSup];
+    const supObj = supervisoresDB[indexSup];
     const redeObj = supObj.redes[indexRede];
-    const nascimento = document.getElementById('dataNascimento').value;
-    const whatsapp = document.getElementById('whatsapp').value.trim();
-    const batizado = document.getElementById('batizado').value;
-    const encontroDeus = document.getElementById('encontroDeus').value;
-    
-    const categoria = (encontroDeus === "Sim") ? "Base da Rede" : "Liderado";
 
     const novoMembro = {
-      tipo: "MEMBRO",
+      dataCadastro: new Date().toISOString(),
       supervisao: supObj.supervisao,
       supervisor: supObj.supervisor,
       rede: redeObj.nome,
       lider: redeObj.lider,
-      nome: nome,
-      nascimento: nascimento || "Não informada",
-      whatsapp: whatsapp || "Não informado",
-      batizado: batizado,
-      categoria: categoria
+      nome: document.getElementById('inputNome').value.trim(),
+      nascimento: document.getElementById('inputNascimento').value,
+      whatsapp: document.getElementById('inputWhatsapp').value.trim(),
+      batizado: document.getElementById('selectBatizado').value,
+      categoria: document.getElementById('selectCategoria').value,
+      status: "ATIVO"
     };
 
-    // Envio para o Google Sheets
     try {
-      await fetch(API_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(novoMembro)
-      });
+      await db.collection('membros').add(novoMembro);
+      alert("✅ Membro cadastrado com sucesso no Firebase!");
+      document.getElementById('formCadastro').reset();
+      document.getElementById('selectRede').disabled = true;
     } catch (err) {
-      console.log("Erro ao salvar membro:", err);
+      alert("Erro ao salvar cadastro. Tente novamente.");
+      console.error(err);
+    } finally {
+      btn.disabled = false;
+      btn.innerText = "Salvar Cadastro";
     }
-
-    cadastradosSessao.push(novoMembro);
-    atualizarListaSessao();
-
-    btnOutro.disabled = false;
-    btnFin.disabled = false;
-
-    if (isFinalizar) {
-      alert(`✅ Cadastro finalizado com sucesso! ${cadastradosSessao.length} membro(s) salvo(s) na ${redeObj.nome}.`);
-      limparCamposMembro();
-    } else {
-      limparCamposMembro();
-      alert(`✔️ ${nome} cadastrado(a) na planilha! Pode preencher o próximo.`);
-      document.getElementById('nomeCompleto').focus();
-    }
-  }
-
-  function limparCamposMembro() {
-    document.getElementById('nomeCompleto').value = '';
-    document.getElementById('dataNascimento').value = '';
-    document.getElementById('whatsapp').value = '';
-    document.getElementById('batizado').value = 'Não';
-    document.getElementById('encontroDeus').value = 'Não';
-  }
-
-  function atualizarListaSessao() {
-    const caixa = document.getElementById('caixaSessao');
-    const lista = document.getElementById('listaSessao');
-    const qtd = document.getElementById('qtdSessao');
-
-    caixa.style.display = 'block';
-    qtd.innerText = cadastradosSessao.length;
-    lista.innerHTML = '';
-
-    cadastradosSessao.forEach((m, idx) => {
-      const div = document.createElement('div');
-      div.className = 'membro-item';
-      const isBase = m.categoria === "Base da Rede";
-      div.innerHTML = `
-        <div>
-          <strong>${idx + 1}. ${m.nome}</strong><br>
-          <small style="color: var(--text-muted);">${m.whatsapp || 'Sem WhatsApp'}</small>
-        </div>
-        <span class="badge-status ${isBase ? 'badge-base' : 'badge-liderado'}">${m.categoria}</span>
-      `;
-      lista.appendChild(div);
-    });
-  }
+  });
 </script>
 
 </body>
