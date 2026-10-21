@@ -106,6 +106,8 @@
     }
     input:focus, select:focus { border-color: var(--primary); }
 
+    select option { background-color: var(--card-bg); color: var(--text); }
+
     .btn {
       background-color: var(--primary); color: white; border: none; padding: 12px 18px;
       border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.95rem; width: 100%; transition: 0.2s;
@@ -214,7 +216,7 @@
     <div class="form-group">
       <label for="selectSupLogin">Selecione sua Supervisão</label>
       <select id="selectSupLogin">
-        <option value="">Selecione...</option>
+        <option value="">Carregando supervisões...</option>
       </select>
     </div>
     <div class="form-group">
@@ -322,14 +324,20 @@
   let supervisorLogado = null;
 
   document.addEventListener("DOMContentLoaded", function() {
+    carregarSupervisoes();
+  });
+
+  function carregarSupervisoes() {
     const select = document.getElementById('selectSupLogin');
+    select.innerHTML = '<option value="">Selecione sua Supervisão</option>';
+    
     supervisoresDB.forEach((item, index) => {
       const opt = document.createElement('option');
       opt.value = index;
       opt.textContent = `${item.supervisao} (${item.supervisor})`;
       select.appendChild(opt);
     });
-  });
+  }
 
   async function fazerLogin() {
     const index = document.getElementById('selectSupLogin').value;
@@ -367,11 +375,9 @@
     const redesDaSup = supervisorLogado.redes;
     const nomesRedes = redesDaSup.map(r => r.nome);
 
-    // Filtrar Membros Ativos e Relatórios da Supervisão
     const membrosSup = dadosBrutos.membros.slice(1).filter(m => nomesRedes.includes(m[3]) && m[10] !== "INATIVO");
     const relatoriosSup = dadosBrutos.relatorios.slice(1).filter(r => nomesRedes.includes(r[3])).reverse();
 
-    // 1. Métricas Gerais
     let totalMembros = membrosSup.length;
     let meta12 = 0;
     let multi = 0;
@@ -414,7 +420,6 @@
     document.getElementById('mRedesMulti').innerText = multi;
     document.getElementById('mRedesAlerta').innerText = abaixo;
 
-    // 2. Matriz de Alertas (Faltas 2 e 3)
     const tabelaAlertasBody = document.getElementById('tabelaAlertasBody');
     tabelaAlertasBody.innerHTML = '';
     let qtdAlertas = 0;
@@ -438,7 +443,7 @@
       if (faltasSeguidas >= 2) {
         qtdAlertas++;
         const tipoAlerta = faltasSeguidas >= 3 ? `<span class="tag tag-danger">⛔ ${faltasSeguidas} Faltas (Não Pode Servir)</span>` : `<span class="tag tag-yellow">⚠️ ${faltasSeguidas} Faltas (Apascentamento)</span>`;
-        const linkWhats = whats ? `<a href="https://api.whatsapp.com/send?phone=55${whats.replace(/\D/g,'')}&text=${encodeURIComponent('Olá ' + nome +, tudo bem? Sentimos sua falta na rede!')}" target="_blank" class="btn-whats">💬 Chamar</a>` : 'Sem WhatsApp';
+        const linkWhats = whats ? `<a href="https://api.whatsapp.com/send?phone=55${whats.replace(/\D/g,'')}&text=${encodeURIComponent('Olá ' + nome + ', tudo bem? Sentimos sua falta na rede!')}" target="_blank" class="btn-whats">💬 Chamar</a>` : 'Sem WhatsApp';
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
@@ -455,7 +460,6 @@
       tabelaAlertasBody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Nenhum alerta de falta consecutiva no momento. 🟢</td></tr>`;
     }
 
-    // 3. Aniversariantes do Mês
     const tabelaNiverBody = document.getElementById('tabelaNiverBody');
     tabelaNiverBody.innerHTML = '';
     const mesAtual = new Date().getMonth() + 1;
