@@ -492,19 +492,18 @@
     document.getElementById('btnAtivarEdicao').style.display = 'none';
     document.getElementById('btnSalvarRelatorio').style.display = 'inline-block';
 
-    const presentesAtuais = rel.presentes ? rel.presentes.toString() : '';
-    const faltantesAtuais = rel.faltantes ? rel.faltantes.toString() : '';
+    const presentesStr = rel.presentes ? rel.presentes.toString().toLowerCase() : '';
+    const faltantesStr = rel.faltantes ? rel.faltantes.toString() : '';
 
     let chamadaHtml = '';
     membrosLocais.forEach((m, index) => {
       const nome = m.nome;
-      const estaPresente = presentesAtuais.includes(nome);
+      const estaPresente = presentesStr.includes(nome.toLowerCase());
 
       let justificativaTexto = '';
       if (!estaPresente) {
-        // Tenta extrair a justificativa salva anteriormente, se houver
         const regex = new RegExp(nome + '\\s*\\(Justificativa:\\s*([^\\)]+)\\)', 'i');
-        const match = faltantesAtuais.match(regex);
+        const match = faltantesStr.match(regex);
         if (match && match[1]) {
           justificativaTexto = match[1].trim();
         }
