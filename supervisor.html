@@ -51,7 +51,6 @@
 
     .section-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
 
-    /* Estilo de Árvore em Acordeão das Redes e Liderados */
     .tree-wrapper { margin-bottom: 32px; }
     .supervisao-card { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 12px; margin-bottom: 12px; overflow: hidden; transition: border-color 0.2s; }
     .supervisao-card:hover { border-color: var(--primary); }
@@ -88,7 +87,6 @@
     .btn-ver-relatorios { background: rgba(56, 139, 253, 0.15); color: var(--info); border: 1px solid rgba(56, 139, 253, 0.3); padding: 4px 10px; border-radius: 6px; font-size: 0.78rem; font-weight: 600; cursor: pointer; text-decoration: none; }
     .btn-ver-relatorios:hover { background: var(--info); color: #FFF; }
 
-    /* Estilos do Modal de Relatórios */
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 999; display: none; }
     .modal-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 24px; max-width: 600px; width: 100%; max-height: 85vh; overflow-y: auto; }
     .modal-header { font-size: 1.2rem; font-weight: 700; margin-bottom: 16px; color: var(--text); display: flex; justify-content: space-between; align-items: center; }
@@ -124,7 +122,9 @@
   <div id="loginBox">
     <div class="form-group">
       <label for="selectSupLogin">Selecione sua Supervisão</label>
-      <select id="selectSupLogin"><option value="">Carregando supervisões...</option></select>
+      <select id="selectSupLogin">
+        <option value="">Carregando supervisões...</option>
+      </select>
     </div>
     <div class="form-group">
       <label for="inputSenha">Senha de Acesso</label>
@@ -171,7 +171,6 @@
       </table>
     </div>
 
-    <!-- ÁRVORE DE REDES E LIDERADOS NO FINAL -->
     <div class="section-title">🌳 Árvore de Redes e Liderados</div>
     <div class="tree-wrapper" id="treeContainerRedes"></div>
   </div>
@@ -179,7 +178,6 @@
   <div id="loading" class="loading-box" style="display: none;">Carregando dados da supervisão do Firebase...</div>
 </div>
 
-<!-- Modal para Exibir os Relatórios da Rede Selecionada -->
 <div id="modalRelatoriosRede" class="modal-overlay">
   <div class="modal-card">
     <div class="modal-header">
@@ -225,12 +223,17 @@
   ];
 
   let supervisorLogado = null;
-  let relatoriosCacheSup = []; // Cache para abrir os relatórios na modal
+  let relatoriosCacheSup = [];
 
-  document.addEventListener("DOMContentLoaded", carregarSupervisoes);
+  // Garante o preenchimento imediato assim que a árvore do DOM estiver pronta
+  window.addEventListener('DOMContentLoaded', () => {
+    carregarSupervisoes();
+  });
 
   function carregarSupervisoes() {
     const select = document.getElementById('selectSupLogin');
+    if (!select) return;
+    
     select.innerHTML = '<option value="">Selecione sua Supervisão</option>';
     supervisoresDB.forEach((item, index) => {
       const opt = document.createElement('option');
@@ -252,7 +255,7 @@
     supervisorLogado = supSelecionada;
     document.getElementById('loginBox').style.display = 'none';
     document.getElementById('loading').style.display = 'block';
-    document.getElementById('labelSupervisorLogado').innerText = `${supervisorLogado.supervisao} -${supervisorLogado.supervisor}`;
+    document.getElementById('labelSupervisorLogado').innerText = `${supervisorLogado.supervisao} - ${supervisorLogado.supervisor}`;
 
     try {
       const snapshotMembros = await db.collection('membros')
@@ -278,6 +281,7 @@
     } catch (err) {
       alert("Erro ao carregar dados do Firebase.");
       console.error(err);
+      document.getElementById('loginBox').style.display = 'block';
     } finally {
       document.getElementById('loading').style.display = 'none';
     }
@@ -300,7 +304,7 @@
       relsRede.sort((a, b) => new Date(b.dataEncontro || 0) - new Date(a.dataEncontro || 0));
       const ultimoRel = relsRede.length > 0 ? relsRede[0] : null;
       
-      let infoUltimoRel = "Nenhum relatório";
+      let infoUltimoRel = "";
       if (ultimoRel) {
         infoUltimoRel = `${ultimoRel.dataEncontro || 'Sem data'} (<button class="btn-ver-relatorios" onclick="abrirRelatoriosRede('${r.nome}')">Ver (${relsRede.length})</button>)`;
       } else {
@@ -335,7 +339,6 @@
     document.getElementById('mRedesMulti').innerText = multi;
     document.getElementById('mRedesAlerta').innerText = abaixo;
 
-    // Matriz de Alertas
     const tabelaAlertasBody = document.getElementById('tabelaAlertasBody');
     tabelaAlertasBody.innerHTML = '';
     let qtdAlertas = 0;
@@ -357,4 +360,133 @@
         const linkWhats = whats ? `<a href="https://api.whatsapp.com/send?phone=55${whats.replace(/\D/g,'')}&text=${encodeURIComponent('Olá ' + nome + ', tudo bem? Sentimos sua falta na rede!')}" target="_blank" class="btn-whats">💬 Chamar</a>` : 'Sem WhatsApp';
 
         const tr = document.createElement('tr');
-        tr.innerHTML = `<td><strong>${nome}</strong></td><td>${rede}</td><td>${tipoAlerta}</td><td>${linkWhats}
+        tr.innerHTML = `<td><strong>${nome}</strong></td><td>${rede}</td><td>${tipoAlerta}</td><td>${linkWhats}</td>`;
+        tabelaAlertasBody.appendChild(tr);
+      }
+    });
+
+    if (qtdAlertas === 0) tabelaAlertasBody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Nenhum alerta de falta consecutiva no momento. 🟢</td></tr>`;
+
+    const tabelaNiverBody = document.getElementById('tabelaNiverBody');
+    tabelaNiverBody.innerHTML = '';
+    const mesAtual = new Date().getMonth() + 1;
+    let qtdNiver = 0;
+
+    membrosSup.forEach(m => {
+      const nasc = m.nascimento;
+      if (nasc) {
+        const partes = nasc.toString().split('-');
+        if (partes.length === 3 && parseInt(partes[1]) === mesAtual) {
+          qtdNiver++;
+          const linkWhatsNiver = m.whatsapp ? `<a href="https://api.whatsapp.com/send?phone=55${m.whatsapp.replace(/\D/g,'')}&text=${encodeURIComponent('Parabéns ' + m.nome + '! Que o Senhor te abençoe muito em seu aniversário!')}" target="_blank" class="btn-whats">🎂 Parabéns</a>` : 'Sem WhatsApp';
+
+          const tr = document.createElement('tr');
+          tr.innerHTML = `<td><strong>${m.nome}</strong></td><td>${m.rede}</td><td>${partes[2]}/${partes[1]}</td><td>${linkWhatsNiver}</td>`;
+          tabelaNiverBody.appendChild(tr);
+        }
+      }
+    });
+
+    if (qtdNiver === 0) tabelaNiverBody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Nenhum aniversariante neste mês.</td></tr>`;
+
+    renderizarArvoreRedesELiderados(membrosSup);
+
+    document.getElementById('painelSupervisor').style.display = 'block';
+  }
+
+  function renderizarArvoreRedesELiderados(membrosSup) {
+    const container = document.getElementById('treeContainerRedes');
+    container.innerHTML = '';
+
+    const redesDaSup = supervisorLogado.redes;
+
+    redesDaSup.forEach(r => {
+      const membrosRede = membrosSup.filter(m => m.rede === r.nome);
+
+      let membrosHtml = '';
+      if (membrosRede.length === 0) {
+        membrosHtml = `<div style="padding: 10px; color: var(--text-muted); font-size: 0.85rem;">Nenhum liderado cadastrado nesta rede.</div>`;
+      } else {
+        membrosRede.forEach(m => {
+          const cat = m.categoria || 'Liderado';
+          const isBase = cat === 'Base da Rede';
+          membrosHtml += `
+            <div class="rede-item">
+              <span>👤 ${m.nome}</span>
+              <span class="tag" style="background:${isBase ? 'rgba(110,86,207,0.3)' : 'rgba(255,255,255,0.05)'}; color:${isBase ? '#A58BFF' : 'var(--text-muted)'};">${cat}</span>
+            </div>
+          `;
+        });
+      }
+
+      const card = document.createElement('div');
+      card.className = 'supervisao-card';
+      card.innerHTML = `
+        <div class="supervisao-header" onclick="toggleCard(this)">
+          <div class="supervisao-info">
+            <h3>📍 ${r.nome}</h3>
+            <p>Líder: <strong>${r.lider}</strong></p>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span class="supervisao-badge">${membrosRede.length} membros</span>
+            <span class="arrow-icon">▼</span>
+          </div>
+        </div>
+        <div class="redes-list">
+          ${membrosHtml}
+        </div>
+      `;
+      container.appendChild(card);
+    });
+  }
+
+  function toggleCard(headerElement) {
+    const card = headerElement.parentElement;
+    card.classList.toggle('ativo');
+  }
+
+  function abrirRelatoriosRede(nomeRede) {
+    document.getElementById('tituloModalRede').innerText = `📜 Relatórios da ${nomeRede}`;
+    const conteudoModal = document.getElementById('conteudoRelatoriosRede');
+    conteudoModal.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-muted);">Carregando relatórios...</div>`;
+    
+    document.getElementById('modalRelatoriosRede').style.display = 'flex';
+
+    const relsRede = relatoriosCacheSup.filter(r => r.rede === nomeRede);
+    relsRede.sort((a, b) => new Date(b.dataEncontro || 0) - new Date(a.dataEncontro || 0));
+
+    if (relsRede.length === 0) {
+      conteudoModal.innerHTML = `<div style="color: var(--text-muted); text-align:center; padding: 20px;">Nenhum relatório cadastrado para esta rede.</div>`;
+      return;
+    }
+
+    let htmlRels = '';
+    relsRede.forEach(r => {
+      htmlRels += `
+        <div class="relatorio-item-sup">
+          <header>
+            <span>📅 Encontro: ${r.dataEncontro || 'N/A'} (${r.horario || ''})</span>
+            <span>📍 ${r.local || 'Local não informado'}</span>
+          </header>
+          <div style="font-size: 0.85rem; color: var(--text); line-height: 1.4; margin-top: 6px;">
+            <strong>Tema:</strong> ${r.tema || '-'}<br>
+            <strong>Presentes:</strong> ${r.presentes || 'Nenhum'}<br>
+            <strong>Visitantes:</strong> ${r.visitantes || 'Nenhum'}<br>
+            <span style="color: var(--danger);"><strong>Faltantes:</strong> ${r.faltantes || 'Nenhum'}</span><br>
+            <strong>Resumo da Palavra:</strong> ${r.resumoPalavra || '-'}<br>
+            <strong>Atividades:</strong> ${r.atividades || '-'}
+          </div>
+        </div>
+      `;
+    });
+
+    conteudoModal.innerHTML = htmlRels;
+  }
+
+  function fecharModalRelatoriosRede() {
+    document.getElementById('modalRelatoriosRede').style.display = 'none';
+  }
+</script>
+
+</body>
+</html>
