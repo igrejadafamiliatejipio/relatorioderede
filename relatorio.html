@@ -96,7 +96,7 @@
     </div>
 
     <div class="form-group">
-      <label>Chamada de Membros (Marque os presentes)</label>
+      <label>Chamada de Membros e Líder (Marque os presentes)</label>
       <div id="chamadaContainer" class="chamada-container">
         <span style="color: var(--text-muted); font-size: 0.85rem;">Carregando membros...</span>
       </div>
@@ -137,7 +137,9 @@
     measurementId: "G-2MJ96WMYQ5"
   };
 
-  firebase.initializeApp(firebaseConfig);
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
   const db = firebase.firestore();
 
   let dadosSessao = {};
@@ -172,9 +174,12 @@
       snapshot.forEach(doc => {
         const data = doc.data();
         if (data.status !== 'INATIVO') {
-          membrosRedeAtual.push(data.nome);
+          membrosRedeAtual.push(data);
         }
       });
+
+      // Ordena para o líder aparecer no topo da chamada com destaque
+      membrosRedeAtual.sort((a, b) => (a.categoria === 'Líder' ? -1 : (b.categoria === 'Líder' ? 1 : a.nome.localeCompare(b.nome))));
 
       renderizarChamada();
     } catch (err) {
@@ -192,14 +197,18 @@
       return;
     }
 
-    membrosRedeAtual.forEach((nome, index) => {
+    membrosRedeAtual.forEach((membro, index) => {
+      const nome = membro.nome;
+      const isLider = membro.categoria === 'Líder';
+      const labelTexto = isLider ? `⭐ ${nome} (Líder da Rede)` : nome;
+
       const div = document.createElement('div');
       div.className = 'chamada-item';
       div.innerHTML = `
         <div class="chamada-info">
           <label>
             <input type="checkbox" id="membro_${index}" value="${nome}" checked onchange="toggleJustificativa(${index})">
-            <span>${nome}</span>
+            <span style="${isLider ? 'color: var(--success); font-weight: 700;' : ''}">${labelTexto}</span>
           </label>
         </div>
         <div class="justificativa-box" id="box_just_${index}">
@@ -230,7 +239,8 @@
     let presentesArr = [];
     let faltantesArr = [];
 
-    membrosRedeAtual.forEach((nome, index) => {
+    membrosRedeAtual.forEach((membro, index) => {
+      const nome = membro.nome;
       const checkbox = document.getElementById(`membro_${index}`);
       if (checkbox.checked) {
         presentesArr.push(nome);
