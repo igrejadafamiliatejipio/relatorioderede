@@ -39,17 +39,35 @@
     .btn-action { background: rgba(56, 139, 253, 0.15); color: var(--info); border: 1px solid rgba(56, 139, 253, 0.3); padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer; }
     .btn-action:hover { background: var(--info); color: #FFF; }
     
-    /* Botão de mudar líder discreto */
     .btn-lider-discreto { background: transparent; border: none; color: var(--text-muted); font-size: 0.75rem; cursor: pointer; text-decoration: underline; padding: 2px 4px; }
     .btn-lider-discreto:hover { color: var(--primary); }
 
     .supervisao-card { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 12px; margin-bottom: 12px; overflow: hidden; }
-    .supervisao-header { padding: 16px; display: flex; justify-content: space-between; align-items: center; }
-    .supervisao-header-left { display: flex; align-items: center; gap: 12px; cursor: pointer; flex: 1; }
+    .supervisao-header { padding: 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; }
+    .supervisao-header:hover { background: rgba(255,255,255,0.02); }
+    .supervisao-header-left { display: flex; align-items: center; gap: 12px; flex: 1; }
     .supervisao-badge { background: rgba(110, 86, 207, 0.2); color: #A58BFF; border: 1px solid rgba(110, 86, 207, 0.4); padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
-    .redes-list { padding: 0 16px 16px 16px; display: none; border-top: 1px solid var(--card-border); background: var(--card-bg); }
-    .supervisao-card.ativo .redes-list { display: block; }
+    
+    .redes-list { padding: 0 16px; max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out, padding 0.3s ease-out; background: var(--card-bg); border-top: 0px solid var(--card-border); }
+    .supervisao-card.ativo .redes-list { max-height: 800px; padding: 16px; border-top: 1px solid var(--card-border); overflow-y: auto; }
+    
     .rede-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--card-border); font-size: 0.9rem; }
+    .rede-item:last-child { border-bottom: none; }
+
+    /* Estilo de Destaque Forte para o Líder */
+    .rede-item-lider {
+      background: linear-gradient(135deg, rgba(35, 209, 96, 0.15) 0%, rgba(22, 27, 34, 0.9) 100%);
+      border: 1px solid rgba(35, 209, 96, 0.4);
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+      box-shadow: 0 4px 15px rgba(35, 209, 96, 0.1);
+    }
+    .rede-item-lider strong {
+      color: #23D160;
+      font-size: 1.1rem;
+      letter-spacing: 0.3px;
+    }
     
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 999; display: none; }
     .modal-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 24px; max-width: 480px; width: 100%; }
@@ -57,7 +75,7 @@
     .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
     .form-group { margin-bottom: 14px; text-align: left; }
     label { display: block; font-weight: 500; font-size: 0.8rem; margin-bottom: 6px; color: var(--text-muted); text-transform: uppercase; }
-    select { width: 100%; padding: 10px 14px; background-color: var(--input-bg); border: 1px solid var(--card-border); border-radius: 8px; font-size: 0.95rem; color: var(--text); outline: none; }
+    select, input { width: 100%; padding: 10px 14px; background-color: var(--input-bg); border: 1px solid var(--card-border); border-radius: 8px; font-size: 0.95rem; color: var(--text); outline: none; }
     select option { background-color: var(--card-bg); color: var(--text); }
     .btn-salvar { background: var(--primary); color: white; border: none; padding: 10px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; }
     .btn-salvar:hover { background: var(--primary-hover); }
@@ -109,7 +127,7 @@
     <div class="section-title">🎂 Aniversariantes do Mês na Supervisão</div>
     <div class="table-container">
       <table>
-        <thead><tr><th>Membro</th><th>Rede</th><th>Data Nasc.</th><th>WhatsApp</th></tr></thead>
+        <thead><tr><th>Membro</th><th>Rede</th><th>Data Nasc.</th><th>Ação</th></tr></thead>
         <tbody id="tabelaNiverBody"></tbody>
       </table>
     </div>
@@ -144,7 +162,7 @@
     <input type="hidden" id="transMembroId">
     <div class="form-group">
       <label>Membro</label>
-      <input type="text" id="transMembroNome" readonly style="background: var(--input-bg); border:1px solid var(--card-border); padding:10px; border-radius:8px; color:var(--text); width:100%;">
+      <input type="text" id="transMembroNome" readonly>
     </div>
     <div class="form-group">
       <label>Rede de Destino</label>
@@ -311,10 +329,12 @@
       tabelaAlertas.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Nenhum alerta de falta consecutiva no momento. 👍</td></tr>`;
     }
 
-    // Aniversariantes do Mês
+    // Aniversariantes do Mês (Botão de WhatsApp apenas para quem faz aniversário HOJE)
     const tabelaNiver = document.getElementById('tabelaNiverBody');
     tabelaNiver.innerHTML = '';
-    const mesAtual = new Date().getMonth() + 1;
+    const hoje = new Date();
+    const mesAtual = hoje.getMonth() + 1;
+    const diaAtual = hoje.getDate();
     let qtdNivers = 0;
 
     membrosCache.forEach(m => {
@@ -323,17 +343,23 @@
         const partes = nasc.toString().split('-');
         if (partes.length === 3 && parseInt(partes[1]) === mesAtual) {
           qtdNivers++;
+          const diaNasc = parseInt(partes[2]);
+          const isAniversarioHoje = (diaNasc === diaAtual);
           const whatsNiver = m.whatsapp ? m.whatsapp.trim() : '';
-          const btnWhatsNiver = whatsNiver !== '' 
-            ? `<a href="https://api.whatsapp.com/send?phone=55${whatsNiver.replace(/\D/g,'')}&text=${encodeURIComponent('Parabéns ' + m.nome + '! Que o Senhor te abençoe muito em seu aniversário, com muita paz e alegria. Celebramos sua vida em nossa supervisão!')}" target="_blank" class="btn-whats">🎂 Dar os Parabéns</a>` 
-            : '<small style="color:var(--text-muted)">Sem WhatsApp</small>';
+
+          let acaoHtml = `<span style="color:var(--text-muted); font-size:0.85rem;">Dia ${partes[2]}</span>`;
+          if (isAniversarioHoje && whatsNiver !== '') {
+            acaoHtml = `<a href="https://api.whatsapp.com/send?phone=55${whatsNiver.replace(/\D/g,'')}&text=${encodeURIComponent('Parabéns ' + m.nome + '! Que o Senhor te abençoe muito em seu aniversário, com muita paz e alegria. Celebramos sua vida em nossa supervisão!')}" target="_blank" class="btn-whats">🎂 Dar os Parabéns (Hoje!)</a>`;
+          } else if (isAniversarioHoje) {
+            acaoHtml = `<span class="tag tag-green">🎉 Aniversário Hoje! (Sem WhatsApp)</span>`;
+          }
 
           tabelaNiver.innerHTML += `
             <tr>
               <td><strong>${m.nome}</strong></td>
               <td>${m.rede}</td>
               <td>${partes[2]}/${partes[1]}</td>
-              <td>${btnWhatsNiver}</td>
+              <td>${acaoHtml}</td>
             </tr>
           `;
         }
@@ -344,42 +370,73 @@
       tabelaNiver.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Nenhum aniversariante registrado neste mês.</td></tr>`;
     }
 
-    // Árvore de Redes com Botão Discreto de Mudar Líder
+    // Árvore de Redes (Sanfona vertical com líder em forte destaque)
     const treeContainer = document.getElementById('treeContainerRedes');
     treeContainer.innerHTML = '';
     supervisorRedes.forEach(r => {
       const membrosRede = membrosCache.filter(m => m.rede === r.nome);
-      membrosRede.sort((a, b) => (a.categoria === 'Líder' ? -1 : 1));
+      membrosRede.sort((a, b) => (a.categoria === 'Líder' ? -1 : (b.categoria === 'Líder' ? 1 : a.nome.localeCompare(b.nome))));
 
       let membrosHtml = '';
-      membrosRede.forEach(m => {
-        const isLider = m.categoria === 'Líder';
-        membrosHtml += `
-          <div class="rede-item">
-            <div>${isLider ? '⭐' : '👤'} <strong>${m.nome}</strong> <span class="tag">${m.categoria || 'Liderado'}</span></div>
-            <button class="btn-action" onclick="abrirModalTransferir('${m.id}', '${m.nome}')">🔄 Transferir</button>
-          </div>
-        `;
-      });
+      if (membrosRede.length === 0) {
+        membrosHtml = `<div style="color:var(--text-muted); padding:8px 0; font-size:0.85rem;">Nenhum membro cadastrado nesta rede.</div>`;
+      } else {
+        membrosRede.forEach(m => {
+          const isLider = m.categoria === 'Líder';
+          if (isLider) {
+            // Estilo de Forte Destaque para o Líder
+            membrosHtml += `
+              <div class="rede-item-lider">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <div style="display:flex; align-items:center; gap:10px;">
+                    <span style="font-size: 1.3rem;">👑</span>
+                    <div>
+                      <small style="color: #23D160; font-weight: 700; text-transform: uppercase; font-size: 0.7rem; display: block;">Líder da Rede</small>
+                      <strong>${m.nome}</strong>
+                    </div>
+                  </div>
+                  <button class="btn-action" onclick="abrirModalTransferir('${m.id}', '${m.nome}')">🔄 Transferir</button>
+                </div>
+              </div>
+            `;
+          } else {
+            // Estilo padrão para os demais membros / base
+            membrosHtml += `
+              <div class="rede-item">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span>👤</span>
+                  <strong>${m.nome}</strong>
+                  <span class="tag">${m.categoria || 'Liderado'}</span>
+                </div>
+                <button class="btn-action" onclick="abrirModalTransferir('${m.id}', '${m.nome}')">🔄 Transferir</button>
+              </div>
+            `;
+          }
+        });
+      }
 
       treeContainer.innerHTML += `
         <div class="supervisao-card">
-          <div class="supervisao-header">
-            <div class="supervisao-header-left" onclick="this.parentElement.classList.toggle('ativo')">
+          <div class="supervisao-header" onclick="toggleSanfona(this)">
+            <div class="supervisao-header-left">
               <h3>📍 ${r.nome}</h3>
               <span class="supervisao-badge">${membrosRede.length} membros</span>
             </div>
             <div>
-              <button class="btn-lider-discreto" onclick="abrirModalMudarLider('${r.nome}')">Alterar líder</button>
+              <button class="btn-lider-discreto" onclick="event.stopPropagation(); abrirModalMudarLider('${r.nome}')">Alterar líder</button>
             </div>
           </div>
-          <div class="redes-list">${membrosHtml || '<div style="color:var(--text-muted); padding:10px;">Nenhum membro.</div>'}</div>
+          <div class="redes-list">${membrosHtml}</div>
         </div>
       `;
     });
   }
 
-  // Funções para Mudar Líder
+  function toggleSanfona(headerEl) {
+    const card = headerEl.parentElement;
+    card.classList.toggle('ativo');
+  }
+
   function abrirModalMudarLider(nomeRede) {
     document.getElementById('liderRedeNome').value = nomeRede;
     const select = document.getElementById('selectNovoLider');
@@ -433,7 +490,6 @@
     }
   }
 
-  // Funções para Transferir Membro
   function abrirModalTransferir(membroId, membroNome) {
     document.getElementById('transMembroId').value = membroId;
     document.getElementById('transMembroNome').value = membroNome;
