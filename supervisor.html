@@ -87,12 +87,19 @@
     .btn-ver-relatorios { background: rgba(56, 139, 253, 0.15); color: var(--info); border: 1px solid rgba(56, 139, 253, 0.3); padding: 4px 10px; border-radius: 6px; font-size: 0.78rem; font-weight: 600; cursor: pointer; text-decoration: none; }
     .btn-ver-relatorios:hover { background: var(--info); color: #FFF; }
 
+    .btn-transferir { background: rgba(56, 139, 253, 0.15); color: var(--info); border: 1px solid rgba(56, 139, 253, 0.3); padding: 3px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer; }
+    .btn-transferir:hover { background: var(--info); color: #FFF; }
+
+    .select-lider-arvore { background: var(--input-bg); color: var(--success); border: 1px solid var(--success); padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: bold; cursor: pointer; margin-top: 6px; }
+    .select-lider-arvore:focus { outline: none; }
+
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 999; display: none; }
     .modal-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 24px; max-width: 600px; width: 100%; max-height: 85vh; overflow-y: auto; }
     .modal-header { font-size: 1.2rem; font-weight: 700; margin-bottom: 16px; color: var(--text); display: flex; justify-content: space-between; align-items: center; }
     .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
     .btn-cancelar { background: #21262D; color: var(--text); border: 1px solid var(--card-border); padding: 8px 14px; border-radius: 8px; cursor: pointer; }
     .btn-cancelar:hover { background: #30363D; }
+
     .relatorio-item-sup { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 8px; padding: 12px; margin-bottom: 10px; }
     .relatorio-item-sup header { display: flex; justify-content: space-between; font-weight: 600; font-size: 0.88rem; margin-bottom: 4px; color: var(--primary); }
 
@@ -145,7 +152,7 @@
     <div class="table-container">
       <table>
         <thead>
-          <tr><th>Rede</th><th>Líder</th><th>Membros Ativos</th><th>Status de Saúde</th><th>Último Relatório</th></tr>
+          <tr><th>Rede</th><th>Membros Ativos</th><th>Status</th><th>Relatórios</th></tr>
         </thead>
         <tbody id="tabelaRedesBody"></tbody>
       </table>
@@ -171,13 +178,14 @@
       </table>
     </div>
 
-    <div class="section-title">🌳 Árvore de Redes e Liderados</div>
+    <div class="section-title">🌳 Árvore de Redes e Liderados (Definição de Líderes e Transferências)</div>
     <div class="tree-wrapper" id="treeContainerRedes"></div>
   </div>
 
   <div id="loading" class="loading-box" style="display: none;">Carregando dados da supervisão do Firebase...</div>
 </div>
 
+<!-- Modal de Relatórios da Rede -->
 <div id="modalRelatoriosRede" class="modal-overlay">
   <div class="modal-card">
     <div class="modal-header">
@@ -185,12 +193,43 @@
       <button onclick="fecharModalRelatoriosRede()" style="background:none; border:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer;">✕</button>
     </div>
     
-    <div id="conteudoRelatoriosRede">
-      Carregando relatórios...
-    </div>
+    <div id="conteudoRelatoriosRede">Carregando relatórios...</div>
 
     <div class="modal-footer">
       <button class="btn-cancelar" onclick="fecharModalRelatoriosRede()">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Transferência de Membro -->
+<div id="modalTransferencia" class="modal-overlay">
+  <div class="modal-card" style="max-width: 450px;">
+    <div class="modal-header">
+      <span>🔄 Transferir Membro</span>
+      <button onclick="fecharModalTransferencia()" style="background:none; border:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer;">✕</button>
+    </div>
+    <input type="hidden" id="transMembroId">
+    
+    <div class="form-group">
+      <label>Membro a ser transferido</label>
+      <input type="text" id="transNomeMembro" readonly style="background: var(--input-bg); color: var(--text);">
+    </div>
+
+    <div class="form-group">
+      <label>Rede Atual</label>
+      <input type="text" id="transRedeAtual" readonly style="background: var(--input-bg); color: var(--text);">
+    </div>
+
+    <div class="form-group">
+      <label>Selecione a Nova Rede de Destino</label>
+      <select id="transNovaRedeSelect">
+        <!-- Preenchido dinamicamente -->
+      </select>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancelar" onclick="fecharModalTransferencia()">Cancelar</button>
+      <button class="btn" style="width: auto; padding: 8px 16px;" onclick="confirmarTransferencia()">Confirmar Transferência</button>
     </div>
   </div>
 </div>
@@ -210,19 +249,20 @@
   const db = firebase.firestore();
 
   const supervisoresDB = [
-    { supervisao: "Supervisão Monte Hor", supervisor: "Luís Felipe", senha: "1001", redes: [{ nome: "Rede Moisés", lider: "Gabriel" }, { nome: "Rede Alfa", lider: "Plinio" }, { nome: "Rede Timóteo", lider: "Sotero" }, { nome: "Rede Next", lider: "Vyni Léo" }, { nome: "Rede Inconformados", lider: "Maurilio" }, { nome: "Rede Atalaia", lider: "Mancine" }] },
-    { supervisao: "Supervisão Monte Tabor", supervisor: "Danylo Brissantt", senha: "1002", redes: [{ nome: "Hazak", lider: "Vitinho" }, { nome: "Monte Pisga", lider: "Ezequiel" }, { nome: "Escolhidos", lider: "João" }, { nome: "Paroikos", lider: "Iago" }, { nome: "Atos", lider: "Arley" }, { nome: "Karygma", lider: "Richard" }] },
-    { supervisao: "Supervisão Monte Nebo", supervisor: "Emanuel Henrique", senha: "1003", redes: [{ nome: "Rede Invictos", lider: "Éden" }, { nome: "Rede Ekballo", lider: "Cristian" }, { nome: "Rede Ousadia", lider: "Wallyson" }, { nome: "Rede Maranata", lider: "Richarlyson" }, { nome: "Rede Ruah", lider: "Vinícius" }] },
-    { supervisao: "Supervisão Monte Horebe", supervisor: "Andryo Henrique", senha: "1004", redes: [{ nome: "Rede Aljava", lider: "Taycilio" }, { nome: "Rede Sal da Terra", lider: "Marcelo Flexa" }, { nome: "Rede Ekklesia", lider: "Rodrigo" }, { nome: "Rede Forjados", lider: "Alef" }] },
-    { supervisao: "Supervisão Monte Carmelo", supervisor: "Diana Guerra", senha: "1005", redes: [{ nome: "Rede Flame", lider: "Cecília" }, { nome: "Rede Aurora", lider: "Ester" }, { nome: "Rede Colossenses", lider: "Ingrid" }, { nome: "Rede Perazim", lider: "Íris" }, { nome: "Rede Rise", lider: "Gabriela" }] },
-    { supervisao: "Supervisão Monte Moriá", supervisor: "Larissa Neves", senha: "1006", redes: [{ nome: "Rede Peregrina", lider: "Saiwry" }, { nome: "Rede Lume", lider: "Myrella" }, { nome: "Rede Promessa", lider: "Júlia" }, { nome: "Rede Áquila", lider: "Thaynara" }, { nome: "Rede Carmesim", lider: "Lívia" }, { nome: "Rede Emunah", lider: "Mayara" }, { nome: "Rede Margaridas", lider: "Lara" }] },
-    { supervisao: "Supervisão Monte Sinai", supervisor: "Sara Gomes", senha: "1007", redes: [{ nome: "Rede Jardim", lider: "Joana" }, { nome: "Rede Dunamis", lider: "Mikaele" }, { nome: "Rede Grace", lider: "Fernanda" }, { nome: "Rede Graciosa", lider: "Gleicy" }, { nome: "Rede Zoe", lider: "Karol" }, { nome: "Rede Lamparinas", lider: "Laura Ester" }] },
-    { supervisao: "Supervisão Monte Sião", supervisor: "Clara Dione", senha: "1008", redes: [{ nome: "Rede Águias", lider: "Anny" }, { nome: "Rede Hope", lider: "Laysa" }, { nome: "Rede Bloom", lider: "Clara" }, { nome: "Rede Herdeiras", lider: "Mika" }] },
-    { supervisao: "Supervisão Monte das Oliveiras", supervisor: "Letícia Sampaio", senha: "1009", redes: [{ nome: "Monte das Oliveiras", lider: "Letícia Sampaio" }, { nome: "Rede Lily", lider: "Dayanne Lethicia" }, { nome: "Rede Liz", lider: "Letícia Rodrigues" }, { nome: "Rede Âmbar", lider: "Gabriella A." }] },
-    { supervisao: "Supervisão Monte Seir", supervisor: "Karol Nogueira", senha: "1010", redes: [{ nome: "Rede Joy", lider: "Leticia" }, { nome: "Rede Legacy", lider: "Laura" }, { nome: "Rede Ramá", lider: "Raianny" }] }
+    { supervisao: "Supervisão Monte Hor", supervisor: "Luís Felipe", senha: "1001", redes: [{ nome: "Rede Moisés" }, { nome: "Rede Alfa" }, { nome: "Rede Timóteo" }, { nome: "Rede Next" }, { nome: "Rede Inconformados" }, { nome: "Rede Atalaia" }] },
+    { supervisao: "Supervisão Monte Tabor", supervisor: "Danylo Brissantt", senha: "1002", redes: [{ nome: "Hazak" }, { nome: "Monte Pisga" }, { nome: "Escolhidos" }, { nome: "Paroikos" }, { nome: "Atos" }, { nome: "Karygma" }] },
+    { supervisao: "Supervisão Monte Nebo", supervisor: "Emanuel Henrique", senha: "1003", redes: [{ nome: "Rede Invictos" }, { nome: "Rede Ekballo" }, { nome: "Rede Ousadia" }, { nome: "Rede Maranata" }, { nome: "Rede Ruah" }] },
+    { supervisao: "Supervisão Monte Horebe", supervisor: "Andryo Henrique", senha: "1004", redes: [{ nome: "Rede Aljava" }, { nome: "Rede Sal da Terra" }, { nome: "Rede Ekklesia" }, { nome: "Rede Forjados" }] },
+    { supervisao: "Supervisão Monte Carmelo", supervisor: "Diana Guerra", senha: "1005", redes: [{ nome: "Rede Flame" }, { nome: "Rede Aurora" }, { nome: "Rede Colossenses" }, { nome: "Rede Perazim" }, { nome: "Rede Rise" }] },
+    { supervisao: "Supervisão Monte Moriá", supervisor: "Larissa Neves", senha: "1006", redes: [{ nome: "Rede Peregrina" }, { nome: "Rede Lume" }, { nome: "Rede Promessa" }, { nome: "Rede Áquila" }, { nome: "Rede Carmesim" }, { nome: "Rede Emunah" }, { nome: "Rede Margaridas" }] },
+    { supervisao: "Supervisão Monte Sinai", supervisor: "Sara Gomes", senha: "1007", redes: [{ nome: "Rede Jardim" }, { nome: "Rede Dunamis" }, { nome: "Rede Grace" }, { nome: "Rede Graciosa" }, { nome: "Rede Zoe" }, { nome: "Rede Lamparinas" }] },
+    { supervisao: "Supervisão Monte Sião", supervisor: "Clara Dione", senha: "1008", redes: [{ nome: "Rede Águias" }, { nome: "Rede Hope" }, { nome: "Rede Bloom" }, { nome: "Rede Herdeiras" }] },
+    { supervisao: "Supervisão Monte das Oliveiras", supervisor: "Letícia Sampaio", senha: "1009", redes: [{ nome: "Monte das Oliveiras" }, { nome: "Rede Lily" }, { nome: "Rede Liz" }, { nome: "Rede Âmbar" }] },
+    { supervisao: "Supervisão Monte Seir", supervisor: "Karol Nogueira", senha: "1010", redes: [{ nome: "Rede Joy" }, { nome: "Rede Legacy" }, { nome: "Rede Ramá" }] }
   ];
 
   let supervisorLogado = null;
+  let membrosCacheSup = [];
   let relatoriosCacheSup = [];
 
   window.addEventListener('DOMContentLoaded', () => {
@@ -256,6 +296,13 @@
     document.getElementById('loading').style.display = 'block';
     document.getElementById('labelSupervisorLogado').innerText = `${supervisorLogado.supervisao} - ${supervisorLogado.supervisor}`;
 
+    await carregarDadosSupervisor();
+  }
+
+  async function carregarDadosSupervisor() {
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('painelSupervisor').style.display = 'none';
+
     try {
       const snapshotMembros = await db.collection('membros')
         .where('supervisao', '==', supervisorLogado.supervisao)
@@ -265,18 +312,18 @@
         .where('supervisao', '==', supervisorLogado.supervisao)
         .get();
 
-      const membrosSup = [];
+      membrosCacheSup = [];
       snapshotMembros.forEach(doc => {
         const data = doc.data();
         if (data.status !== "INATIVO") {
-          membrosSup.push(data);
+          membrosCacheSup.push({ id: doc.id, ...data });
         }
       });
 
       relatoriosCacheSup = [];
       snapshotRelatorios.forEach(doc => relatoriosCacheSup.push(doc.data()));
 
-      renderizarPainelSupervisor(membrosSup, relatoriosCacheSup);
+      renderizarPainelSupervisor(membrosCacheSup, relatoriosCacheSup);
     } catch (err) {
       alert("Erro ao carregar dados do Firebase.");
       console.error(err);
@@ -297,18 +344,15 @@
 
     redesDaSup.forEach(r => {
       const membrosRede = membrosSup.filter(m => m.rede === r.nome);
-      const qtd = membrosRede.length;
+      const lideresRede = membrosRede.filter(m => m.categoria === 'Líder');
+      const lideradosAtivos = membrosRede.filter(m => m.categoria !== 'Líder');
+      const qtd = lideradosAtivos.length;
 
       const relsRede = relatoriosSup.filter(rel => rel.rede === r.nome);
       relsRede.sort((a, b) => new Date(b.dataEncontro || 0) - new Date(a.dataEncontro || 0));
       const ultimoRel = relsRede.length > 0 ? relsRede[0] : null;
       
-      let infoUltimoRel = "";
-      if (ultimoRel) {
-        infoUltimoRel = `${ultimoRel.dataEncontro || 'Sem data'} (<button class="btn-ver-relatorios" onclick="abrirRelatoriosRede('${r.nome}')">Ver (${relsRede.length})</button>)`;
-      } else {
-        infoUltimoRel = `Nenhum (<button class="btn-ver-relatorios" onclick="abrirRelatoriosRede('${r.nome}')">Ver (0)</button>)`;
-      }
+      let infoUltimoRel = ultimoRel ? `${ultimoRel.dataEncontro || 'Sem data'} (<button class="btn-ver-relatorios" onclick="abrirRelatoriosRede('${r.nome}')">Ver (${relsRede.length})</button>)` : `Nenhum (<button class="btn-ver-relatorios" onclick="abrirRelatoriosRede('${r.nome}')">Ver (0)</button>)`;
 
       let statusHtml = '';
       if (qtd === 12) {
@@ -325,7 +369,6 @@
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td><strong>${r.nome}</strong></td>
-        <td>${r.lider}</td>
         <td>${qtd}</td>
         <td>${statusHtml}</td>
         <td><small>${infoUltimoRel}</small></td>
@@ -338,11 +381,13 @@
     document.getElementById('mRedesMulti').innerText = multi;
     document.getElementById('mRedesAlerta').innerText = abaixo;
 
+    // Alertas
     const tabelaAlertasBody = document.getElementById('tabelaAlertasBody');
     tabelaAlertasBody.innerHTML = '';
     let qtdAlertas = 0;
 
     membrosSup.forEach(m => {
+      if (m.categoria === 'Líder') return;
       const nome = m.nome, rede = m.rede, whats = m.whatsapp || '';
       let faltasSeguidas = 0;
       const relsRede = relatoriosSup.filter(r => r.rede === rede);
@@ -366,6 +411,7 @@
 
     if (qtdAlertas === 0) tabelaAlertasBody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Nenhum alerta de falta consecutiva no momento. 🟢</td></tr>`;
 
+    // Aniversariantes
     const tabelaNiverBody = document.getElementById('tabelaNiverBody');
     tabelaNiverBody.innerHTML = '';
     const mesAtual = new Date().getMonth() + 1;
@@ -397,27 +443,51 @@
     const container = document.getElementById('treeContainerRedes');
     container.innerHTML = '';
 
-    const redesDaSup = supervisorLogado.redes;
-
-    redesDaSup.forEach(r => {
+    supervisorLogado.redes.forEach(r => {
       const membrosRede = membrosSup.filter(m => m.rede === r.nome);
+      
+      // Ordena para que o Líder apareça SEMPRE no topo
+      membrosRede.sort((a, b) => {
+        if (a.categoria === 'Líder' && b.categoria !== 'Líder') return -1;
+        if (a.categoria !== 'Líder' && b.categoria === 'Líder') return 1;
+        return a.nome.localeCompare(b.nome);
+      });
 
       let membrosHtml = '';
       if (membrosRede.length === 0) {
-        membrosHtml = `<div style="padding: 10px; color: var(--text-muted); font-size: 0.85rem;">Nenhum liderado cadastrado nesta rede.</div>`;
+        membrosHtml = `<div style="padding: 10px; color: var(--text-muted); font-size: 0.85rem;">Nenhum membro cadastrado nesta rede.</div>`;
       } else {
         membrosRede.forEach(m => {
           const cat = m.categoria || 'Liderado';
           const sexo = m.sexo ? `(${m.sexo})` : '';
+          const isLider = cat === 'Líder';
           const isBase = cat === 'Base da Rede';
+          
+          let corTag = 'rgba(255,255,255,0.05)';
+          let txtCor = 'var(--text-muted)';
+          if (isLider) { corTag = 'rgba(35,209,96,0.3)'; txtCor = '#23D160'; }
+          else if (isBase) { corTag = 'rgba(110,86,207,0.3)'; txtCor = '#A58BFF'; }
+
           membrosHtml += `
-            <div class="rede-item">
-              <span>👤 ${m.nome} <small style="color:var(--text-muted)">${sexo}</small></span>
-              <span class="tag" style="background:${isBase ? 'rgba(110,86,207,0.3)' : 'rgba(255,255,255,0.05)'}; color:${isBase ? '#A58BFF' : 'var(--text-muted)'};">${cat}</span>
+            <div class="rede-item" style="${isLider ? 'background: rgba(35, 209, 96, 0.05); padding: 8px 6px; border-radius: 6px; border-bottom: none; margin-bottom: 4px;' : ''}">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span>${isLider ? '⭐' : '👤'} <strong>${m.nome}</strong> <small style="color:var(--text-muted)">${sexo}</small></span>
+                <span class="tag" style="background:${corTag}; color:${txtCor};">${cat}</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <button class="btn-transferir" onclick="abrirModalTransferir('${m.id}', '${m.nome.replace(/'/g, "\\'")}', '${r.nome}')">🔄 Transferir</button>
+              </div>
             </div>
           `;
         });
       }
+
+      // Monta opções de select para definir líder direto na árvore
+      let optionsMembros = `<option value="">Definir líder da rede...</option>`;
+      membrosRede.forEach(m => {
+        const selecionado = (m.categoria === 'Líder') ? 'selected' : '';
+        optionsMembros += `<option value="${m.id}" ${selecionado}>${m.nome}</option>`;
+      });
 
       const card = document.createElement('div');
       card.className = 'supervisao-card';
@@ -425,7 +495,6 @@
         <div class="supervisao-header" onclick="toggleCard(this)">
           <div class="supervisao-info">
             <h3>📍 ${r.nome}</h3>
-            <p>Líder: <strong>${r.lider}</strong></p>
           </div>
           <div style="display: flex; align-items: center; gap: 10px;">
             <span class="supervisao-badge">${membrosRede.length} membros</span>
@@ -433,6 +502,12 @@
           </div>
         </div>
         <div class="redes-list">
+          <div style="margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--card-border);">
+            <label style="font-size: 0.72rem; margin-bottom: 2px;">Líder Oficial da Rede:</label>
+            <select class="select-lider-arvore" onchange="definirLiderRede('${r.nome}', this.value)" onclick="event.stopPropagation()">
+              ${optionsMembros}
+            </select>
+          </div>
           ${membrosHtml}
         </div>
       `;
@@ -445,6 +520,87 @@
     card.classList.toggle('ativo');
   }
 
+  // Definir Líder
+  async function definirLiderRede(nomeRede, novoLiderId) {
+    if (!novoLiderId) return;
+
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('painelSupervisor').style.display = 'none';
+
+    try {
+      const batch = db.batch();
+
+      membrosCacheSup.forEach(m => {
+        if (m.rede === nomeRede && m.categoria === 'Líder' && m.id !== novoLiderId) {
+          batch.update(db.collection('membros').doc(m.id), { categoria: 'Liderado' });
+        }
+      });
+
+      const membroRef = db.collection('membros').doc(novoLiderId);
+      batch.update(membroRef, { categoria: 'Líder' });
+
+      await batch.commit();
+      alert(`✅ Líder da ${nomeRede} definido com sucesso!`);
+      await carregarDadosSupervisor();
+    } catch (err) {
+      alert("Erro ao definir o líder.");
+      console.error(err);
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('painelSupervisor').style.display = 'block';
+    }
+  }
+
+  // Transferência de Membro
+  function abrirModalTransferir(membroId, nomeMembro, redeAtual) {
+    document.getElementById('transMembroId').value = membroId;
+    document.getElementById('transNomeMembro').value = nomeMembro;
+    document.getElementById('transRedeAtual').value = redeAtual;
+
+    const selectDestino = document.getElementById('transNovaRedeSelect');
+    selectDestino.innerHTML = '';
+
+    supervisorLogado.redes.forEach(r => {
+      if (r.nome !== redeAtual) {
+        const opt = document.createElement('option');
+        opt.value = r.nome;
+        opt.textContent = r.nome;
+        selectDestino.appendChild(opt);
+      }
+    });
+
+    document.getElementById('modalTransferencia').style.display = 'flex';
+  }
+
+  function fecharModalTransferencia() {
+    document.getElementById('modalTransferencia').style.display = 'none';
+  }
+
+  async function confirmarTransferencia() {
+    const membroId = document.getElementById('transMembroId').value;
+    const novaRede = document.getElementById('transNovaRedeSelect').value;
+
+    if (!novaRede) return alert("Selecione uma rede de destino válida.");
+
+    fecharModalTransferencia();
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('painelSupervisor').style.display = 'none';
+
+    try {
+      await db.collection('membros').doc(membroId).update({
+        rede: novaRede
+      });
+
+      alert("✅ Membro transferido com sucesso!");
+      await carregarDadosSupervisor();
+    } catch (err) {
+      alert("Erro ao transferir membro.");
+      console.error(err);
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('painelSupervisor').style.display = 'block';
+    }
+  }
+
+  // Relatórios Modal
   function abrirRelatoriosRede(nomeRede) {
     document.getElementById('tituloModalRede').innerText = `📜 Relatórios da ${nomeRede}`;
     const conteudoModal = document.getElementById('conteudoRelatoriosRede');
