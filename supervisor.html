@@ -225,7 +225,6 @@
   let supervisorLogado = null;
   let relatoriosCacheSup = [];
 
-  // Garante o preenchimento imediato assim que a árvore do DOM estiver pronta
   window.addEventListener('DOMContentLoaded', () => {
     carregarSupervisoes();
   });
@@ -409,10 +408,11 @@
       } else {
         membrosRede.forEach(m => {
           const cat = m.categoria || 'Liderado';
+          const sexo = m.sexo ? `(${m.sexo})` : '';
           const isBase = cat === 'Base da Rede';
           membrosHtml += `
             <div class="rede-item">
-              <span>👤 ${m.nome}</span>
+              <span>👤 ${m.nome} <small style="color:var(--text-muted)">${sexo}</small></span>
               <span class="tag" style="background:${isBase ? 'rgba(110,86,207,0.3)' : 'rgba(255,255,255,0.05)'}; color:${isBase ? '#A58BFF' : 'var(--text-muted)'};">${cat}</span>
             </div>
           `;
