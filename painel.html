@@ -253,7 +253,6 @@
   document.addEventListener("DOMContentLoaded", async function() {
     const supervisao = sessionStorage.getItem('topo_supervisao');
     const rede = sessionStorage.getItem('topo_rede');
-    const lider = sessionStorage.getItem('topo_lider');
 
     if (!rede) {
       alert("Nenhuma rede selecionada. Faça o login novamente.");
@@ -261,17 +260,16 @@
       return;
     }
 
-    dadosSessao = { supervisao, rede, lider };
+    dadosSessao = { supervisao, rede };
     
-    // Define o nome da rede em destaque e o subtitulo do líder
+    // Define o nome da rede em destaque no topo
     document.getElementById('tituloNomeRede').innerText = rede;
-    document.getElementById('subtituloLiderRede').innerText = `Líder: ${lider}`;
+    document.getElementById('subtituloLiderRede').innerText = `Líder: Carregando...`;
 
     await carregarDadosDashboard();
   });
 
   function voltarPagina() {
-    // Se veio do supervisor, volta pro menu do supervisor, senão volta pro lider.html
     const isSupervisor = sessionStorage.getItem('topo_sup_nome');
     if (isSupervisor) {
       window.location.href = "supervisor_selecionar_rede.html";
@@ -294,12 +292,21 @@
         .get();
 
       membrosLocais = [];
+      let nomeLiderEncontrado = "Não definido";
+
       snapshotMembros.forEach(doc => {
         const data = doc.data();
         if (data.status !== 'INATIVO') {
           membrosLocais.push({ id: doc.id, ...data });
+          // Procura o membro que é o líder desta rede
+          if (data.categoria === 'Líder') {
+            nomeLiderEncontrado = data.nome;
+          }
         }
       });
+
+      // Atualiza o subtítulo com o nome real do líder da rede
+      document.getElementById('subtituloLiderRede').innerText = `Líder: ${nomeLiderEncontrado}`;
 
       relatoriosLocais = [];
       snapshotRelatorios.forEach(doc => {
