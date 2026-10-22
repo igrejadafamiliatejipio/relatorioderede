@@ -21,4 +21,625 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-    body { background-color: var(--bg); color: var(--text); padding: 24px 12px; display: flex; justify-
+    body { background-color: var(--bg); color: var(--text); padding: 24px 12px; display: flex; justify-content: center; min-height: 100vh; }
+    .container { max-width: 960px; width: 100%; background: var(--card-bg); padding: 28px; border-radius: 16px; border: 1px solid var(--card-border); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); }
+    
+    .top-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .btn-voltar { background: #21262D; color: var(--text); border: 1px solid var(--card-border); padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-voltar:hover { background: #30363D; }
+
+    .header { text-align: center; margin-bottom: 24px; }
+    .header h1 { font-size: 1.75rem; font-weight: 700; }
+    .header p { color: var(--text-muted); font-size: 0.9rem; margin-top: 4px; }
+
+    .badge-topo { display: inline-block; background: var(--primary); color: #FFF; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 8px; }
+
+    #loginBox { max-width: 400px; margin: 40px auto; text-align: center; background: var(--input-bg); padding: 32px 24px; border-radius: 12px; border: 1px solid var(--card-border); }
+    .form-group { margin-bottom: 16px; text-align: left; }
+    label { display: block; font-weight: 500; font-size: 0.85rem; margin-bottom: 6px; color: var(--text-muted); text-transform: uppercase; }
+    input[type="password"], select { width: 100%; padding: 12px 14px; background-color: var(--card-bg); border: 1px solid var(--card-border); border-radius: 8px; font-size: 0.95rem; color: var(--text); outline: none; }
+    input:focus, select:focus { border-color: var(--primary); }
+    select option { background-color: var(--card-bg); color: var(--text); }
+
+    .btn { background-color: var(--primary); color: white; border: none; padding: 12px 18px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.95rem; width: 100%; transition: 0.2s; }
+    .btn:hover { background-color: var(--primary-hover); }
+
+    .metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 28px; }
+    .metric-card { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 10px; padding: 16px; text-align: center; }
+    .metric-card h4 { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; }
+    .metric-card .value { font-size: 1.6rem; font-weight: 800; color: var(--text); }
+
+    .section-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+
+    .tree-wrapper { margin-bottom: 32px; }
+    .supervisao-card { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 12px; margin-bottom: 12px; overflow: hidden; transition: border-color 0.2s; }
+    .supervisao-card:hover { border-color: var(--primary); }
+
+    .supervisao-header { padding: 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+    .supervisao-info h3 { font-size: 1.05rem; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+    .supervisao-info p { font-size: 0.82rem; color: var(--text-muted); }
+    
+    .supervisao-badge { background: rgba(110, 86, 207, 0.2); color: #A58BFF; border: 1px solid rgba(110, 86, 207, 0.4); padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+
+    .redes-list { padding: 0 16px 16px 16px; display: none; border-top: 1px solid var(--card-border); background: var(--card-bg); }
+    .supervisao-card.ativo .redes-list { display: block; }
+
+    .rede-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--card-border); font-size: 0.9rem; }
+    .rede-item:last-child { border-bottom: none; }
+    .arrow-icon { transition: transform 0.3s; font-size: 0.8rem; color: var(--text-muted); }
+    .supervisao-card.ativo .arrow-icon { transform: rotate(180deg); }
+
+    .table-container { width: 100%; overflow-x: auto; margin-bottom: 24px; border: 1px solid var(--card-border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; }
+    th, td { padding: 12px 16px; border-bottom: 1px solid var(--card-border); }
+    th { background: var(--input-bg); color: var(--text-muted); font-size: 0.78rem; text-transform: uppercase; }
+    tr:last-child td { border-bottom: none; }
+
+    .tag { font-size: 0.72rem; padding: 3px 8px; border-radius: 12px; font-weight: 600; display: inline-block; }
+    .tag-green { background: rgba(35, 209, 96, 0.2); color: var(--success); border: 1px solid rgba(35, 209, 96, 0.4); }
+    .tag-yellow { background: rgba(227, 179, 65, 0.2); color: var(--warning); border: 1px solid rgba(227, 179, 65, 0.4); }
+    .tag-blue { background: rgba(56, 139, 253, 0.2); color: var(--info); border: 1px solid rgba(56, 139, 253, 0.4); }
+    .tag-danger { background: rgba(229, 83, 75, 0.2); color: var(--danger); border: 1px solid rgba(229, 83, 75, 0.4); }
+
+    .btn-whats { background: #23D160; color: #000; padding: 5px 10px; border-radius: 6px; font-size: 0.78rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
+    .btn-whats:hover { background: #1EBE55; }
+
+    .btn-ver-relatorios { background: rgba(56, 139, 253, 0.15); color: var(--info); border: 1px solid rgba(56, 139, 253, 0.3); padding: 4px 10px; border-radius: 6px; font-size: 0.78rem; font-weight: 600; cursor: pointer; text-decoration: none; }
+    .btn-ver-relatorios:hover { background: var(--info); color: #FFF; }
+
+    .btn-transferir { background: rgba(56, 139, 253, 0.15); color: var(--info); border: 1px solid rgba(56, 139, 253, 0.3); padding: 3px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer; }
+    .btn-transferir:hover { background: var(--info); color: #FFF; }
+
+    .select-lider-arvore { background: var(--input-bg); color: var(--success); border: 1px solid var(--success); padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: bold; cursor: pointer; margin-top: 6px; }
+    .select-lider-arvore:focus { outline: none; }
+
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 999; display: none; }
+    .modal-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 24px; max-width: 600px; width: 100%; max-height: 85vh; overflow-y: auto; }
+    .modal-header { font-size: 1.2rem; font-weight: 700; margin-bottom: 16px; color: var(--text); display: flex; justify-content: space-between; align-items: center; }
+    .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+    .btn-cancelar { background: #21262D; color: var(--text); border: 1px solid var(--card-border); padding: 8px 14px; border-radius: 8px; cursor: pointer; }
+    .btn-cancelar:hover { background: #30363D; }
+
+    .relatorio-item-sup { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 8px; padding: 12px; margin-bottom: 10px; }
+    .relatorio-item-sup header { display: flex; justify-content: space-between; font-weight: 600; font-size: 0.88rem; margin-bottom: 4px; color: var(--primary); }
+
+    .loading-box { text-align: center; padding: 40px; color: var(--text-muted); }
+
+    @media (max-width: 768px) { .metrics-grid { grid-template-columns: repeat(2, 1fr); } }
+  </style>
+
+  <!-- Firebase SDK Compat -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+<div class="container">
+  <div class="top-nav">
+    <a href="index.html" class="btn-voltar">← Voltar ao Início</a>
+    <span id="labelSupervisorLogado" style="font-size: 0.85rem; color: var(--text-muted);"></span>
+  </div>
+
+  <div class="header">
+    <span class="badge-topo">PAINEL DO SUPERVISOR</span>
+    <h1>Supervisão Ministerial</h1>
+    <p>Acompanhamento macro das redes e hierarquia pastoral</p>
+  </div>
+
+  <div id="loginBox">
+    <div class="form-group">
+      <label for="selectSupLogin">Selecione sua Supervisão</label>
+      <select id="selectSupLogin">
+        <option value="">Carregando supervisões...</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="inputSenha">Senha de Acesso</label>
+      <input type="password" id="inputSenha" placeholder="Digite sua senha">
+    </div>
+    <button class="btn" onclick="fazerLogin()">Entrar no Painel</button>
+  </div>
+
+  <div id="painelSupervisor" style="display: none;">
+    <div class="metrics-grid">
+      <div class="metric-card"><h4>Total de Membros</h4><div class="value" id="mTotalMembros">0</div></div>
+      <div class="metric-card"><h4>Redes na Meta (12)</h4><div class="value" id="mRedesMeta" style="color: var(--success);">0</div></div>
+      <div class="metric-card"><h4>Prontas p/ Multiplicar</h4><div class="value" id="mRedesMulti" style="color: var(--info);">0</div></div>
+      <div class="metric-card"><h4>Em Alerta (< 12)</h4><div class="value" id="mRedesAlerta" style="color: var(--warning);">0</div></div>
+    </div>
+
+    <div class="section-title">📊 Raio-X das Redes da Supervisão</div>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr><th>Rede</th><th>Total Membros</th><th>Base da Rede (c/ Líder)</th><th>Status</th><th>Relatórios</th></tr>
+        </thead>
+        <tbody id="tabelaRedesBody"></tbody>
+      </table>
+    </div>
+
+    <div class="section-title">⚠️ Matriz de Alertas e Faltas Consecutivas</div>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr><th>Membro</th><th>Rede</th><th>Situação</th><th>Contato</th></tr>
+        </thead>
+        <tbody id="tabelaAlertasBody"></tbody>
+      </table>
+    </div>
+
+    <div class="section-title">🎂 Aniversariantes do Mês na Supervisão</div>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr><th>Membro</th><th>Rede</th><th>Data Nasc.</th><th>WhatsApp</th></tr>
+        </thead>
+        <tbody id="tabelaNiverBody"></tbody>
+      </table>
+    </div>
+
+    <div class="section-title">🌳 Árvore de Redes e Liderados (Definição de Líderes e Transferências)</div>
+    <div class="tree-wrapper" id="treeContainerRedes"></div>
+  </div>
+
+  <div id="loading" class="loading-box" style="display: none;">Carregando dados da supervisão do Firebase...</div>
+</div>
+
+<!-- Modal de Relatórios da Rede -->
+<div id="modalRelatoriosRede" class="modal-overlay">
+  <div class="modal-card">
+    <div class="modal-header">
+      <span id="tituloModalRede">📜 Relatórios da Rede</span>
+      <button onclick="fecharModalRelatoriosRede()" style="background:none; border:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer;">✕</button>
+    </div>
+    
+    <div id="conteudoRelatoriosRede">Carregando relatórios...</div>
+
+    <div class="modal-footer">
+      <button class="btn-cancelar" onclick="fecharModalRelatoriosRede()">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Transferência de Membro -->
+<div id="modalTransferencia" class="modal-overlay">
+  <div class="modal-card" style="max-width: 450px;">
+    <div class="modal-header">
+      <span>🔄 Transferir Membro</span>
+      <button onclick="fecharModalTransferencia()" style="background:none; border:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer;">✕</button>
+    </div>
+    <input type="hidden" id="transMembroId">
+    
+    <div class="form-group">
+      <label>Membro a ser transferido</label>
+      <input type="text" id="transNomeMembro" readonly style="background: var(--input-bg); color: var(--text);">
+    </div>
+
+    <div class="form-group">
+      <label>Rede Atual</label>
+      <input type="text" id="transRedeAtual" readonly style="background: var(--input-bg); color: var(--text);">
+    </div>
+
+    <div class="form-group">
+      <label>Selecione a Nova Rede de Destino</label>
+      <select id="transNovaRedeSelect">
+        <!-- Preenchido dinamicamente -->
+      </select>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancelar" onclick="fecharModalTransferencia()">Cancelar</button>
+      <button class="btn" style="width: auto; padding: 8px 16px;" onclick="confirmarTransferencia()">Confirmar Transferência</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyB7FJXs9wiRFYIs2ugZoWrw7jTXPR5weGk",
+    authDomain: "app-redes-iftejipio.firebaseapp.com",
+    projectId: "app-redes-iftejipio",
+    storageBucket: "app-redes-iftejipio.firebasestorage.app",
+    messagingSenderId: "954529090793",
+    appId: "1:954529090793:web:6702d102b6e5b178b6b478",
+    measurementId: "G-2MJ96WMYQ5"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  const supervisoresDB = [
+    { supervisao: "Supervisão Monte Hor", supervisor: "Luís Felipe", senha: "1001", redes: [{ nome: "Rede Moisés" }, { nome: "Rede Alfa" }, { nome: "Rede Timóteo" }, { nome: "Rede Next" }, { nome: "Rede Inconformados" }, { nome: "Rede Atalaia" }] },
+    { supervisao: "Supervisão Monte Tabor", supervisor: "Danylo Brissantt", senha: "1002", redes: [{ nome: "Hazak" }, { nome: "Monte Pisga" }, { nome: "Escolhidos" }, { nome: "Paroikos" }, { nome: "Atos" }, { nome: "Karygma" }] },
+    { supervisao: "Supervisão Monte Nebo", supervisor: "Emanuel Henrique", senha: "1003", redes: [{ nome: "Rede Invictos" }, { nome: "Rede Ekballo" }, { nome: "Rede Ousadia" }, { nome: "Rede Maranata" }, { nome: "Rede Ruah" }] },
+    { supervisao: "Supervisão Monte Horebe", supervisor: "Andryo Henrique", senha: "1004", redes: [{ nome: "Rede Aljava" }, { nome: "Rede Sal da Terra" }, { nome: "Rede Ekklesia" }, { nome: "Rede Forjados" }] },
+    { supervisao: "Supervisão Monte Carmelo", supervisor: "Diana Guerra", senha: "1005", redes: [{ nome: "Rede Flame" }, { nome: "Rede Aurora" }, { nome: "Rede Colossenses" }, { nome: "Rede Perazim" }, { nome: "Rede Rise" }] },
+    { supervisao: "Supervisão Monte Moriá", supervisor: "Larissa Neves", senha: "1006", redes: [{ nome: "Rede Peregrina" }, { nome: "Rede Lume" }, { nome: "Rede Promessa" }, { nome: "Rede Áquila" }, { nome: "Rede Carmesim" }, { nome: "Rede Emunah" }, { nome: "Rede Margaridas" }] },
+    { supervisao: "Supervisão Monte Sinai", supervisor: "Sara Gomes", senha: "1007", redes: [{ nome: "Rede Jardim" }, { nome: "Rede Dunamis" }, { nome: "Rede Grace" }, { nome: "Rede Graciosa" }, { nome: "Rede Zoe" }, { nome: "Rede Lamparinas" }] },
+    { supervisao: "Supervisão Monte Sião", supervisor: "Clara Dione", senha: "1008", redes: [{ nome: "Rede Águias" }, { nome: "Rede Hope" }, { nome: "Rede Bloom" }, { nome: "Rede Herdeiras" }] },
+    { supervisao: "Supervisão Monte das Oliveiras", supervisor: "Letícia Sampaio", senha: "1009", redes: [{ nome: "Monte das Oliveiras" }, { nome: "Rede Lily" }, { nome: "Rede Liz" }, { nome: "Rede Âmbar" }] },
+    { supervisao: "Supervisão Monte Seir", supervisor: "Karol Nogueira", senha: "1010", redes: [{ nome: "Rede Joy" }, { nome: "Rede Legacy" }, { nome: "Rede Ramá" }] }
+  ];
+
+  let supervisorLogado = null;
+  let membrosCacheSup = [];
+  let relatoriosCacheSup = [];
+
+  window.addEventListener('DOMContentLoaded', () => {
+    carregarSupervisoes();
+  });
+
+  function carregarSupervisoes() {
+    const select = document.getElementById('selectSupLogin');
+    if (!select) return;
+    
+    select.innerHTML = '<option value="">Selecione sua Supervisão</option>';
+    supervisoresDB.forEach((item, index) => {
+      const opt = document.createElement('option');
+      opt.value = index;
+      opt.textContent = `${item.supervisao} (${item.supervisor})`;
+      select.appendChild(opt);
+    });
+  }
+
+  async function fazerLogin() {
+    const index = document.getElementById('selectSupLogin').value;
+    const senha = document.getElementById('inputSenha').value.trim();
+
+    if (index === "") return alert("Selecione a sua supervisão.");
+
+    const supSelecionada = supervisoresDB[index];
+    if (senha !== supSelecionada.senha) return alert("Senha incorreta!");
+
+    supervisorLogado = supSelecionada;
+    document.getElementById('loginBox').style.display = 'none';
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('labelSupervisorLogado').innerText = `${supervisorLogado.supervisao} - ${supervisorLogado.supervisor}`;
+
+    await carregarDadosSupervisor();
+  }
+
+  async function carregarDadosSupervisor() {
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('painelSupervisor').style.display = 'none';
+
+    try {
+      const snapshotMembros = await db.collection('membros')
+        .where('supervisao', '==', supervisorLogado.supervisao)
+        .get();
+
+      const snapshotRelatorios = await db.collection('relatorios')
+        .where('supervisao', '==', supervisorLogado.supervisao)
+        .get();
+
+      membrosCacheSup = [];
+      snapshotMembros.forEach(doc => {
+        const data = doc.data();
+        if (data.status !== "INATIVO") {
+          membrosCacheSup.push({ id: doc.id, ...data });
+        }
+      });
+
+      relatoriosCacheSup = [];
+      snapshotRelatorios.forEach(doc => relatoriosCacheSup.push(doc.data()));
+
+      renderizarPainelSupervisor(membrosCacheSup, relatoriosCacheSup);
+    } catch (err) {
+      alert("Erro ao carregar dados do Firebase.");
+      console.error(err);
+      document.getElementById('loginBox').style.display = 'block';
+    } finally {
+      document.getElementById('loading').style.display = 'none';
+    }
+  }
+
+  function renderizarPainelSupervisor(membrosSup, relatoriosSup) {
+    const redesDaSup = supervisorLogado.redes;
+
+    let totalMembros = membrosSup.length;
+    let meta12 = 0, multi = 0, abaixo = 0;
+
+    const tabelaRedesBody = document.getElementById('tabelaRedesBody');
+    tabelaRedesBody.innerHTML = '';
+
+    redesDaSup.forEach(r => {
+      const membrosRede = membrosSup.filter(m => m.rede === r.nome);
+      const qtdTotal = membrosRede.length;
+      
+      // Base da rede conta membros com categoria "Base da Rede" + o "Líder"
+      const qtdBase = membrosRede.filter(m => m.categoria === 'Base da Rede' || m.categoria === 'Líder').length;
+
+      const relsRede = relatoriosSup.filter(rel => rel.rede === r.nome);
+      relsRede.sort((a, b) => new Date(b.dataEncontro || 0) - new Date(a.dataEncontro || 0));
+      const ultimoRel = relsRede.length > 0 ? relsRede[0] : null;
+      
+      let infoUltimoRel = ultimoRel ? `${ultimoRel.dataEncontro || 'Sem data'} (<button class="btn-ver-relatorios" onclick="abrirRelatoriosRede('${r.nome}')">Ver (${relsRede.length})</button>)` : `Nenhum (<button class="btn-ver-relatorios" onclick="abrirRelatoriosRede('${r.nome}')">Ver (0)</button>)`;
+
+      let statusHtml = '';
+      if (qtdTotal === 12) {
+        meta12++;
+        statusHtml = `<span class="tag tag-green">🟢 Ideal (12)</span>`;
+      } else if (qtdTotal > 12) {
+        multi++;
+        statusHtml = `<span class="tag tag-blue">🚀 Multiplicar (${qtdTotal})</span>`;
+      } else {
+        abaixo++;
+        statusHtml = `<span class="tag tag-yellow">⚠️ Abaixo (${qtdTotal}/12)</span>`;
+      }
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><strong>${r.nome}</strong></td>
+        <td>${qtdTotal}</td>
+        <td>${qtdBase}</td>
+        <td>${statusHtml}</td>
+        <td><small>${infoUltimoRel}</small></td>
+      `;
+      tabelaRedesBody.appendChild(tr);
+    });
+
+    document.getElementById('mTotalMembros').innerText = totalMembros;
+    document.getElementById('mRedesMeta').innerText = meta12;
+    document.getElementById('mRedesMulti').innerText = multi;
+    document.getElementById('mRedesAlerta').innerText = abaixo;
+
+    // Alertas
+    const tabelaAlertasBody = document.getElementById('tabelaAlertasBody');
+    tabelaAlertasBody.innerHTML = '';
+    let qtdAlertas = 0;
+
+    membrosSup.forEach(m => {
+      if (m.categoria === 'Líder') return;
+      const nome = m.nome, rede = m.rede, whats = m.whatsapp || '';
+      let faltasSeguidas = 0;
+      const relsRede = relatoriosSup.filter(r => r.rede === rede);
+
+      for (let rel of [...relsRede].reverse()) {
+        const faltantesTxt = rel.faltantes ? rel.faltantes.toString() : '';
+        if (faltantesTxt.includes(nome)) faltasSeguidas++;
+        else break;
+      }
+
+      if (faltasSeguidas >= 2) {
+        qtdAlertas++;
+        const tipoAlerta = faltasSeguidas >= 3 ? `<span class="tag tag-danger">⛔ ${faltasSeguidas} Faltas (Não Pode Servir)</span>` : `<span class="tag tag-yellow">⚠️ ${faltasSeguidas} Faltas (Apascentamento)</span>`;
+        const linkWhats = whats ? `<a href="https://api.whatsapp.com/send?phone=55${whats.replace(/\D/g,'')}&text=${encodeURIComponent('Olá ' + nome + ', tudo bem? Sentimos sua falta na rede!')}" target="_blank" class="btn-whats">💬 Chamar</a>` : 'Sem WhatsApp';
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td><strong>${nome}</strong></td><td>${rede}</td><td>${tipoAlerta}</td><td>${linkWhats}</td>`;
+        tabelaAlertasBody.appendChild(tr);
+      }
+    });
+
+    if (qtdAlertas === 0) tabelaAlertasBody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Nenhum alerta de falta consecutiva no momento. 🟢</td></tr>`;
+
+    // Aniversariantes
+    const tabelaNiverBody = document.getElementById('tabelaNiverBody');
+    tabelaNiverBody.innerHTML = '';
+    const mesAtual = new Date().getMonth() + 1;
+    let qtdNiver = 0;
+
+    membrosSup.forEach(m => {
+      const nasc = m.nascimento;
+      if (nasc) {
+        const partes = nasc.toString().split('-');
+        if (partes.length === 3 && parseInt(partes[1]) === mesAtual) {
+          qtdNiver++;
+          const linkWhatsNiver = m.whatsapp ? `<a href="https://api.whatsapp.com/send?phone=55${m.whatsapp.replace(/\D/g,'')}&text=${encodeURIComponent('Parabéns ' + m.nome + '! Que o Senhor te abençoe muito em seu aniversário!')}" target="_blank" class="btn-whats">🎂 Parabéns</a>` : 'Sem WhatsApp';
+
+          const tr = document.createElement('tr');
+          tr.innerHTML = `<td><strong>${m.nome}</strong></td><td>${m.rede}</td><td>${partes[2]}/${partes[1]}</td><td>${linkWhatsNiver}</td>`;
+          tabelaNiverBody.appendChild(tr);
+        }
+      }
+    });
+
+    if (qtdNiver === 0) tabelaNiverBody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Nenhum aniversariante neste mês.</td></tr>`;
+
+    renderizarArvoreRedesELiderados(membrosSup);
+
+    document.getElementById('painelSupervisor').style.display = 'block';
+  }
+
+  function renderizarArvoreRedesELiderados(membrosSup) {
+    const container = document.getElementById('treeContainerRedes');
+    container.innerHTML = '';
+
+    supervisorLogado.redes.forEach(r => {
+      const membrosRede = membrosSup.filter(m => m.rede === r.nome);
+      
+      membrosRede.sort((a, b) => {
+        if (a.categoria === 'Líder' && b.categoria !== 'Líder') return -1;
+        if (a.categoria !== 'Líder' && b.categoria === 'Líder') return 1;
+        return a.nome.localeCompare(b.nome);
+      });
+
+      let membrosHtml = '';
+      if (membrosRede.length === 0) {
+        membrosHtml = `<div style="padding: 10px; color: var(--text-muted); font-size: 0.85rem;">Nenhum membro cadastrado nesta rede.</div>`;
+      } else {
+        membrosRede.forEach(m => {
+          const cat = m.categoria || 'Liderado';
+          const sexo = m.sexo ? `(${m.sexo})` : '';
+          const isLider = cat === 'Líder';
+          const isBase = cat === 'Base da Rede';
+          
+          let corTag = 'rgba(255,255,255,0.05)';
+          let txtCor = 'var(--text-muted)';
+          if (isLider) { corTag = 'rgba(35,209,96,0.3)'; txtCor = '#23D160'; }
+          else if (isBase) { corTag = 'rgba(110,86,207,0.3)'; txtCor = '#A58BFF'; }
+
+          membrosHtml += `
+            <div class="rede-item" style="${isLider ? 'background: rgba(35, 209, 96, 0.08); padding: 8px 6px; border-radius: 6px; border-bottom: 1px solid rgba(35,209,96,0.2); margin-bottom: 4px;' : ''}">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span>${isLider ? '⭐' : '👤'} <strong style="${isLider ? 'color: #23D160; font-size: 1.02rem;' : ''}">${m.nome}</strong> <small style="color:var(--text-muted)">${sexo}</small></span>
+                <span class="tag" style="background:${corTag}; color:${txtCor};">${cat}</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <button class="btn-transferir" onclick="abrirModalTransferir('${m.id}', '${m.nome.replace(/'/g, "\\'")}', '${r.nome}')">🔄 Transferir</button>
+              </div>
+            </div>
+          `;
+        });
+      }
+
+      let optionsMembros = `<option value="">Definir líder da rede...</option>`;
+      membrosRede.forEach(m => {
+        const selecionado = (m.categoria === 'Líder') ? 'selected' : '';
+        optionsMembros += `<option value="${m.id}" ${selecionado}>${m.nome}</option>`;
+      });
+
+      const card = document.createElement('div');
+      card.className = 'supervisao-card';
+      card.innerHTML = `
+        <div class="supervisao-header" onclick="toggleCard(this)">
+          <div class="supervisao-info">
+            <h3>📍 ${r.nome}</h3>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span class="supervisao-badge">${membrosRede.length} membros</span>
+            <span class="arrow-icon">▼</span>
+          </div>
+        </div>
+        <div class="redes-list">
+          <div style="margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--card-border);">
+            <label style="font-size: 0.72rem; margin-bottom: 2px;">Líder Oficial da Rede:</label>
+            <select class="select-lider-arvore" onchange="definirLiderRede('${r.nome}', this.value)" onclick="event.stopPropagation()">
+              ${optionsMembros}
+            </select>
+          </div>
+          ${membrosHtml}
+        </div>
+      `;
+      container.appendChild(card);
+    });
+  }
+
+  function toggleCard(headerElement) {
+    const card = headerElement.parentElement;
+    card.classList.toggle('ativo');
+  }
+
+  async function definirLiderRede(nomeRede, novoLiderId) {
+    if (!novoLiderId) return;
+
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('painelSupervisor').style.display = 'none';
+
+    try {
+      const batch = db.batch();
+
+      membrosCacheSup.forEach(m => {
+        if (m.rede === nomeRede && m.categoria === 'Líder' && m.id !== novoLiderId) {
+          batch.update(db.collection('membros').doc(m.id), { categoria: 'Liderado' });
+        }
+      });
+
+      const membroRef = db.collection('membros').doc(novoLiderId);
+      batch.update(membroRef, { categoria: 'Líder' });
+
+      await batch.commit();
+      alert(`✅ Líder da ${nomeRede} definido com sucesso!`);
+      await carregarDadosSupervisor();
+    } catch (err) {
+      alert("Erro ao definir o líder.");
+      console.error(err);
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('painelSupervisor').style.display = 'block';
+    }
+  }
+
+  function abrirModalTransferir(membroId, nomeMembro, redeAtual) {
+    document.getElementById('transMembroId').value = membroId;
+    document.getElementById('transNomeMembro').value = nomeMembro;
+    document.getElementById('transRedeAtual').value = redeAtual;
+
+    const selectDestino = document.getElementById('transNovaRedeSelect');
+    selectDestino.innerHTML = '';
+
+    supervisorLogado.redes.forEach(r => {
+      if (r.nome !== redeAtual) {
+        const opt = document.createElement('option');
+        opt.value = r.nome;
+        opt.textContent = r.nome;
+        selectDestino.appendChild(opt);
+      }
+    });
+
+    document.getElementById('modalTransferencia').style.display = 'flex';
+  }
+
+  function fecharModalTransferencia() {
+    document.getElementById('modalTransferencia').style.display = 'none';
+  }
+
+  async function confirmarTransferencia() {
+    const membroId = document.getElementById('transMembroId').value;
+    const novaRede = document.getElementById('transNovaRedeSelect').value;
+
+    if (!novaRede) return alert("Selecione uma rede de destino válida.");
+
+    fecharModalTransferencia();
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('painelSupervisor').style.display = 'none';
+
+    try {
+      await db.collection('membros').doc(membroId).update({
+        rede: novaRede
+      });
+
+      alert("✅ Membro transferido com sucesso!");
+      await carregarDadosSupervisor();
+    } catch (err) {
+      alert("Erro ao transferir membro.");
+      console.error(err);
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('painelSupervisor').style.display = 'block';
+    }
+  }
+
+  function abrirRelatoriosRede(nomeRede) {
+    document.getElementById('tituloModalRede').innerText = `📜 Relatórios da ${nomeRede}`;
+    const conteudoModal = document.getElementById('conteudoRelatoriosRede');
+    conteudoModal.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-muted);">Carregando relatórios...</div>`;
+    
+    document.getElementById('modalRelatoriosRede').style.display = 'flex';
+
+    const relsRede = relatoriosCacheSup.filter(r => r.rede === nomeRede);
+    relsRede.sort((a, b) => new Date(b.dataEncontro || 0) - new Date(a.dataEncontro || 0));
+
+    if (relsRede.length === 0) {
+      conteudoModal.innerHTML = `<div style="color: var(--text-muted); text-align:center; padding: 20px;">Nenhum relatório cadastrado para esta rede.</div>`;
+      return;
+    }
+
+    let htmlRels = '';
+    relsRede.forEach(r => {
+      htmlRels += `
+        <div class="relatorio-item-sup">
+          <header>
+            <span>📅 Encontro: ${r.dataEncontro || 'N/A'} (${r.horario || ''})</span>
+            <span>📍 ${r.local || 'Local não informado'}</span>
+          </header>
+          <div style="font-size: 0.85rem; color: var(--text); line-height: 1.4; margin-top: 6px;">
+            <strong>Tema:</strong> ${r.tema || '-'}<br>
+            <strong>Presentes:</strong> ${r.presentes || 'Nenhum'}<br>
+            <strong>Visitantes:</strong> ${r.visitantes || 'Nenhum'}<br>
+            <span style="color: var(--danger);"><strong>Faltantes:</strong> ${r.faltantes || 'Nenhum'}</span><br>
+            <strong>Resumo da Palavra:</strong> ${r.resumoPalavra || '-'}<br>
+            <strong>Atividades:</strong> ${r.atividades || '-'}
+          </div>
+        </div>
+      `;
+    });
+
+    conteudoModal.innerHTML = htmlRels;
+  }
+
+  function fecharModalRelatoriosRede() {
+    document.getElementById('modalRelatoriosRede').style.display = 'none';
+  }
+</script>
+
+</body>
+</html>
