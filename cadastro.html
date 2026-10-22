@@ -78,9 +78,18 @@
         <input type="date" id="inputNascimento" required>
       </div>
       <div class="form-group">
-        <label>WhatsApp <span style="text-transform: none; color: var(--text-muted);">(Opcional)</span></label>
-        <input type="tel" id="inputWhatsapp" placeholder="Ex: 81988887777 (Deixe em branco se não tiver)">
+        <label>Sexo</label>
+        <select id="selectSexo" required>
+          <option value="">Selecione...</option>
+          <option value="Masculino">Masculino</option>
+          <option value="Feminino">Feminino</option>
+        </select>
       </div>
+    </div>
+
+    <div class="form-group">
+      <label>WhatsApp <span style="text-transform: none; color: var(--text-muted);">(Opcional)</span></label>
+      <input type="tel" id="inputWhatsapp" placeholder="Ex: 81988887777 (Deixe em branco se não tiver)">
     </div>
 
     <div class="row">
@@ -149,6 +158,7 @@
       lider: dadosSessao.lider,
       nome: document.getElementById('inputNome').value.trim(),
       nascimento: document.getElementById('inputNascimento').value,
+      sexo: document.getElementById('selectSexo').value,
       whatsapp: document.getElementById('inputWhatsapp').value.trim(),
       batizado: document.getElementById('selectBatizado').value,
       categoria: document.getElementById('selectCategoria').value,
