@@ -37,15 +37,15 @@
     #loginBox { max-width: 400px; margin: 40px auto; text-align: center; background: var(--input-bg); padding: 32px 24px; border-radius: 12px; border: 1px solid var(--card-border); }
     .form-group { margin-bottom: 16px; text-align: left; }
     label { display: block; font-weight: 500; font-size: 0.85rem; margin-bottom: 6px; color: var(--text-muted); text-transform: uppercase; }
-    input[type="text"], input[type="password"], input[type="date"], select { width: 100%; padding: 12px 14px; background-color: var(--card-bg); border: 1px solid var(--card-border); border-radius: 8px; font-size: 0.95rem; color: var(--text); outline: none; }
-    input:focus, select:focus { border-color: var(--primary); }
+    input[type="text"], input[type="password"], input[type="date"], input[type="time"], textarea, select { width: 100%; padding: 12px 14px; background-color: var(--card-bg); border: 1px solid var(--card-border); border-radius: 8px; font-size: 0.95rem; color: var(--text); outline: none; }
+    input:focus, textarea:focus, select:focus { border-color: var(--primary); }
     select option { background-color: var(--card-bg); color: var(--text); }
 
     .btn { background-color: var(--primary); color: white; border: none; padding: 12px 18px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.95rem; width: 100%; transition: 0.2s; }
     .btn:hover { background-color: var(--primary-hover); }
 
     .metrics-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 28px; }
-    .metric-card { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 10px; padding: 14px 10px; text-align: center; transition: 0.2s; }
+    .metric-card { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 10px; padding: 14px 10px; text-align: center; }
     .metric-card h4 { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; }
     .metric-card .value { font-size: 1.4rem; font-weight: 800; color: var(--text); }
 
@@ -98,6 +98,13 @@
 
     .btn-lider-action { background: rgba(35, 209, 96, 0.15); color: var(--success); border: 1px solid rgba(35, 209, 96, 0.3); padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
     .btn-lider-action:hover { background: var(--success); color: #000; }
+
+    /* Abas do Painel de Rede */
+    .tabs-nav { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 1px solid var(--card-border); padding-bottom: 12px; overflow-x: auto; }
+    .tab-btn { background: var(--input-bg); color: var(--text-muted); border: 1px solid var(--card-border); padding: 8px 14px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.85rem; white-space: nowrap; }
+    .tab-btn.active { background: var(--primary); color: #FFF; border-color: var(--primary); }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
 
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 999; display: none; }
     .modal-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 24px; max-width: 450px; width: 100%; max-height: 85vh; overflow-y: auto; }
@@ -162,7 +169,7 @@
       <div class="menu-card" onclick="abrirPainelRedeEspecifica()">
         <div class="icon">📊</div>
         <h3>Painel de Rede</h3>
-        <p>Acesse o painel detalhado de qualquer rede específica sob sua supervisão.</p>
+        <p>Acesse o painel completo e detalhado de qualquer rede específica sob sua supervisão.</p>
       </div>
       <div class="menu-card" onclick="abrirPainelSupervisorMacro()">
         <div class="icon">📈</div>
@@ -207,28 +214,89 @@
       </div>
       <div class="form-group">
         <label>Rede de Destino</label>
-        <select id="cadRedeSelect">
-          <!-- Preenchido dinamicamente com as redes da supervisão -->
-        </select>
+        <select id="cadRedeSelect"></select>
       </div>
       <button class="btn" onclick="salvarNovoMembro()">Cadastrar Membro</button>
     </div>
   </div>
 
-  <!-- View 2: Painel de Rede Específico (Visão do Líder) -->
+  <!-- View 2: Painel de Rede Exato do Líder -->
   <div id="viewPainelRede" style="display: none;">
     <button class="btn-voltar" onclick="voltarMenuSupervisor()">← Voltar ao Menu</button>
-    <div class="section-title" style="margin-top: 16px;">📊 Painel Detalhado da Rede</div>
     
-    <div class="form-group" style="background: var(--input-bg); padding: 16px; border-radius: 10px; border: 1px solid var(--card-border);">
-      <label>Selecione a Rede que deseja visualizar</label>
+    <div class="form-group" style="background: var(--input-bg); padding: 16px; border-radius: 10px; border: 1px solid var(--card-border); margin-top: 16px;">
+      <label>Selecione a Rede</label>
       <select id="selectRedePainelEspecifico" onchange="carregarDadosRedeEspecifica()">
         <!-- Preenchido dinamicamente -->
       </select>
     </div>
 
-    <div id="conteudoPainelRedeEspecifico" style="margin-top: 20px;">
-      <!-- Exibição dos membros e relatórios da rede selecionada -->
+    <div id="conteudoPainelRedeReal" style="display: none; margin-top: 20px;">
+      <!-- Métricas da Rede -->
+      <div class="metrics-grid">
+        <div class="metric-card"><h4>Ativos</h4><div class="value" id="rAtivos">0</div></div>
+        <div class="metric-card"><h4>Base</h4><div class="value" id="rBase" style="color: var(--info);">0</div></div>
+        <div class="metric-card"><h4>Faltas (Últ. Encontro)</h4><div class="value" id="rFaltas" style="color: var(--danger);">0</div></div>
+        <div class="metric-card"><h4>Meta (12)</h4><div class="value" id="rMeta" style="color: var(--success);">0/12</div></div>
+        <div class="metric-card"><h4>Status</h4><div class="value" id="rStatus" style="font-size: 0.95rem;">-</div></div>
+      </div>
+
+      <!-- Abas Exatas do Painel do Líder -->
+      <div class="tabs-nav">
+        <button class="tab-btn active" onclick="mudarAbaRede('membros', this)">👥 Membros da Rede</button>
+        <button class="tab-btn" onclick="mudarAbaRede('relatorio', this)">📋 Enviar Relatório</button>
+        <button class="tab-btn" onclick="mudarAbaRede('historico', this)">📜 Histórico e Faltas</button>
+        <button class="tab-btn" onclick="mudarAbaRede('aniversariantes', this)">🎂 Aniversariantes</button>
+      </div>
+
+      <!-- Aba 1: Membros -->
+      <div id="aba-membros" class="tab-content active">
+        <div class="section-title">Gerenciamento de Membros</div>
+        <div class="table-container">
+          <table>
+            <thead><tr><th>Nome</th><th>Categoria</th><th>Contato</th><th>Ações</th></tr></thead>
+            <tbody id="tabelaMembrosRedeBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Aba 2: Enviar Relatório -->
+      <div id="aba-relatorio" class="tab-content">
+        <div class="section-title">Preencher Relatório do Encontro</div>
+        <div style="background: var(--input-bg); padding: 20px; border-radius: 12px; border: 1px solid var(--card-border);">
+          <div class="form-group"><label>Data do Encontro</label><input type="date" id="relData"></div>
+          <div class="form-group"><label>Horário</label><input type="time" id="relHorario"></div>
+          <div class="form-group"><label>Local</label><input type="text" id="relLocal" placeholder="Ex: Casa do Irmão João"></div>
+          <div class="form-group"><label>Tema Ministrado</label><input type="text" id="relTema" placeholder="Ex: O Poder da Fé"></div>
+          
+          <div class="form-group">
+            <label>Selecione quem ESTEVE PRESENTE:</label>
+            <div id="listaPresencaCheckboxes" style="max-height: 200px; overflow-y: auto; background: var(--card-bg); padding: 10px; border-radius: 8px; border: 1px solid var(--card-border);"></div>
+          </div>
+
+          <div class="form-group"><label>Visitantes (Nomes separados por vírgula)</label><input type="text" id="relVisitantes" placeholder="Ex: Carlos, Ana"></div>
+          <div class="form-group"><label>Resumo da Palavra</label><textarea id="relResumo" rows="3" placeholder="Breve resumo..."></textarea></div>
+          <div class="form-group"><label>Atividades / Avisos</label><input type="text" id="relAtividades"></div>
+          <button class="btn" onclick="enviarRelatorioRede()">Enviar Relatório</button>
+        </div>
+      </div>
+
+      <!-- Aba 3: Histórico e Faltas -->
+      <div id="aba-historico" class="tab-content">
+        <div class="section-title">Histórico de Relatórios e Alertas de Faltas</div>
+        <div id="historicoRelatoriosContainer"></div>
+      </div>
+
+      <!-- Aba 4: Aniversariantes -->
+      <div id="aba-aniversariantes" class="tab-content">
+        <div class="section-title">Aniversariantes do Mês na Rede</div>
+        <div class="table-container">
+          <table>
+            <thead><tr><th>Membro</th><th>Data Nasc.</th><th>WhatsApp</th></tr></thead>
+            <tbody id="tabelaNiverRedeBody"></tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -281,7 +349,7 @@
   <div id="loading" class="loading-box" style="display: none;">Carregando dados do Firebase...</div>
 </div>
 
-<!-- Modal de Relatórios da Rede -->
+<!-- Modais -->
 <div id="modalRelatoriosRede" class="modal-overlay">
   <div class="modal-card" style="max-width: 600px;">
     <div class="modal-header">
@@ -289,13 +357,10 @@
       <button onclick="fecharModalRelatoriosRede()" style="background:none; border:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer;">✕</button>
     </div>
     <div id="conteudoRelatoriosRede">Carregando relatórios...</div>
-    <div class="modal-footer">
-      <button class="btn-cancelar" onclick="fecharModalRelatoriosRede()">Fechar</button>
-    </div>
+    <div class="modal-footer"><button class="btn-cancelar" onclick="fecharModalRelatoriosRede()">Fechar</button></div>
   </div>
 </div>
 
-<!-- Modal de Transferência de Membro -->
 <div id="modalTransferencia" class="modal-overlay">
   <div class="modal-card">
     <div class="modal-header">
@@ -303,27 +368,16 @@
       <button onclick="fecharModalTransferencia()" style="background:none; border:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer;">✕</button>
     </div>
     <input type="hidden" id="transMembroId">
-    
-    <div class="form-group">
-      <label>Membro a ser transferido</label>
-      <input type="text" id="transNomeMembro" readonly style="background: var(--input-bg); color: var(--text);">
-    </div>
-    <div class="form-group">
-      <label>Rede Atual</label>
-      <input type="text" id="transRedeAtual" readonly style="background: var(--input-bg); color: var(--text);">
-    </div>
-    <div class="form-group">
-      <label>Selecione a Nova Rede de Destino</label>
-      <select id="transNovaRedeSelect"></select>
-    </div>
+    <div class="form-group"><label>Membro</label><input type="text" id="transNomeMembro" readonly></div>
+    <div class="form-group"><label>Rede Atual</label><input type="text" id="transRedeAtual" readonly></div>
+    <div class="form-group"><label>Nova Rede de Destino</label><select id="transNovaRedeSelect"></select></div>
     <div class="modal-footer">
       <button class="btn-cancelar" onclick="fecharModalTransferencia()">Cancelar</button>
-      <button class="btn" style="width: auto; padding: 8px 16px;" onclick="confirmarTransferencia()">Confirmar Transferência</button>
+      <button class="btn" style="width: auto; padding: 8px 16px;" onclick="confirmarTransferencia()">Confirmar</button>
     </div>
   </div>
 </div>
 
-<!-- Modal de Alterar Líder da Rede -->
 <div id="modalLider" class="modal-overlay">
   <div class="modal-card">
     <div class="modal-header">
@@ -331,17 +385,11 @@
       <button onclick="fecharModalLider()" style="background:none; border:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer;">✕</button>
     </div>
     <input type="hidden" id="liderRedeNome">
-    <div class="form-group">
-      <label>Rede</label>
-      <input type="text" id="liderRedeDisplay" readonly style="background: var(--input-bg); color: var(--text);">
-    </div>
-    <div class="form-group">
-      <label>Selecione o Novo Líder</label>
-      <select id="selectNovoLiderModal"></select>
-    </div>
+    <div class="form-group"><label>Rede</label><input type="text" id="liderRedeDisplay" readonly></div>
+    <div class="form-group"><label>Novo Líder</label><select id="selectNovoLiderModal"></select></div>
     <div class="modal-footer">
       <button class="btn-cancelar" onclick="fecharModalLider()">Cancelar</button>
-      <button class="btn" style="width: auto; padding: 8px 16px;" onclick="confirmarNovoLider()">Salvar Novo Líder</button>
+      <button class="btn" style="width: auto; padding: 8px 16px;" onclick="confirmarNovoLider()">Salvar</button>
     </div>
   </div>
 </div>
@@ -386,7 +434,6 @@
   function carregarSupervisoes() {
     const select = document.getElementById('selectSupLogin');
     if (!select) return;
-    
     select.innerHTML = '<option value="">Selecione sua Supervisão</option>';
     supervisoresDB.forEach((item, index) => {
       const opt = document.createElement('option');
@@ -399,9 +446,7 @@
   async function fazerLogin() {
     const index = document.getElementById('selectSupLogin').value;
     const senha = document.getElementById('inputSenha').value.trim();
-
     if (index === "") return alert("Selecione a sua supervisão.");
-
     const supSelecionada = supervisoresDB[index];
     if (senha !== supSelecionada.senha) return alert("Senha incorreta!");
 
@@ -415,20 +460,13 @@
   async function carregarDadosSupervisorCache() {
     document.getElementById('loading').style.display = 'block';
     try {
-      const snapshotMembros = await db.collection('membros')
-        .where('supervisao', '==', supervisorLogado.supervisao)
-        .get();
-
-      const snapshotRelatorios = await db.collection('relatorios')
-        .where('supervisao', '==', supervisorLogado.supervisao)
-        .get();
+      const snapshotMembros = await db.collection('membros').where('supervisao', '==', supervisorLogado.supervisao).get();
+      const snapshotRelatorios = await db.collection('relatorios').where('supervisao', '==', supervisorLogado.supervisao).get();
 
       membrosCacheSup = [];
       snapshotMembros.forEach(doc => {
         const data = doc.data();
-        if (data.status !== "INATIVO") {
-          membrosCacheSup.push({ id: doc.id, ...data });
-        }
+        if (data.status !== "INATIVO") membrosCacheSup.push({ id: doc.id, ...data });
       });
 
       relatoriosCacheSup = [];
@@ -436,8 +474,6 @@
 
       document.getElementById('labelSupervisorLogado').innerText = `${supervisorLogado.supervisao} - ${supervisorLogado.supervisor}`;
       document.getElementById('btnVoltarGlobal').style.display = 'inline-flex';
-      
-      // Abre o Menu Principal após carregar os dados
       voltarMenuSupervisor();
     } catch (err) {
       alert("Erro ao carregar dados do Firebase.");
@@ -469,13 +505,12 @@
     document.getElementById('menuSupervisor').style.display = 'block';
   }
 
-  // --- OPÇÃO 1: CADASTRO DE MEMBROS ---
+  // Cadastro de Membro
   function abrirCadastroMembro() {
     document.getElementById('menuSupervisor').style.display = 'none';
     document.getElementById('cadNome').value = '';
     document.getElementById('cadWhatsapp').value = '';
     document.getElementById('cadNascimento').value = '';
-
     const selectRede = document.getElementById('cadRedeSelect');
     selectRede.innerHTML = '';
     supervisorLogado.redes.forEach(r => {
@@ -484,7 +519,6 @@
       opt.textContent = r.nome;
       selectRede.appendChild(opt);
     });
-
     document.getElementById('viewCadastroMembro').style.display = 'block';
   }
 
@@ -496,27 +530,14 @@
     const categoria = document.getElementById('cadCategoria').value;
     const rede = document.getElementById('cadRedeSelect').value;
 
-    if (!nome || !nascimento || !rede) {
-      return alert("Preencha os campos obrigatórios (Nome, Nascimento e Rede).");
-    }
+    if (!nome || !nascimento || !rede) return alert("Preencha Nome, Nascimento e Rede.");
 
     document.getElementById('loading').style.display = 'block';
     document.getElementById('viewCadastroMembro').style.display = 'none';
 
     try {
-      await db.collection('membros').add({
-        nome,
-        whatsapp,
-        nascimento,
-        sexo,
-        categoria,
-        rede,
-        supervisao: supervisorLogado.supervisao,
-        status: "ATIVO"
-      });
-
+      await db.collection('membros').add({ nome, whatsapp, nascimento, sexo, categoria, rede, supervisao: supervisorLogado.supervisao, status: "ATIVO" });
       alert("✅ Membro cadastrado com sucesso!");
-      // Atualiza o cache local
       await carregarDadosSupervisorCache();
     } catch (err) {
       alert("Erro ao cadastrar membro.");
@@ -526,7 +547,7 @@
     }
   }
 
-  // --- OPÇÃO 2: PAINEL DE REDE (VISÃO ESPECÍFICA) ---
+  // Painel de Rede Específico (Idêntico ao do Líder)
   function abrirPainelRedeEspecifica() {
     document.getElementById('menuSupervisor').style.display = 'none';
     const select = document.getElementById('selectRedePainelEspecifico');
@@ -537,77 +558,182 @@
       opt.textContent = r.nome;
       select.appendChild(opt);
     });
-    document.getElementById('conteudoPainelRedeEspecifico').innerHTML = '';
+    document.getElementById('conteudoPainelRedeReal').style.display = 'none';
     document.getElementById('viewPainelRede').style.display = 'block';
   }
 
   function carregarDadosRedeEspecifica() {
     const redeNome = document.getElementById('selectRedePainelEspecifico').value;
-    const container = document.getElementById('conteudoPainelRedeEspecifico');
+    const container = document.getElementById('conteudoPainelRedeReal');
     if (!redeNome) {
-      container.innerHTML = '';
+      container.style.display = 'none';
       return;
     }
 
+    container.style.display = 'block';
     const membrosRede = membrosCacheSup.filter(m => m.rede === redeNome);
     const relsRede = relatoriosCacheSup.filter(r => r.rede === redeNome);
     relsRede.sort((a, b) => new Date(b.dataEncontro || 0) - new Date(a.dataEncontro || 0));
 
-    let membrosHtml = '';
-    if (membrosRede.length === 0) {
-      membrosHtml = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">Nenhum membro nesta rede.</td></tr>`;
-    } else {
-      membrosRede.forEach(m => {
-        membrosHtml += `
-          <tr>
-            <td><strong>${m.nome}</strong></td>
-            <td><span class="tag">${m.categoria || 'Liderado'}</span></td>
-            <td>${m.whatsapp || '-'}</td>
-            <td>${m.nascimento || '-'}</td>
-          </tr>
-        `;
-      });
+    // Métricas
+    const ativos = membrosRede.length;
+    const base = membrosRede.filter(m => m.categoria === 'Base da Rede' || m.categoria === 'Líder').length;
+    
+    let faltasUltimo = 0;
+    if (relsRede.length > 0 && relsRede[0].faltantes) {
+      faltasUltimo = relsRede[0].faltantes.split(',').filter(x => x.trim() !== '').length;
     }
 
-    let relsHtml = '';
+    document.getElementById('rAtivos').innerText = ativos;
+    document.getElementById('rBase').innerText = base;
+    document.getElementById('rFaltas').innerText = faltasUltimo;
+    document.getElementById('rMeta').innerText = `${ativos}/12`;
+    
+    let statusEl = document.getElementById('rStatus');
+    if (ativos === 12) { statusEl.innerHTML = '<span class="tag tag-green">Ideal (12)</span>'; }
+    else if (ativos > 12) { statusEl.innerHTML = '<span class="tag tag-blue">Multiplicar</span>'; }
+    else { statusEl.innerHTML = '<span class="tag tag-yellow">Abaixo</span>'; }
+
+    // Tabela Membros
+    const tbMembros = document.getElementById('tabelaMembrosRedeBody');
+    tbMembros.innerHTML = '';
+    membrosRede.forEach(m => {
+      tbMembros.innerHTML += `
+        <tr>
+          <td><strong>${m.nome}</strong></td>
+          <td><span class="tag">${m.categoria || 'Liderado'}</span></td>
+          <td>${m.whatsapp || '-'}</td>
+          <td>
+            <button class="btn-transferir" onclick="mudarStatusMembro('${m.id}', 'INATIVO', '${redeNome}')">Inativar</button>
+          </td>
+        </tr>
+      `;
+    });
+
+    // Checkboxes Presença Relatório
+    const divCheck = document.getElementById('listaPresencaCheckboxes');
+    divCheck.innerHTML = '';
+    membrosRede.forEach(m => {
+      divCheck.innerHTML += `
+        <label style="display:flex; align-items:center; gap:8px; margin-bottom:6px; font-size:0.9rem; text-transform:none; color:var(--text);">
+          <input type="checkbox" name="membroPresenca" value="${m.nome}" checked style="width:auto;"> ${m.nome}
+        </label>
+      `;
+    });
+
+    // Histórico Relatórios
+    const divHist = document.getElementById('historicoRelatoriosContainer');
+    divHist.innerHTML = '';
     if (relsRede.length === 0) {
-      relsHtml = `<div style="color:var(--text-muted); text-align:center; padding: 15px;">Nenhum relatório enviado por esta rede.</div>`;
+      divHist.innerHTML = `<div style="color:var(--text-muted); text-align:center; padding:15px;">Nenhum relatório enviado.</div>`;
     } else {
       relsRede.forEach(r => {
-        relsHtml += `
+        divHist.innerHTML += `
           <div class="relatorio-item-sup">
-            <header>
-              <span>📅 Encontro: ${r.dataEncontro || 'N/A'} (${r.horario || ''})</span>
-              <span>📍 ${r.local || 'Local não informado'}</span>
-            </header>
-            <div style="font-size: 0.85rem; color: var(--text); line-height: 1.4; margin-top: 6px;">
+            <header><span>📅 ${r.dataEncontro || 'N/A'}</span><span>📍 ${r.local || '-'}</span></header>
+            <div style="font-size:0.85rem; margin-top:6px;">
               <strong>Tema:</strong> ${r.tema || '-'}<br>
-              <strong>Presentes:</strong> ${r.presentes || 'Nenhum'}<br>
-              <strong>Visitantes:</strong> ${r.visitantes || 'Nenhum'}<br>
-              <span style="color: var(--danger);"><strong>Faltantes:</strong> ${r.faltantes || 'Nenhum'}</span><br>
-              <strong>Resumo da Palavra:</strong> ${r.resumoPalavra || '-'}<br>
-              <strong>Atividades:</strong> ${r.atividades || '-'}
+              <strong>Presentes:</strong> ${r.presentes || '-'}<br>
+              <span style="color:var(--danger);"><strong>Faltantes:</strong> ${r.faltantes || 'Nenhum'}</span><br>
+              <strong>Resumo:</strong> ${r.resumoPalavra || '-'}
             </div>
           </div>
         `;
       });
     }
 
-    container.innerHTML = `
-      <div class="section-title">👥 Membros da ${redeNome} (${membrosRede.length})</div>
-      <div class="table-container">
-        <table>
-          <thead><tr><th>Nome</th><th>Categoria</th><th>WhatsApp</th><th>Nascimento</th></tr></thead>
-          <tbody>${membrosHtml}</tbody>
-        </table>
-      </div>
-
-      <div class="section-title" style="margin-top: 24px;">📜 Relatórios da ${redeNome} (${relsRede.length})</div>
-      <div>${relsHtml}</div>
-    `;
+    // Aniversariantes
+    const tbNiver = document.getElementById('tabelaNiverRedeBody');
+    tbNiver.innerHTML = '';
+    const mesAtual = new Date().getMonth() + 1;
+    let qtdNiver = 0;
+    membrosRede.forEach(m => {
+      if (m.nascimento) {
+        const p = m.nascimento.split('-');
+        if (p.length === 3 && parseInt(p[1]) === mesAtual) {
+          qtdNiver++;
+          tbNiver.innerHTML += `<tr><td><strong>${m.nome}</strong></td><td>${p[2]}/${p[1]}</td><td>${m.whatsapp || '-'}</td></tr>`;
+        }
+      }
+    });
+    if (qtdNiver === 0) tbNiver.innerHTML = `<tr><td colspan="3" style="text-align:center; color:var(--text-muted);">Nenhum aniversariante neste mês.</td></tr>`;
   }
 
-  // --- OPÇÃO 3: PAINEL DO SUPERVISOR (MACRO) ---
+  function mudarAbaRede(aba, btn) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+    document.getElementById(`aba-${aba}`).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  async function enviarRelatorioRede() {
+    const rede = document.getElementById('selectRedePainelEspecifico').value;
+    const dataEncontro = document.getElementById('relData').value;
+    const horario = document.getElementById('relHorario').value;
+    const local = document.getElementById('relLocal').value.trim();
+    const tema = document.getElementById('relTema').value.trim();
+    const visitantes = document.getElementById('relVisitantes').value.trim();
+    const resumoPalavra = document.getElementById('relResumo').value.trim();
+    const atividades = document.getElementById('relAtividades').value.trim();
+
+    if (!dataEncontro || !tema) return alert("Preencha pelo menos a Data e o Tema do Encontro.");
+
+    const presentesArr = [];
+    const faltantesArr = [];
+    const membrosRede = membrosCacheSup.filter(m => m.rede === rede);
+
+    document.querySelectorAll('input[name="membroPresenca"]').forEach(chk => {
+      if (chk.checked) presentesArr.push(chk.value);
+      else faltantesArr.push(chk.value);
+    });
+
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('viewPainelRede').style.display = 'none';
+
+    try {
+      await db.collection('relatorios').add({
+        rede,
+        supervisao: supervisorLogado.supervisao,
+        dataEncontro,
+        horario,
+        local,
+        tema,
+        presentes: presentesArr.join(', '),
+        faltantes: faltantesArr.join(', '),
+        visitantes,
+        resumoPalavra,
+        atividades
+      });
+
+      alert("✅ Relatório enviado com sucesso!");
+      await carregarDadosSupervisorCache();
+      abrirPainelRedeEspecifica();
+    } catch (err) {
+      alert("Erro ao enviar relatório.");
+      console.error(err);
+      document.getElementById('loading').style.display = 'none';
+      abrirPainelRedeEspecifica();
+    }
+  }
+
+  async function mudarStatusMembro(id, status, redeNome) {
+    if (!confirm("Deseja realmente inativar este membro?")) return;
+    document.getElementById('loading').style.display = 'block';
+    try {
+      await db.collection('membros').doc(id).update({ status });
+      alert("✅ Membro inativado!");
+      await carregarDadosSupervisorCache();
+      document.getElementById('selectRedePainelEspecifico').value = redeNome;
+      carregarDadosRedeEspecifica();
+    } catch (err) {
+      alert("Erro ao atualizar membro.");
+      console.error(err);
+    } finally {
+      document.getElementById('loading').style.display = 'none';
+    }
+  }
+
+  // Painel do Supervisor (Macro)
   function abrirPainelSupervisorMacro() {
     document.getElementById('menuSupervisor').style.display = 'none';
     renderizarPainelSupervisorMacro(membrosCacheSup, relatoriosCacheSup);
@@ -616,7 +742,6 @@
 
   function renderizarPainelSupervisorMacro(membrosSup, relatoriosSup) {
     const redesDaSup = supervisorLogado.redes;
-
     let totalMembros = membrosSup.length;
     let totalBaseGeral = 0;
     let meta12 = 0, multi = 0, abaixo = 0;
@@ -633,30 +758,14 @@
       const relsRede = relatoriosSup.filter(rel => rel.rede === r.nome);
       relsRede.sort((a, b) => new Date(b.dataEncontro || 0) - new Date(a.dataEncontro || 0));
       const ultimoRel = relsRede.length > 0 ? relsRede[0] : null;
-      
       let infoUltimoRel = ultimoRel ? `${ultimoRel.dataEncontro || 'Sem data'} (<button class="btn-ver-relatorios" onclick="abrirRelatoriosRede('${r.nome}')">Ver (${relsRede.length})</button>)` : `Nenhum (<button class="btn-ver-relatorios" onclick="abrirRelatoriosRede('${r.nome}')">Ver (0)</button>)`;
 
       let statusHtml = '';
-      if (qtdTotal === 12) {
-        meta12++;
-        statusHtml = `<span class="tag tag-green">🟢 Ideal (12)</span>`;
-      } else if (qtdTotal > 12) {
-        multi++;
-        statusHtml = `<span class="tag tag-blue">🚀 Multiplicar (${qtdTotal})</span>`;
-      } else {
-        abaixo++;
-        statusHtml = `<span class="tag tag-yellow">⚠️ Abaixo (${qtdTotal}/12)</span>`;
-      }
+      if (qtdTotal === 12) { meta12++; statusHtml = `<span class="tag tag-green">🟢 Ideal (12)</span>`; }
+      else if (qtdTotal > 12) { multi++; statusHtml = `<span class="tag tag-blue">🚀 Multiplicar (${qtdTotal})</span>`; }
+      else { abaixo++; statusHtml = `<span class="tag tag-yellow">⚠️ Abaixo (${qtdTotal}/12)</span>`; }
 
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td><strong>${r.nome}</strong></td>
-        <td>${qtdTotal}</td>
-        <td>${qtdBase}</td>
-        <td>${statusHtml}</td>
-        <td><small>${infoUltimoRel}</small></td>
-      `;
-      tabelaRedesBody.appendChild(tr);
+      tabelaRedesBody.innerHTML += `<tr><td><strong>${r.nome}</strong></td><td>${qtdTotal}</td><td>${qtdBase}</td><td>${statusHtml}</td><td><small>${infoUltimoRel}</small></td></tr>`;
     });
 
     document.getElementById('mTotalMembros').innerText = totalMembros;
@@ -675,24 +784,18 @@
       const nome = m.nome, rede = m.rede, whats = m.whatsapp || '';
       let faltasSeguidas = 0;
       const relsRede = relatoriosSup.filter(r => r.rede === rede);
-
       for (let rel of [...relsRede].reverse()) {
         const faltantesTxt = rel.faltantes ? rel.faltantes.toString() : '';
         if (faltantesTxt.includes(nome)) faltasSeguidas++;
         else break;
       }
-
       if (faltasSeguidas >= 2) {
         qtdAlertas++;
         const tipoAlerta = faltasSeguidas >= 3 ? `<span class="tag tag-danger">⛔ ${faltasSeguidas} Faltas (Não Pode Servir)</span>` : `<span class="tag tag-yellow">⚠️ ${faltasSeguidas} Faltas (Apascentamento)</span>`;
         const linkWhats = whats ? `<a href="https://api.whatsapp.com/send?phone=55${whats.replace(/\D/g,'')}&text=${encodeURIComponent('Olá ' + nome + ', tudo bem? Sentimos sua falta na rede!')}" target="_blank" class="btn-whats">💬 Chamar</a>` : 'Sem WhatsApp';
-
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td><strong>${nome}</strong></td><td>${rede}</td><td>${tipoAlerta}</td><td>${linkWhats}</td>`;
-        tabelaAlertasBody.appendChild(tr);
+        tabelaAlertasBody.innerHTML += `<tr><td><strong>${nome}</strong></td><td>${rede}</td><td>${tipoAlerta}</td><td>${linkWhats}</td></tr>`;
       }
     });
-
     if (qtdAlertas === 0) tabelaAlertasBody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Nenhum alerta de falta consecutiva no momento. 🟢</td></tr>`;
 
     // Aniversariantes
@@ -700,22 +803,16 @@
     tabelaNiverBody.innerHTML = '';
     const mesAtual = new Date().getMonth() + 1;
     let qtdNiver = 0;
-
     membrosSup.forEach(m => {
-      const nasc = m.nascimento;
-      if (nasc) {
-        const partes = nasc.toString().split('-');
+      if (m.nascimento) {
+        const partes = m.nascimento.toString().split('-');
         if (partes.length === 3 && parseInt(partes[1]) === mesAtual) {
           qtdNiver++;
           const linkWhatsNiver = m.whatsapp ? `<a href="https://api.whatsapp.com/send?phone=55${m.whatsapp.replace(/\D/g,'')}&text=${encodeURIComponent('Parabéns ' + m.nome + '! Que o Senhor te abençoe muito em seu aniversário!')}" target="_blank" class="btn-whats">🎂 Parabéns</a>` : 'Sem WhatsApp';
-
-          const tr = document.createElement('tr');
-          tr.innerHTML = `<td><strong>${m.nome}</strong></td><td>${m.rede}</td><td>${partes[2]}/${partes[1]}</td><td>${linkWhatsNiver}</td>`;
-          tabelaNiverBody.appendChild(tr);
+          tabelaNiverBody.innerHTML += `<tr><td><strong>${m.nome}</strong></td><td>${m.rede}</td><td>${partes[2]}/${partes[1]}</td><td>${linkWhatsNiver}</td></tr>`;
         }
       }
     });
-
     if (qtdNiver === 0) tabelaNiverBody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Nenhum aniversariante neste mês.</td></tr>`;
 
     renderizarArvoreRedesELiderados(membrosSup);
@@ -727,7 +824,6 @@
 
     supervisorLogado.redes.forEach(r => {
       const membrosRede = membrosSup.filter(m => m.rede === r.nome);
-      
       membrosRede.sort((a, b) => {
         if (a.categoria === 'Líder' && b.categoria !== 'Líder') return -1;
         if (a.categoria !== 'Líder' && b.categoria === 'Líder') return 1;
@@ -742,7 +838,6 @@
           const cat = m.categoria || 'Liderado';
           const isLider = cat === 'Líder';
           const isBase = cat === 'Base da Rede';
-          
           let corTag = 'rgba(255,255,255,0.05)';
           let txtCor = 'var(--text-muted)';
           if (isLider) { corTag = 'rgba(35,209,96,0.3)'; txtCor = '#23D160'; }
@@ -766,37 +861,29 @@
       card.className = 'supervisao-card';
       card.innerHTML = `
         <div class="supervisao-header" onclick="toggleCard(this)">
-          <div class="supervisao-info">
-            <h3>📍 ${r.nome}</h3>
-          </div>
+          <div class="supervisao-info"><h3>📍 ${r.nome}</h3></div>
           <div style="display: flex; align-items: center; gap: 12px;" onclick="event.stopPropagation()">
             <button class="btn-lider-action" onclick="abrirModalLider('${r.nome}')">👑 Alterar Líder</button>
             <span class="supervisao-badge">${membrosRede.length} membros</span>
             <span class="arrow-icon">▼</span>
           </div>
         </div>
-        <div class="redes-list">
-          ${membrosHtml}
-        </div>
+        <div class="redes-list">${membrosHtml}</div>
       `;
       container.appendChild(card);
     });
   }
 
   function toggleCard(headerElement) {
-    const card = headerElement.parentElement;
-    card.classList.toggle('ativo');
+    headerElement.parentElement.classList.toggle('ativo');
   }
 
   function abrirModalLider(nomeRede) {
     document.getElementById('liderRedeNome').value = nomeRede;
     document.getElementById('liderRedeDisplay').value = nomeRede;
-
     const select = document.getElementById('selectNovoLiderModal');
     select.innerHTML = '<option value="">Selecione o membro...</option>';
-
-    const membrosRede = membrosCacheSup.filter(m => m.rede === nomeRede);
-    membrosRede.forEach(m => {
+    membrosCacheSup.filter(m => m.rede === nomeRede).forEach(m => {
       const isLider = m.categoria === 'Líder' ? ' (Atual)' : '';
       const opt = document.createElement('option');
       opt.value = m.id;
@@ -804,42 +891,33 @@
       if (m.categoria === 'Líder') opt.selected = true;
       select.appendChild(opt);
     });
-
     document.getElementById('modalLider').style.display = 'flex';
   }
 
-  function fecharModalLider() {
-    document.getElementById('modalLider').style.display = 'none';
-  }
+  function fecharModalLider() { document.getElementById('modalLider').style.display = 'none'; }
 
   async function confirmarNovoLider() {
     const nomeRede = document.getElementById('liderRedeNome').value;
     const novoLiderId = document.getElementById('selectNovoLiderModal').value;
-
-    if (!novoLiderId) return alert("Selecione um membro válido.");
-
+    if (!novoLiderId) return alert("Selecione um membro.");
     fecharModalLider();
     document.getElementById('loading').style.display = 'block';
     document.getElementById('viewPainelSupervisorMacro').style.display = 'none';
 
     try {
       const batch = db.batch();
-
       membrosCacheSup.forEach(m => {
         if (m.rede === nomeRede && m.categoria === 'Líder' && m.id !== novoLiderId) {
           batch.update(db.collection('membros').doc(m.id), { categoria: 'Liderado' });
         }
       });
-
-      const membroRef = db.collection('membros').doc(novoLiderId);
-      batch.update(membroRef, { categoria: 'Líder' });
-
+      batch.update(db.collection('membros').doc(novoLiderId), { categoria: 'Líder' });
       await batch.commit();
-      alert(`✅ Líder da ${nomeRede} atualizado com sucesso!`);
+      alert(`✅ Líder atualizado com sucesso!`);
       await carregarDadosSupervisorCache();
       abrirPainelSupervisorMacro();
     } catch (err) {
-      alert("Erro ao definir o líder.");
+      alert("Erro ao definir líder.");
       console.error(err);
       document.getElementById('loading').style.display = 'none';
       abrirPainelSupervisorMacro();
@@ -850,10 +928,8 @@
     document.getElementById('transMembroId').value = membroId;
     document.getElementById('transNomeMembro').value = nomeMembro;
     document.getElementById('transRedeAtual').value = redeAtual;
-
     const selectDestino = document.getElementById('transNovaRedeSelect');
     selectDestino.innerHTML = '';
-
     supervisorLogado.redes.forEach(r => {
       if (r.nome !== redeAtual) {
         const opt = document.createElement('option');
@@ -862,34 +938,26 @@
         selectDestino.appendChild(opt);
       }
     });
-
     document.getElementById('modalTransferencia').style.display = 'flex';
   }
 
-  function fecharModalTransferencia() {
-    document.getElementById('modalTransferencia').style.display = 'none';
-  }
+  function fecharModalTransferencia() { document.getElementById('modalTransferencia').style.display = 'none'; }
 
   async function confirmarTransferencia() {
     const membroId = document.getElementById('transMembroId').value;
     const novaRede = document.getElementById('transNovaRedeSelect').value;
-
-    if (!novaRede) return alert("Selecione uma rede de destino válida.");
-
+    if (!novaRede) return alert("Selecione uma rede de destino.");
     fecharModalTransferencia();
     document.getElementById('loading').style.display = 'block';
     document.getElementById('viewPainelSupervisorMacro').style.display = 'none';
 
     try {
-      await db.collection('membros').doc(membroId).update({
-        rede: novaRede
-      });
-
-      alert("✅ Membro transferido com sucesso!");
+      await db.collection('membros').doc(membroId).update({ rede: novaRede });
+      alert("✅ Membro transferido!");
       await carregarDadosSupervisorCache();
       abrirPainelSupervisorMacro();
     } catch (err) {
-      alert("Erro ao transferir membro.");
+      alert("Erro ao transferir.");
       console.error(err);
       document.getElementById('loading').style.display = 'none';
       abrirPainelSupervisorMacro();
@@ -900,14 +968,12 @@
     document.getElementById('tituloModalRede').innerText = `📜 Relatórios da ${nomeRede}`;
     const conteudoModal = document.getElementById('conteudoRelatoriosRede');
     conteudoModal.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-muted);">Carregando relatórios...</div>`;
-    
     document.getElementById('modalRelatoriosRede').style.display = 'flex';
 
     const relsRede = relatoriosCacheSup.filter(r => r.rede === nomeRede);
     relsRede.sort((a, b) => new Date(b.dataEncontro || 0) - new Date(a.dataEncontro || 0));
-
     if (relsRede.length === 0) {
-      conteudoModal.innerHTML = `<div style="color: var(--text-muted); text-align:center; padding: 20px;">Nenhum relatório cadastrado para esta rede.</div>`;
+      conteudoModal.innerHTML = `<div style="color: var(--text-muted); text-align:center; padding: 20px;">Nenhum relatório cadastrado.</div>`;
       return;
     }
 
@@ -915,28 +981,20 @@
     relsRede.forEach(r => {
       htmlRels += `
         <div class="relatorio-item-sup">
-          <header>
-            <span>📅 Encontro: ${r.dataEncontro || 'N/A'} (${r.horario || ''})</span>
-            <span>📍 ${r.local || 'Local não informado'}</span>
-          </header>
-          <div style="font-size: 0.85rem; color: var(--text); line-height: 1.4; margin-top: 6px;">
+          <header><span>📅 ${r.dataEncontro || 'N/A'}</span><span>📍 ${r.local || '-'}</span></header>
+          <div style="font-size:0.85rem; margin-top:6px;">
             <strong>Tema:</strong> ${r.tema || '-'}<br>
-            <strong>Presentes:</strong> ${r.presentes || 'Nenhum'}<br>
-            <strong>Visitantes:</strong> ${r.visitantes || 'Nenhum'}<br>
-            <span style="color: var(--danger);"><strong>Faltantes:</strong> ${r.faltantes || 'Nenhum'}</span><br>
-            <strong>Resumo da Palavra:</strong> ${r.resumoPalavra || '-'}<br>
-            <strong>Atividades:</strong> ${r.atividades || '-'}
+            <strong>Presentes:</strong> ${r.presentes || '-'}<br>
+            <span style="color:var(--danger);"><strong>Faltantes:</strong> ${r.faltantes || 'Nenhum'}</span><br>
+            <strong>Resumo:</strong> ${r.resumoPalavra || '-'}
           </div>
         </div>
       `;
     });
-
     conteudoModal.innerHTML = htmlRels;
   }
 
-  function fecharModalRelatoriosRede() {
-    document.getElementById('modalRelatoriosRede').style.display = 'none';
-  }
+  function fecharModalRelatoriosRede() { document.getElementById('modalRelatoriosRede').style.display = 'none'; }
 </script>
 
 </body>
