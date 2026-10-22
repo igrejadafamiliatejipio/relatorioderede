@@ -25,15 +25,11 @@
     .container { max-width: 800px; width: 100%; background: var(--card-bg); padding: 28px; border-radius: 16px; border: 1px solid var(--card-border); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); }
 
     .top-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-    .btn-voltar { background: #21262D; color: var(--text); border: 1px solid var(--card-border); padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; text-decoration: none; }
+    .btn-voltar { background: #21262D; color: var(--text); border: 1px solid var(--card-border); padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; text-decoration: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
     .btn-voltar:hover { background: #30363D; }
 
     .header { text-align: center; margin-bottom: 24px; }
-    .header h1 { font-size: 1.75rem; font-weight: 700; margin-top: 6px; }
     .badge-topo { display: inline-block; background: var(--primary); color: #FFF; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 8px; }
-
-    .info-rede-box { background: var(--input-bg); border: 1px solid var(--card-border); padding: 14px; border-radius: 8px; margin-bottom: 24px; text-align: center; font-size: 0.9rem; color: var(--text-muted); }
-    .info-rede-box strong { color: var(--text); }
 
     .health-card { padding: 18px; border-radius: 12px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; border: 1px solid transparent; }
     .health-card.green { background: rgba(35, 209, 96, 0.1); border-color: rgba(35, 209, 96, 0.3); color: var(--success); }
@@ -128,17 +124,13 @@
 
 <div class="container">
   <div class="top-nav">
-    <a href="lider.html" class="btn-voltar">← Voltar ao Menu</a>
+    <button class="btn-voltar" onclick="voltarPagina()">← Voltar</button>
   </div>
 
   <div class="header">
     <span class="badge-topo">MINISTÉRIO TOPO</span>
-    <h1>📊 Painel da Rede</h1>
-    <p>Acompanhe a saúde, frequência e liderados em tempo real</p>
-  </div>
-
-  <div class="info-rede-box" id="infoRedeLogada">
-    Carregando informações da rede...
+    <h1 id="tituloNomeRede" style="font-size: 2rem; font-weight: 800; color: var(--text); margin-top: 4px;">Carregando Rede...</h1>
+    <p id="subtituloLiderRede" style="color: var(--text-muted); font-size: 0.9rem; margin-top: 4px;"></p>
   </div>
 
   <div id="conteudoPainel" style="display: none;">
@@ -249,7 +241,9 @@
     measurementId: "G-2MJ96WMYQ5"
   };
 
-  firebase.initializeApp(firebaseConfig);
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
   const db = firebase.firestore();
 
   let dadosSessao = {};
@@ -268,17 +262,29 @@
     }
 
     dadosSessao = { supervisao, rede, lider };
-    document.getElementById('infoRedeLogada').innerHTML = `Visualizando painel da: <strong>${rede}</strong> (Líder: ${lider})`;
+    
+    // Define o nome da rede em destaque e o subtitulo do líder
+    document.getElementById('tituloNomeRede').innerText = rede;
+    document.getElementById('subtituloLiderRede').innerText = `Líder: ${lider}`;
 
     await carregarDadosDashboard();
   });
+
+  function voltarPagina() {
+    // Se veio do supervisor, volta pro menu do supervisor, senão volta pro lider.html
+    const isSupervisor = sessionStorage.getItem('topo_sup_nome');
+    if (isSupervisor) {
+      window.location.href = "supervisor_selecionar_rede.html";
+    } else {
+      window.location.href = "lider.html";
+    }
+  }
 
   async function carregarDadosDashboard() {
     document.getElementById('loading').style.display = 'block';
     document.getElementById('conteudoPainel').style.display = 'none';
 
     try {
-      // Consulta limpa filtrada apenas por rede para evitar qualquer travamento de índice composto
       const snapshotMembros = await db.collection('membros')
         .where('rede', '==', dadosSessao.rede)
         .get();
