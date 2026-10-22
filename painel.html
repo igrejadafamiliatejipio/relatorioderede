@@ -42,6 +42,12 @@
 
     .section-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; }
 
+    .tabs-nav { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 1px solid var(--card-border); padding-bottom: 12px; overflow-x: auto; }
+    .tab-btn { background: var(--input-bg); color: var(--text-muted); border: 1px solid var(--card-border); padding: 8px 14px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.85rem; white-space: nowrap; }
+    .tab-btn.active { background: var(--primary); color: #FFF; border-color: var(--primary); }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
     .niver-hoje-card {
       background: linear-gradient(135deg, rgba(35, 209, 96, 0.2) 0%, var(--input-bg) 100%);
       border: 2px solid var(--success);
@@ -81,12 +87,12 @@
     .modal-header { font-size: 1.2rem; font-weight: 700; margin-bottom: 16px; color: var(--text); display: flex; justify-content: space-between; align-items: center; }
     .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
 
-    .btn-salvar { background: var(--primary); color: white; border: none; padding: 10px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+    .btn-salvar { background: var(--primary); color: white; border: none; padding: 10px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; width: 100%; }
     .btn-salvar:hover { background: var(--primary-hover); }
     .btn-cancelar { background: #21262D; color: var(--text); border: 1px solid var(--card-border); padding: 10px 16px; border-radius: 8px; cursor: pointer; }
     .btn-cancelar:hover { background: #30363D; }
 
-    .form-group { margin-bottom: 12px; text-align: left; }
+    .form-group { margin-bottom: 14px; text-align: left; }
     label { display: block; font-weight: 500; font-size: 0.82rem; margin-bottom: 6px; color: var(--text-muted); text-transform: uppercase; }
     input, select, textarea { width: 100%; padding: 10px 14px; background-color: var(--input-bg); border: 1px solid var(--card-border); border-radius: 8px; font-size: 0.95rem; color: var(--text); outline: none; }
     input:focus, select:focus, textarea:focus { border-color: var(--primary); }
@@ -167,44 +173,25 @@
     <div class="modal-header">✏️ Editar Membro</div>
     <input type="hidden" id="editDocId">
 
-    <div class="form-group">
-      <label>Nome Completo</label>
-      <input type="text" id="editNome">
-    </div>
-    <div class="form-group">
-      <label>Data de Nascimento</label>
-      <input type="date" id="editNascimento">
-    </div>
+    <div class="form-group"><label>Nome Completo</label><input type="text" id="editNome"></div>
+    <div class="form-group"><label>Data de Nascimento</label><input type="date" id="editNascimento"></div>
     <div class="form-group">
       <label>Sexo</label>
-      <select id="editSexo">
-        <option value="">Selecione...</option>
-        <option value="Masculino">Masculino</option>
-        <option value="Feminino">Feminino</option>
-      </select>
+      <select id="editSexo"><option value="">Selecione...</option><option value="Masculino">Masculino</option><option value="Feminino">Feminino</option></select>
     </div>
-    <div class="form-group">
-      <label>WhatsApp <span style="font-size: 0.75rem; color: var(--text-muted); text-transform: none;">(Opcional)</span></label>
-      <input type="text" id="editWhatsapp" placeholder="Deixe em branco se não possuir">
-    </div>
+    <div class="form-group"><label>WhatsApp</label><input type="text" id="editWhatsapp" placeholder="Deixe em branco se não possuir"></div>
     <div class="form-group">
       <label>Batizado?</label>
-      <select id="editBatizado">
-        <option value="Sim">Sim</option>
-        <option value="Não">Não</option>
-      </select>
+      <select id="editBatizado"><option value="Sim">Sim</option><option value="Não">Não</option></select>
     </div>
     <div class="form-group">
       <label>Categoria</label>
-      <select id="editCategoria">
-        <option value="Liderado">Liderado</option>
-        <option value="Base da Rede">Base da Rede</option>
-      </select>
+      <select id="editCategoria"><option value="Liderado">Liderado</option><option value="Base da Rede">Base da Rede</option><option value="Líder">Líder</option></select>
     </div>
 
     <div class="modal-footer">
       <button class="btn-cancelar" onclick="fecharModalEdicao()">Cancelar</button>
-      <button class="btn-salvar" onclick="salvarEdicaoMembro()">Salvar Alterações</button>
+      <button class="btn-salvar" onclick="salvarEdicaoMembro()" style="width:auto;">Salvar</button>
     </div>
   </div>
 </div>
@@ -221,9 +208,9 @@
     <div id="conteudoDetalhesRelatorio"></div>
 
     <div class="modal-footer" style="justify-content: space-between;">
-      <button class="btn-salvar" onclick="ativarEdicaoRelatorio()" id="btnAtivarEdicao">✏️ Editar Relatório</button>
+      <button class="btn-salvar" onclick="ativarEdicaoRelatorio()" id="btnAtivarEdicao" style="width:auto;">✏️ Editar Relatório</button>
       <div style="display: flex; gap: 10px;">
-        <button class="btn-salvar" onclick="salvarEdicaoRelatorio()" id="btnSalvarRelatorio" style="display: none;">Salvar Alterações</button>
+        <button class="btn-salvar" onclick="salvarEdicaoRelatorio()" id="btnSalvarRelatorio" style="display: none; width:auto;">Salvar</button>
         <button class="btn-cancelar" onclick="fecharModalRelatorio()">Fechar</button>
       </div>
     </div>
@@ -261,8 +248,6 @@
     }
 
     dadosSessao = { supervisao, rede };
-    
-    // Define o nome da rede em destaque no topo
     document.getElementById('tituloNomeRede').innerText = rede;
     document.getElementById('subtituloLiderRede').innerText = `Líder: Carregando...`;
 
@@ -298,14 +283,15 @@
         const data = doc.data();
         if (data.status !== 'INATIVO') {
           membrosLocais.push({ id: doc.id, ...data });
-          // Procura o membro que é o líder desta rede
           if (data.categoria === 'Líder') {
             nomeLiderEncontrado = data.nome;
           }
         }
       });
 
-      // Atualiza o subtítulo com o nome real do líder da rede
+      // Ordena para o líder aparecer no topo
+      membrosLocais.sort((a, b) => (a.categoria === 'Líder' ? -1 : (b.categoria === 'Líder' ? 1 : a.nome.localeCompare(b.nome))));
+
       document.getElementById('subtituloLiderRede').innerText = `Líder: ${nomeLiderEncontrado}`;
 
       relatoriosLocais = [];
@@ -319,8 +305,7 @@
       document.getElementById('loading').innerHTML = `
         <div style="color: var(--danger); text-align: center; padding: 20px;">
           ⚠️ Erro ao carregar os dados da rede do Firebase.<br>
-          <small style="color: var(--text-muted);">${err.message}</small><br><br>
-          <button class="btn-salvar" onclick="carregarDadosDashboard()" style="padding: 6px 12px; font-size: 0.85rem;">Tentar Novamente</button>
+          <small style="color: var(--text-muted);">${err.message}</small>
         </div>
       `;
     }
@@ -365,6 +350,7 @@
         const whats = m.whatsapp ? m.whatsapp.trim() : '';
         const batizado = m.batizado || 'Não';
         const categoria = m.categoria || 'Liderado';
+        const isLider = categoria === 'Líder';
 
         let faltasSeguidas = 0;
         for (let r of [...relatoriosRede].reverse()) {
@@ -384,10 +370,10 @@
         const div = document.createElement('div');
         div.className = 'membro-card';
 
-        let tagsHTML = `<span class="tag ${categoria === 'Base da Rede' ? 'tag-base' : 'tag-liderado'}">${categoria}</span>`;
+        let tagsHTML = `<span class="tag ${isLider ? 'tag-green' : (categoria === 'Base da Rede' ? 'tag-base' : 'tag-liderado')}">${isLider ? '⭐ Líder' : categoria}</span>`;
         if (isNiverMes) tagsHTML += `<span class="tag tag-niver">🎂 Aniversariante do Mês</span>`;
-        if (faltasSeguidas === 2) tagsHTML += `<span class="tag tag-warning">⚠️ Alerta de Apascentamento (2 faltas)</span>`;
-        if (faltasSeguidas >= 3) tagsHTML += `<span class="tag tag-danger">⛔ Não Pode Servir (${faltasSeguidas} faltas)</span>`;
+        if (faltasSeguidas === 2) tagsHTML += `<span class="tag tag-warning">⚠️ Alerta (2 faltas)</span>`;
+        if (faltasSeguidas >= 3) tagsHTML += `<span class="tag tag-danger">⛔ ${faltasSeguidas} faltas</span>`;
 
         const linkWhatsMembro = whats !== '' 
           ? `<a href="https://api.whatsapp.com/send?phone=55${whats.replace(/\D/g,'')}&text=${encodeURIComponent('Olá ' + nome + ', tudo bem? Passando para saber como você está e dizer que oro por sua vida!')}" target="_blank" class="btn-whats-mini">💬 WhatsApp</a>` 
@@ -395,7 +381,7 @@
 
         div.innerHTML = `
           <div class="membro-main">
-            <strong>${nome}</strong>
+            <strong style="${isLider ? 'color: var(--success); font-size: 1.05rem;' : ''}">${isLider ? '⭐ ' : ''}${nome}</strong>
             <small>Sexo: ${sexo} | 📱 ${whats !== '' ? whats : 'Sem WhatsApp'} | Batizado: ${batizado}</small>
             <div class="tags">${tagsHTML}</div>
           </div>
@@ -454,11 +440,7 @@
     });
 
     if (qtdNiverMes > 0) {
-      secaoNivers.innerHTML = `
-        <div class="section-title">🎂 Aniversariantes do Mês</div>
-        ${aniversariantesHojeHtml}
-        ${aniversariantesMesHtml}
-      `;
+      secaoNivers.innerHTML = `<div class="section-title">🎂 Aniversariantes do Mês</div>${aniversariantesHojeHtml}${aniversariantesMesHtml}`;
       secaoNivers.style.display = 'block';
     } else {
       secaoNivers.innerHTML = '';
@@ -512,7 +494,7 @@
       <div class="relatorio-detalhe-bloco"><label>Data e Horário</label><p>${rel.dataEncontro || '-'} às ${rel.horario || '-'}</p></div>
       <div class="relatorio-detalhe-bloco"><label>Local do Encontro</label><p>${rel.local || '-'}</p></div>
       <div class="relatorio-detalhe-bloco"><label>Tema Ministrado</label><p>${rel.tema || '-'}</p></div>
-      <div class="relatorio-detalhe-bloco"><label>Membros Presentes</label><p>${rel.presentes || 'Nenhum registrado'}</p></div>
+      <div class="relatorio-detalhe-bloco"><label>Presentes (Membros e/ou Líder)</label><p>${rel.presentes || 'Nenhum registrado'}</p></div>
       <div class="relatorio-detalhe-bloco"><label>Visitantes</label><p>${rel.visitantes || 'Nenhum'}</p></div>
       <div class="relatorio-detalhe-bloco"><label>Faltantes e Justificativas</label><p style="color: var(--danger);">${rel.faltantes || 'Nenhum'}</p></div>
       <div class="relatorio-detalhe-bloco"><label>Resumo da Palavra</label><p>${rel.resumoPalavra || '-'}</p></div>
@@ -528,123 +510,86 @@
     document.getElementById('btnAtivarEdicao').style.display = 'none';
     document.getElementById('btnSalvarRelatorio').style.display = 'inline-block';
 
-    const conteudo = document.getElementById('conteudoDetalhesRelatorio');
-    conteudo.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-muted);">Carregando membros da rede...</div>`;
+    const presentesStr = rel.presentes ? rel.presentes.toString().toLowerCase() : '';
+    const faltantesStr = rel.faltantes ? rel.faltantes.toString().toLowerCase() : '';
 
-    try {
-      const snapshot = await db.collection('membros')
-        .where('rede', '==', dadosSessao.rede)
-        .get();
+    let chamadaHtml = '';
+    membrosLocais.forEach((m, index) => {
+      const nome = m.nome;
+      const nomeLower = nome.toLowerCase();
+      let estaPresente = true;
 
-      let membrosParaEdicao = [];
-      snapshot.forEach(doc => {
-        const data = doc.data();
-        if (data.status !== 'INATIVO') {
-          membrosParaEdicao.push(data);
-        }
-      });
+      if (presentesStr.includes(nomeLower)) estaPresente = true;
+      else if (faltantesStr.includes(nomeLower)) estaPresente = false;
+      else if (presentesStr !== "" && !presentesStr.includes(nomeLower)) estaPresente = false;
 
-      const presentesStr = rel.presentes ? rel.presentes.toString().toLowerCase() : '';
-      const faltantesStr = rel.faltantes ? rel.faltantes.toString().toLowerCase() : '';
+      let justificativaTexto = '';
+      if (!estaPresente) {
+        const regex = new RegExp(nome.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&') + '\\s*\\(Justificativa:\\s*([^\\)]+)\\)', 'i');
+        const match = rel.faltantes ? rel.faltantes.toString().match(regex) : null;
+        if (match && match[1]) justificativaTexto = match[1].trim();
+      }
 
-      let chamadaHtml = '';
-      membrosParaEdicao.forEach((m, index) => {
-        const nome = m.nome;
-        const nomeLower = nome.toLowerCase();
+      const marcado = estaPresente ? 'checked' : '';
+      const displayBox = estaPresente ? 'none' : 'block';
+      const isLider = m.categoria === 'Líder';
 
-        let estaPresente = true;
-
-        if (presentesStr.includes(nomeLower)) {
-          estaPresente = true;
-        } else if (faltantesStr.includes(nomeLower)) {
-          estaPresente = false;
-        } else if (presentesStr !== "" && !presentesStr.includes(nomeLower)) {
-          estaPresente = false;
-        }
-
-        let justificativaTexto = '';
-        if (!estaPresente) {
-          const regex = new RegExp(nome.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&') + '\\s*\\(Justificativa:\\s*([^\\)]+)\\)', 'i');
-          const match = rel.faltantes ? rel.faltantes.toString().match(regex) : null;
-          if (match && match[1]) {
-            justificativaTexto = match[1].trim();
-          }
-        }
-
-        const marcado = estaPresente ? 'checked' : '';
-        const displayBox = estaPresente ? 'none' : 'block';
-
-        chamadaHtml += `
-          <div class="chamada-item">
-            <div class="chamada-info">
-              <label>
-                <input type="checkbox" id="edit_membro_${index}" value="${nome}" ${marcado} onchange="toggleJustificativaEdit(${index})">
-                <span>${nome}</span>
-              </label>
-            </div>
-            <div class="justificativa-box" id="edit_box_just_${index}" style="display: ${displayBox};">
-              <input type="text" id="edit_just_${index}" placeholder="Justificativa da falta..." value="${justificativaTexto}">
-            </div>
+      chamadaHtml += `
+        <div class="chamada-item">
+          <div class="chamada-info">
+            <label>
+              <input type="checkbox" id="edit_membro_${index}" value="${nome}" ${marcado} onchange="toggleJustificativaEdit(${index})">
+              <span style="${isLider ? 'color: var(--success); font-weight: 700;' : ''}">${isLider ? '⭐ ' + nome + ' (Líder da Rede)' : nome}</span>
+            </label>
           </div>
-        `;
-      });
-
-      window.membrosParaSalvarEdicao = membrosParaEdicao;
-
-      conteudo.innerHTML = `
-        <div style="display:flex; gap:10px; margin-bottom:12px;">
-          <div class="relatorio-detalhe-bloco" style="flex:1; margin-bottom:0;"><label>Data</label><input type="date" id="editRelData" value="${rel.dataEncontro || ''}"></div>
-          <div class="relatorio-detalhe-bloco" style="flex:1; margin-bottom:0;"><label>Horário</label><input type="time" id="editRelHorario" value="${rel.horario || ''}"></div>
-        </div>
-        <div class="relatorio-detalhe-bloco"><label>Local do Encontro</label><input type="text" id="editRelLocal" value="${rel.local || ''}"></div>
-        
-        <div class="relatorio-detalhe-bloco">
-          <label>Chamada de Membros (Marque os presentes)</label>
-          <div id="chamadaContainerEdit" class="chamada-container" style="max-height: 200px; overflow-y: auto;">
-            ${chamadaHtml}
+          <div class="justificativa-box" id="edit_box_just_${index}" style="display: ${displayBox};">
+            <input type="text" id="edit_just_${index}" placeholder="Justificativa da falta..." value="${justificativaTexto}">
           </div>
         </div>
-
-        <div class="relatorio-detalhe-bloco"><label>Visitantes</label><input type="text" id="editRelVisitantes" value="${rel.visitantes || ''}"></div>
-        <div class="relatorio-detalhe-bloco"><label>Tema Ministrado</label><input type="text" id="editRelTema" value="${rel.tema || ''}"></div>
-        <div class="relatorio-detalhe-bloco"><label>Resumo da Palavra</label><textarea id="editRelResumo">${rel.resumoPalavra || ''}</textarea></div>
-        <div class="relatorio-detalhe-bloco"><label>Atividades / Dinâmicas</label><textarea id="editRelAtividades">${rel.atividades || ''}</textarea></div>
       `;
+    });
 
-    } catch (err) {
-      alert("Erro ao buscar membros para edição.");
-      console.error(err);
-      renderizarDetalhesModoLeitura(rel);
-    }
+    const conteudo = document.getElementById('conteudoDetalhesRelatorio');
+    conteudo.innerHTML = `
+      <div style="display:flex; gap:10px; margin-bottom:12px;">
+        <div class="relatorio-detalhe-bloco" style="flex:1; margin-bottom:0;"><label>Data</label><input type="date" id="editRelData" value="${rel.dataEncontro || ''}"></div>
+        <div class="relatorio-detalhe-bloco" style="flex:1; margin-bottom:0;"><label>Horário</label><input type="time" id="editRelHorario" value="${rel.horario || ''}"></div>
+      </div>
+      <div class="relatorio-detalhe-bloco"><label>Local do Encontro</label><input type="text" id="editRelLocal" value="${rel.local || ''}"></div>
+      
+      <div class="relatorio-detalhe-bloco">
+        <label>Chamada (Membros e Líder)</label>
+        <div class="chamada-container" style="max-height: 200px; overflow-y: auto;">
+          ${chamadaHtml}
+        </div>
+      </div>
+
+      <div class="relatorio-detalhe-bloco"><label>Visitantes</label><input type="text" id="editRelVisitantes" value="${rel.visitantes || ''}"></div>
+      <div class="relatorio-detalhe-bloco"><label>Tema Ministrado</label><input type="text" id="editRelTema" value="${rel.tema || ''}"></div>
+      <div class="relatorio-detalhe-bloco"><label>Resumo da Palavra</label><textarea id="editRelResumo">${rel.resumoPalavra || ''}</textarea></div>
+      <div class="relatorio-detalhe-bloco"><label>Atividades / Dinâmicas</label><textarea id="editRelAtividades">${rel.atividades || ''}</textarea></div>
+    `;
   }
 
   function toggleJustificativaEdit(index) {
-    const checkbox = document.getElementById(`edit_membro_${index}`);
-    const boxJust = document.getElementById(`edit_box_just_${index}`);
-    if (!checkbox.checked) {
-      boxJust.style.display = 'block';
-    } else {
-      boxJust.style.display = 'none';
-      document.getElementById(`edit_just_${index}`).value = '';
-    }
+    const chk = document.getElementById(`edit_membro_${index}`);
+    const box = document.getElementById(`edit_box_just_${index}`);
+    if (!chk.checked) box.style.display = 'block';
+    else { box.style.display = 'none'; document.getElementById(`edit_just_${index}`).value = ''; }
   }
 
   async function salvarEdicaoRelatorio() {
     const docId = document.getElementById('detalheRelId').value;
-    const listaMembros = window.membrosParaSalvarEdicao || membrosLocais;
-
     let presentesArr = [];
     let faltantesArr = [];
 
-    listaMembros.forEach((m, index) => {
-      const checkbox = document.getElementById(`edit_membro_${index}`);
-      if (checkbox) {
-        const nome = m.nome;
-        if (checkbox.checked) {
-          presentesArr.push(nome);
-        } else {
+    membrosLocais.forEach((m, index) => {
+      const chk = document.getElementById(`edit_membro_${index}`);
+      if (chk) {
+        if (chk.checked) presentesArr.push(m.nome);
+        else {
           const txtJust = document.getElementById(`edit_just_${index}`).value.trim();
-          const textoFalta = txtJust ? `${nome} (Justificativa: ${txtJust})` : `${nome} (Não justificou)`;
+          const textoFalta = txtJust ? `${m.nome} (Justificativa: ${txtJust})` : `${m.nome} (Não justificou)`;
           faltantesArr.push(textoFalta);
         }
       }
@@ -670,7 +615,7 @@
       alert("✅ Relatório atualizado com sucesso!");
       await carregarDadosDashboard();
     } catch (err) {
-      alert("Erro ao atualizar relatório no Firebase.");
+      alert("Erro ao atualizar relatório.");
       console.error(err);
       document.getElementById('loading').style.display = 'none';
     }
@@ -701,30 +646,22 @@
 
   async function salvarEdicaoMembro() {
     const docId = document.getElementById('editDocId').value;
-    const novoNome = document.getElementById('editNome').value.trim();
-    const novoNasc = document.getElementById('editNascimento').value;
-    const novoSexo = document.getElementById('editSexo').value;
-    const novoWhats = document.getElementById('editWhatsapp').value.trim();
-    const novoBatizado = document.getElementById('editBatizado').value;
-    const novaCategoria = document.getElementById('editCategoria').value;
+    const nome = document.getElementById('editNome').value.trim();
+    const nascimento = document.getElementById('editNascimento').value;
+    const sexo = document.getElementById('editSexo').value;
+    const whatsapp = document.getElementById('editWhatsapp').value.trim();
+    const batizado = document.getElementById('editBatizado').value;
+    const categoria = document.getElementById('editCategoria').value;
 
-    if (!novoNome) return alert("Informe o nome.");
+    if (!nome) return alert("Informe o nome.");
 
     fecharModalEdicao();
     document.getElementById('loading').style.display = 'block';
 
     try {
-      await db.collection('membros').doc(docId).update({
-        nome: novoNome,
-        nascimento: novoNasc,
-        sexo: novoSexo,
-        whatsapp: novoWhats,
-        batizado: novoBatizado,
-        categoria: novaCategoria
-      });
-
-      alert("Membro atualizado no Firebase com sucesso!");
-      carregarDadosDashboard();
+      await db.collection('membros').doc(docId).update({ nome, nascimento, sexo, whatsapp, batizado, categoria });
+      alert("✅ Membro atualizado!");
+      await carregarDadosDashboard();
     } catch (err) {
       alert("Erro ao atualizar membro.");
       console.error(err);
@@ -737,12 +674,9 @@
 
     document.getElementById('loading').style.display = 'block';
     try {
-      await db.collection('membros').doc(docId).update({
-        status: "INATIVO"
-      });
-
-      alert(`${nome} foi removido(a) com sucesso.`);
-      carregarDadosDashboard();
+      await db.collection('membros').doc(docId).update({ status: "INATIVO" });
+      alert(`✅ ${nome} removido(a).`);
+      await carregarDadosDashboard();
     } catch (err) {
       alert("Erro ao remover membro.");
       console.error(err);
