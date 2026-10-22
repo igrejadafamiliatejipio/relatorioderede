@@ -169,7 +169,7 @@
   <div id="loading" class="loading-box" style="display: block;">Carregando dados da rede do Firebase...</div>
 </div>
 
-<!-- Modal de Edição de Membro (Incluindo campo Sexo) -->
+<!-- Modal de Edição de Membro -->
 <div id="modalEdicao" class="modal-overlay">
   <div class="modal-card">
     <div class="modal-header">✏️ Editar Membro</div>
@@ -217,7 +217,7 @@
   </div>
 </div>
 
-<!-- Modal de Visualização e Edição Completa do Relatório -->
+<!-- Modal de Relatório -->
 <div id="modalRelatorioDetalhes" class="modal-overlay">
   <div class="modal-card">
     <div class="modal-header">
@@ -277,14 +277,18 @@
     document.getElementById('loading').style.display = 'block';
     document.getElementById('conteudoPainel').style.display = 'none';
 
-    try {
-      const snapshotMembros = await db.collection('membros')
-        .where('rede', '==', dadosSessao.rede)
-        .get();
+    // Criação de Timeout de segurança (8 segundos) para evitar carregamento eterno
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error("Tempo limite esgotado ao conectar com o Firebase.")), 8000)
+    );
 
-      const snapshotRelatorios = await db.collection('relatorios')
-        .where('rede', '==', dadosSessao.rede)
-        .get();
+    try {
+      const fetchPromise = Promise.all([
+        db.collection('membros').where('rede', '==', dadosSessao.rede).get(),
+        db.collection('relatorios').where('rede', '==', dadosSessao.rede).get()
+      ]);
+
+      const [snapshotMembros, snapshotRelatorios] = await Promise.race([fetchPromise, timeoutPromise]);
 
       membrosLocais = [];
       snapshotMembros.forEach(doc => {
@@ -301,10 +305,14 @@
 
       renderizarPainel(membrosLocais, relatoriosLocais);
     } catch (err) {
-      alert("Erro ao carregar dados do Firebase.");
-      console.error(err);
-    } finally {
-      document.getElementById('loading').style.display = 'none';
+      console.error("Erro no carregamento:", err);
+      document.getElementById('loading').innerHTML = `
+        <div style="color: var(--danger); text-align: center; padding: 20px;">
+          ⚠️ Erro ao carregar os dados da rede.<br>
+          <small style="color: var(--text-muted);">${err.message}</small><br><br>
+          <button class="btn-salvar" onclick="carregarDadosDashboard()" style="padding: 6px 12px; font-size: 0.85rem;">Tentar Novamente</button>
+        </div>
+      `;
     }
   }
 
@@ -378,7 +386,7 @@
         div.innerHTML = `
           <div class="membro-main">
             <strong>${nome}</strong>
-            <small>Sexo: ${sexo} | 📱 ${whats !== '' ? whats : 'Sem WhatsApp'} | Batizado: ${batizado}</small>
+            <small>Sexo: ${sexo} | 📱 ${whats !== '' ? whats : 'Sem WhatsApp'} \vert{} Batizado: ${batizado}</small>
             <div class="tags">${tagsHTML}</div>
           </div>
           <div class="actions-group">
@@ -438,8 +446,7 @@
     if (qtdNiverMes > 0) {
       secaoNivers.innerHTML = `
         <div class="section-title">🎂 Aniversariantes do Mês</div>
-        ${aniversariantesHojeHtml}
-        ${aniversariantesMesHtml}
+        ${aniversariantesHojeHtml}${aniversariantesMesHtml}
       `;
       secaoNivers.style.display = 'block';
     } else {
@@ -459,7 +466,7 @@
         div.setAttribute('onclick', `abrirDetalhesRelatorio('${r.id}')`);
         div.innerHTML = `
           <div class="relatorio-header">
-            <span>📅 ${r.dataEncontro || ''} (${r.horario || ''})</span>
+            <span>📅 ${r.dataEncontro \vert{}\vert{} ''} (${r.horario || ''})</span>
             <span style="color: var(--primary);">📍 ${r.local || ''}</span>
           </div>
           <div class="relatorio-body">
@@ -472,6 +479,7 @@
       });
     }
 
+    document.getElementById('loading').style.display = 'none';
     document.getElementById('conteudoPainel').style.display = 'block';
   }
 
@@ -490,7 +498,7 @@
   function renderizarDetalhesModoLeitura(rel) {
     const conteudo = document.getElementById('conteudoDetalhesRelatorio');
     conteudo.innerHTML = `
-      <div class="relatorio-detalhe-bloco"><label>Data e Horário</label><p>${rel.dataEncontro || '-'} às ${rel.horario || '-'}</p></div>
+      <div class="relatorio-detalhe-bloco"><label>Data e Horário</label><p>${rel.dataEncontro \vert{}\vert{} '-'} às ${rel.horario || '-'}</p></div>
       <div class="relatorio-detalhe-bloco"><label>Local do Encontro</label><p>${rel.local || '-'}</p></div>
       <div class="relatorio-detalhe-bloco"><label>Tema Ministrado</label><p>${rel.tema || '-'}</p></div>
       <div class="relatorio-detalhe-bloco"><label>Membros Presentes</label><p>${rel.presentes || 'Nenhum registrado'}</p></div>
@@ -521,4 +529,205 @@
       snapshot.forEach(doc => {
         const data = doc.data();
         if (data.status !== 'INATIVO') {
-          membros
+          membrosParaEdicao.push(data);
+        }
+      });
+
+      const presentesStr = rel.presentes ? rel.presentes.toString().toLowerCase() : '';
+      const faltantesStr = rel.faltantes ? rel.faltantes.toString().toLowerCase() : '';
+
+      let chamadaHtml = '';
+      membrosParaEdicao.forEach((m, index) => {
+        const nome = m.nome;
+        const nomeLower = nome.toLowerCase();
+
+        let estaPresente = true;
+
+        if (presentesStr.includes(nomeLower)) {
+          estaPresente = true;
+        } else if (faltantesStr.includes(nomeLower)) {
+          estaPresente = false;
+        } else if (presentesStr !== "" && !presentesStr.includes(nomeLower)) {
+          estaPresente = false;
+        }
+
+        let justificativaTexto = '';
+        if (!estaPresente) {
+          const regex = new RegExp(nome.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&') + '\\s*\\(Justificativa:\\s*([^\\)]+)\\)', 'i');
+          const match = rel.faltantes ? rel.faltantes.toString().match(regex) : null;
+          if (match && match[1]) {
+            justificativaTexto = match[1].trim();
+          }
+        }
+
+        const marcado = estaPresente ? 'checked' : '';
+        const displayBox = estaPresente ? 'none' : 'block';
+
+        chamadaHtml += `
+          <div class="chamada-item">
+            <div class="chamada-info">
+              <label>
+                <input type="checkbox" id="edit_membro_${index}" value="${nome}" ${marcado} onchange="toggleJustificativaEdit(${index})">
+                <span>${nome}</span>
+              </label>
+            </div>
+            <div class="justificativa-box" id="edit_box_just_${index}" style="display: ${displayBox};">
+              <input type="text" id="edit_just_${index}" placeholder="Justificativa da falta..." value="${justificativaTexto}">
+            </div>
+          </div>
+        `;
+      });
+
+      window.membrosParaSalvarEdicao = membrosParaEdicao;
+
+      conteudo.innerHTML = `
+        <div style="display:flex; gap:10px; margin-bottom:12px;">
+          <div class="relatorio-detalhe-bloco" style="flex:1; margin-bottom:0;"><label>Data</label><input type="date" id="editRelData" value="${rel.dataEncontro || ''}"></div>
+          <div class="relatorio-detalhe-bloco" style="flex:1; margin-bottom:0;"><label>Horário</label><input type="time" id="editRelHorario" value="${rel.horario || ''}"></div>
+        </div>
+        <div class="relatorio-detalhe-bloco"><label>Local do Encontro</label><input type="text" id="editRelLocal" value="${rel.local || ''}"></div>
+        
+        <div class="relatorio-detalhe-bloco">
+          <label>Chamada de Membros (Marque os presentes)</label>
+          <div id="chamadaContainerEdit" class="chamada-container" style="max-height: 200px; overflow-y: auto;">
+            ${chamadaHtml}
+          </div>
+        </div>
+
+        <div class="relatorio-detalhe-bloco"><label>Visitantes</label><input type="text" id="editRelVisitantes" value="${rel.visitantes || ''}"></div>
+        <div class="relatorio-detalhe-bloco"><label>Tema Ministrado</label><input type="text" id="editRelTema" value="${rel.tema || ''}"></div>
+        <div class="relatorio-detalhe-bloco"><label>Resumo da Palavra</label><textarea id="editRelResumo">${rel.resumoPalavra || ''}</textarea></div>
+        <div class="relatorio-detalhe-bloco"><label>Atividades / Dinâmicas</label><textarea id="editRelAtividades">${rel.atividades || ''}</textarea></div>
+      `;
+
+    } catch (err) {
+      alert("Erro ao buscar membros para edição.");
+      console.error(err);
+      renderizarDetalhesModoLeitura(rel);
+    }
+  }
+
+  function toggleJustificativaEdit(index) {
+    const checkbox = document.getElementById(`edit_membro_${index}`);
+    const boxJust = document.getElementById(`edit_box_just_${index}`);
+    if (!checkbox.checked) {
+      boxJust.style.display = 'block';
+    } else {
+      boxJust.style.display = 'none';
+      document.getElementById(`edit_just_${index}`).value = '';
+    }
+  }
+
+  async function salvarEdicaoRelatorio() {
+    const docId = document.getElementById('detalheRelId').value;
+    const listaMembros = window.membrosParaSalvarEdicao || membrosLocais;
+
+    let presentesArr = [];
+    let faltantesArr = [];
+
+    listaMembros.forEach((m, index) => {
+      const checkbox = document.getElementById(`edit_membro_${index}`);
+      if (checkbox) {
+        const nome = m.nome;
+        if (checkbox.checked) {
+          presentesArr.push(nome);
+        } else {
+          const txtJust = document.getElementById(`edit_just_${index}`).value.trim();
+          const textoFalta = txtJust ? `${nome} (Justificativa:${txtJust})` : `${nome} (Não justificou)`;
+          faltantesArr.push(textoFalta);
+        }
+      }
+    });
+
+    const atualizacao = {
+      dataEncontro: document.getElementById('editRelData').value,
+      horario: document.getElementById('editRelHorario').value,
+      local: document.getElementById('editRelLocal').value.trim(),
+      tema: document.getElementById('editRelTema').value.trim(),
+      presentes: presentesArr.join(', '),
+      visitantes: document.getElementById('editRelVisitantes').value.trim(),
+      faltantes: faltantesArr.join(', '),
+      resumoPalavra: document.getElementById('editRelResumo').value.trim(),
+      atividades: document.getElementById('editRelAtividades').value.trim()
+    };
+
+    fecharModalRelatorio();
+    document.getElementById('loading').style.display = 'block';
+
+    try {
+      await db.collection('relatorios').doc(docId).update(atualizacao);
+      alert("✅ Relatório atualizado com sucesso!");
+      await carregarDadosDashboard();
+    } catch (err) {
+      alert("Erro ao atualizar relatório no Firebase.");
+      console.error(err);
+      document.getElementById('loading').style.display = 'none';
+    }
+  }
+
+  function fecharModalRelatorio() {
+    document.getElementById('modalRelatorioDetalhes').style.display = 'none';
+  }
+
+  function abrirModalEdicao(docId) {
+    const membro = membrosLocais.find(m => m.id === docId);
+    if (!membro) return;
+
+    document.getElementById('editDocId').value = docId;
+    document.getElementById('editNome').value = membro.nome;
+    document.getElementById('editNascimento').value = membro.nascimento || '';
+    document.getElementById('editSexo').value = membro.sexo || '';
+    document.getElementById('editWhatsapp').value = membro.whatsapp || '';
+    document.getElementById('editBatizado').value = membro.batizado || 'Não';
+    document.getElementById('editCategoria').value = membro.categoria || 'Liderado';
+
+    document.getElementById('modalEdicao').style.display = 'flex';
+  }
+
+  function fecharModalEdicao() {
+    document.getElementById('modalEdicao').style.display = 'none';
+  }
+
+  async function salvarEdicaoMembro() {
+    const docId = document.getElementById('editDocId').value;
+    const novoNome = document.getElementById('editNome').value.trim();
+    const novoNasc = document.getElementById('editNascimento').value;
+    const novoSexo = document.getElementById('editSexo').value;
+    const novoWhats = document.getElementById('editWhatsapp').value.trim();
+    const novoBatizado = document.getElementById('editBatizado').value;
+    const novaCategoria = document.getElementById('editCategoria').value;
+
+    if (!novoNome) return alert("Informe o nome.");
+
+    fecharModalEdicao();
+    document.getElementById('loading').style.display = 'block';
+
+    try {
+      await db.collection('membros').doc(docId).update({
+        nome: novoNome,
+        nascimento: novoNasc,
+        sexo: novoSexo,
+        whatsapp: novoWhats,
+        batizado: novoBatizado,
+        categoria: novaCategoria
+      });
+
+      alert("Membro atualizado no Firebase com sucesso!");
+      carregarDadosDashboard();
+    } catch (err) {
+      alert("Erro ao atualizar membro.");
+      console.error(err);
+      document.getElementById('loading').style.display = 'none';
+    }
+  }
+
+  async function inativarMembro(docId, nome) {
+    if (!confirm(`Tem certeza que deseja remover ${nome}?`)) return;
+
+    document.getElementById('loading').style.display = 'block';
+    try {
+      await db.collection('membros').doc(docId).update({
+        status: "INATIVO"
+      });
+
+      alert(`${nome} foi
