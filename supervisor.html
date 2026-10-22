@@ -57,7 +57,6 @@
 
     .supervisao-header { padding: 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
     .supervisao-info h3 { font-size: 1.05rem; font-weight: 700; color: var(--text); margin-bottom: 2px; }
-    .supervisao-info p { font-size: 0.82rem; color: var(--text-muted); }
     
     .supervisao-badge { background: rgba(110, 86, 207, 0.2); color: #A58BFF; border: 1px solid rgba(110, 86, 207, 0.4); padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
 
@@ -90,11 +89,11 @@
     .btn-transferir { background: rgba(56, 139, 253, 0.15); color: var(--info); border: 1px solid rgba(56, 139, 253, 0.3); padding: 3px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer; }
     .btn-transferir:hover { background: var(--info); color: #FFF; }
 
-    .select-lider-arvore { background: var(--input-bg); color: var(--success); border: 1px solid var(--success); padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: bold; cursor: pointer; margin-top: 6px; }
-    .select-lider-arvore:focus { outline: none; }
+    .btn-lider-action { background: rgba(35, 209, 96, 0.15); color: var(--success); border: 1px solid rgba(35, 209, 96, 0.3); padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
+    .btn-lider-action:hover { background: var(--success); color: #000; }
 
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 999; display: none; }
-    .modal-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 24px; max-width: 600px; width: 100%; max-height: 85vh; overflow-y: auto; }
+    .modal-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 24px; max-width: 450px; width: 100%; max-height: 85vh; overflow-y: auto; }
     .modal-header { font-size: 1.2rem; font-weight: 700; margin-bottom: 16px; color: var(--text); display: flex; justify-content: space-between; align-items: center; }
     .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
     .btn-cancelar { background: #21262D; color: var(--text); border: 1px solid var(--card-border); padding: 8px 14px; border-radius: 8px; cursor: pointer; }
@@ -178,7 +177,7 @@
       </table>
     </div>
 
-    <div class="section-title">🌳 Árvore de Redes e Liderados (Definição de Líderes e Transferências)</div>
+    <div class="section-title">🌳 Árvore de Redes e Liderados</div>
     <div class="tree-wrapper" id="treeContainerRedes"></div>
   </div>
 
@@ -187,7 +186,7 @@
 
 <!-- Modal de Relatórios da Rede -->
 <div id="modalRelatoriosRede" class="modal-overlay">
-  <div class="modal-card">
+  <div class="modal-card" style="max-width: 600px;">
     <div class="modal-header">
       <span id="tituloModalRede">📜 Relatórios da Rede</span>
       <button onclick="fecharModalRelatoriosRede()" style="background:none; border:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer;">✕</button>
@@ -203,7 +202,7 @@
 
 <!-- Modal de Transferência de Membro -->
 <div id="modalTransferencia" class="modal-overlay">
-  <div class="modal-card" style="max-width: 450px;">
+  <div class="modal-card">
     <div class="modal-header">
       <span>🔄 Transferir Membro</span>
       <button onclick="fecharModalTransferencia()" style="background:none; border:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer;">✕</button>
@@ -222,14 +221,40 @@
 
     <div class="form-group">
       <label>Selecione a Nova Rede de Destino</label>
-      <select id="transNovaRedeSelect">
-        <!-- Preenchido dinamicamente -->
-      </select>
+      <select id="transNovaRedeSelect"></select>
     </div>
 
     <div class="modal-footer">
       <button class="btn-cancelar" onclick="fecharModalTransferencia()">Cancelar</button>
       <button class="btn" style="width: auto; padding: 8px 16px;" onclick="confirmarTransferencia()">Confirmar Transferência</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Alterar Líder da Rede -->
+<div id="modalLider" class="modal-overlay">
+  <div class="modal-card">
+    <div class="modal-header">
+      <span>👑 Alterar Líder da Rede</span>
+      <button onclick="fecharModalLider()" style="background:none; border:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer;">✕</button>
+    </div>
+    <input type="hidden" id="liderRedeNome">
+
+    <div class="form-group">
+      <label>Rede</label>
+      <input type="text" id="liderRedeDisplay" readonly style="background: var(--input-bg); color: var(--text);">
+    </div>
+
+    <div class="form-group">
+      <label>Selecione o Novo Líder</label>
+      <select id="selectNovoLiderModal">
+        <!-- Preenchido dinamicamente -->
+      </select>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancelar" onclick="fecharModalLider()">Cancelar</button>
+      <button class="btn" style="width: auto; padding: 8px 16px;" onclick="confirmarNovoLider()">Salvar Novo Líder</button>
     </div>
   </div>
 </div>
@@ -345,8 +370,6 @@
     redesDaSup.forEach(r => {
       const membrosRede = membrosSup.filter(m => m.rede === r.nome);
       const qtdTotal = membrosRede.length;
-      
-      // Base da rede conta membros com categoria "Base da Rede" + o "Líder"
       const qtdBase = membrosRede.filter(m => m.categoria === 'Base da Rede' || m.categoria === 'Líder').length;
 
       const relsRede = relatoriosSup.filter(rel => rel.rede === r.nome);
@@ -460,7 +483,6 @@
       } else {
         membrosRede.forEach(m => {
           const cat = m.categoria || 'Liderado';
-          const sexo = m.sexo ? `(${m.sexo})` : '';
           const isLider = cat === 'Líder';
           const isBase = cat === 'Base da Rede';
           
@@ -472,7 +494,7 @@
           membrosHtml += `
             <div class="rede-item" style="${isLider ? 'background: rgba(35, 209, 96, 0.08); padding: 8px 6px; border-radius: 6px; border-bottom: 1px solid rgba(35,209,96,0.2); margin-bottom: 4px;' : ''}">
               <div style="display: flex; align-items: center; gap: 8px;">
-                <span>${isLider ? '⭐' : '👤'} <strong style="${isLider ? 'color: #23D160; font-size: 1.02rem;' : ''}">${m.nome}</strong> <small style="color:var(--text-muted)">${sexo}</small></span>
+                <span>${isLider ? '⭐' : '👤'} <strong style="${isLider ? 'color: #23D160; font-size: 1.02rem;' : ''}">${m.nome}</strong></span>
                 <span class="tag" style="background:${corTag}; color:${txtCor};">${cat}</span>
               </div>
               <div style="display: flex; align-items: center; gap: 6px;">
@@ -483,12 +505,6 @@
         });
       }
 
-      let optionsMembros = `<option value="">Definir líder da rede...</option>`;
-      membrosRede.forEach(m => {
-        const selecionado = (m.categoria === 'Líder') ? 'selected' : '';
-        optionsMembros += `<option value="${m.id}" ${selecionado}>${m.nome}</option>`;
-      });
-
       const card = document.createElement('div');
       card.className = 'supervisao-card';
       card.innerHTML = `
@@ -496,18 +512,13 @@
           <div class="supervisao-info">
             <h3>📍 ${r.nome}</h3>
           </div>
-          <div style="display: flex; align-items: center; gap: 10px;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <button class="btn-lider-action" onclick="abrirModalLider('${r.nome}')" onclick="event.stopPropagation()">👑 Alterar Líder</button>
             <span class="supervisao-badge">${membrosRede.length} membros</span>
             <span class="arrow-icon">▼</span>
           </div>
         </div>
         <div class="redes-list">
-          <div style="margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--card-border);">
-            <label style="font-size: 0.72rem; margin-bottom: 2px;">Líder Oficial da Rede:</label>
-            <select class="select-lider-arvore" onchange="definirLiderRede('${r.nome}', this.value)" onclick="event.stopPropagation()">
-              ${optionsMembros}
-            </select>
-          </div>
           ${membrosHtml}
         </div>
       `;
@@ -520,9 +531,39 @@
     card.classList.toggle('ativo');
   }
 
-  async function definirLiderRede(nomeRede, novoLiderId) {
-    if (!novoLiderId) return;
+  // Modal para Alterar Líder
+  function abrirModalLider(nomeRede) {
+    event.stopPropagation(); // Evita fechar/abrir o card sanfona
+    document.getElementById('liderRedeNome').value = nomeRede;
+    document.getElementById('liderRedeDisplay').value = nomeRede;
 
+    const select = document.getElementById('selectNovoLiderModal');
+    select.innerHTML = '<option value="">Selecione o membro...</option>';
+
+    const membrosRede = membrosCacheSup.filter(m => m.rede === nomeRede);
+    membrosRede.forEach(m => {
+      const isLider = m.categoria === 'Líder' ? ' (Atual)' : '';
+      const opt = document.createElement('option');
+      opt.value = m.id;
+      opt.textContent = m.nome + isLider;
+      if (m.categoria === 'Líder') opt.selected = true;
+      select.appendChild(opt);
+    });
+
+    document.getElementById('modalLider').style.display = 'flex';
+  }
+
+  function fecharModalLider() {
+    document.getElementById('modalLider').style.display = 'none';
+  }
+
+  async function confirmarNovoLider() {
+    const nomeRede = document.getElementById('liderRedeNome').value;
+    const novoLiderId = document.getElementById('selectNovoLiderModal').value;
+
+    if (!novoLiderId) return alert("Selecione um membro válido.");
+
+    fecharModalLider();
     document.getElementById('loading').style.display = 'block';
     document.getElementById('painelSupervisor').style.display = 'none';
 
@@ -539,7 +580,7 @@
       batch.update(membroRef, { categoria: 'Líder' });
 
       await batch.commit();
-      alert(`✅ Líder da ${nomeRede} definido com sucesso!`);
+      alert(`✅ Líder da ${nomeRede} atualizado com sucesso!`);
       await carregarDadosSupervisor();
     } catch (err) {
       alert("Erro ao definir o líder.");
@@ -549,6 +590,7 @@
     }
   }
 
+  // Transferência de Membro
   function abrirModalTransferir(membroId, nomeMembro, redeAtual) {
     document.getElementById('transMembroId').value = membroId;
     document.getElementById('transNomeMembro').value = nomeMembro;
@@ -637,7 +679,7 @@
   }
 
   function fecharModalRelatoriosRede() {
-    document.getElementById('modalRelatoriosRede').style.display = 'none';
+    document.getElementById('modalRelatoriosRede'].style.display = 'none';
   }
 </script>
 
