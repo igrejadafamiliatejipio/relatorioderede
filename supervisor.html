@@ -44,10 +44,10 @@
     .btn { background-color: var(--primary); color: white; border: none; padding: 12px 18px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.95rem; width: 100%; transition: 0.2s; }
     .btn:hover { background-color: var(--primary-hover); }
 
-    .metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 28px; }
-    .metric-card { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 10px; padding: 16px; text-align: center; }
-    .metric-card h4 { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; }
-    .metric-card .value { font-size: 1.6rem; font-weight: 800; color: var(--text); }
+    .metrics-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 28px; }
+    .metric-card { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 10px; padding: 14px 10px; text-align: center; }
+    .metric-card h4 { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; }
+    .metric-card .value { font-size: 1.4rem; font-weight: 800; color: var(--text); }
 
     .section-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
 
@@ -141,10 +141,11 @@
 
   <div id="painelSupervisor" style="display: none;">
     <div class="metrics-grid">
-      <div class="metric-card"><h4>Total de Membros</h4><div class="value" id="mTotalMembros">0</div></div>
-      <div class="metric-card"><h4>Redes na Meta (12)</h4><div class="value" id="mRedesMeta" style="color: var(--success);">0</div></div>
-      <div class="metric-card"><h4>Prontas p/ Multiplicar</h4><div class="value" id="mRedesMulti" style="color: var(--info);">0</div></div>
-      <div class="metric-card"><h4>Em Alerta (< 12)</h4><div class="value" id="mRedesAlerta" style="color: var(--warning);">0</div></div>
+      <div class="metric-card"><h4>Total Membros</h4><div class="value" id="mTotalMembros">0</div></div>
+      <div class="metric-card"><h4>Total Base</h4><div class="value" id="mTotalBase" style="color: var(--info);">0</div></div>
+      <div class="metric-card"><h4>Redes Meta (12)</h4><div class="value" id="mRedesMeta" style="color: var(--success);">0</div></div>
+      <div class="metric-card"><h4>Multiplicar</h4><div class="value" id="mRedesMulti" style="color: var(--info);">0</div></div>
+      <div class="metric-card"><h4>Em Alerta</h4><div class="value" id="mRedesAlerta" style="color: var(--warning);">0</div></div>
     </div>
 
     <div class="section-title">📊 Raio-X das Redes da Supervisão</div>
@@ -247,9 +248,7 @@
 
     <div class="form-group">
       <label>Selecione o Novo Líder</label>
-      <select id="selectNovoLiderModal">
-        <!-- Preenchido dinamicamente -->
-      </select>
+      <select id="selectNovoLiderModal"></select>
     </div>
 
     <div class="modal-footer">
@@ -270,7 +269,10 @@
     measurementId: "G-2MJ96WMYQ5"
   };
 
-  firebase.initializeApp(firebaseConfig);
+  // Evita inicializar o Firebase duplicado caso já exista
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
   const db = firebase.firestore();
 
   const supervisoresDB = [
@@ -290,7 +292,8 @@
   let membrosCacheSup = [];
   let relatoriosCacheSup = [];
 
-  window.addEventListener('DOMContentLoaded', () => {
+  // Garante o carregamento correto ao abrir a página
+  document.addEventListener('DOMContentLoaded', () => {
     carregarSupervisoes();
   });
 
@@ -362,6 +365,7 @@
     const redesDaSup = supervisorLogado.redes;
 
     let totalMembros = membrosSup.length;
+    let totalBaseGeral = 0;
     let meta12 = 0, multi = 0, abaixo = 0;
 
     const tabelaRedesBody = document.getElementById('tabelaRedesBody');
@@ -370,7 +374,9 @@
     redesDaSup.forEach(r => {
       const membrosRede = membrosSup.filter(m => m.rede === r.nome);
       const qtdTotal = membrosRede.length;
+      
       const qtdBase = membrosRede.filter(m => m.categoria === 'Base da Rede' || m.categoria === 'Líder').length;
+      totalBaseGeral += qtdBase;
 
       const relsRede = relatoriosSup.filter(rel => rel.rede === r.nome);
       relsRede.sort((a, b) => new Date(b.dataEncontro || 0) - new Date(a.dataEncontro || 0));
@@ -402,6 +408,7 @@
     });
 
     document.getElementById('mTotalMembros').innerText = totalMembros;
+    document.getElementById('mTotalBase').innerText = totalBaseGeral;
     document.getElementById('mRedesMeta').innerText = meta12;
     document.getElementById('mRedesMulti').innerText = multi;
     document.getElementById('mRedesAlerta').innerText = abaixo;
@@ -512,8 +519,8 @@
           <div class="supervisao-info">
             <h3>📍 ${r.nome}</h3>
           </div>
-          <div style="display: flex; align-items: center; gap: 12px;">
-            <button class="btn-lider-action" onclick="abrirModalLider('${r.nome}')" onclick="event.stopPropagation()">👑 Alterar Líder</button>
+          <div style="display: flex; align-items: center; gap: 12px;" onclick="event.stopPropagation()">
+            <button class="btn-lider-action" onclick="abrirModalLider('${r.nome}')">👑 Alterar Líder</button>
             <span class="supervisao-badge">${membrosRede.length} membros</span>
             <span class="arrow-icon">▼</span>
           </div>
@@ -531,9 +538,7 @@
     card.classList.toggle('ativo');
   }
 
-  // Modal para Alterar Líder
   function abrirModalLider(nomeRede) {
-    event.stopPropagation(); // Evita fechar/abrir o card sanfona
     document.getElementById('liderRedeNome').value = nomeRede;
     document.getElementById('liderRedeDisplay').value = nomeRede;
 
@@ -590,7 +595,6 @@
     }
   }
 
-  // Transferência de Membro
   function abrirModalTransferir(membroId, nomeMembro, redeAtual) {
     document.getElementById('transMembroId').value = membroId;
     document.getElementById('transNomeMembro').value = nomeMembro;
@@ -679,7 +683,7 @@
   }
 
   function fecharModalRelatoriosRede() {
-    document.getElementById('modalRelatoriosRede'].style.display = 'none';
+    document.getElementById('modalRelatoriosRede').style.display = 'none';
   }
 </script>
 
