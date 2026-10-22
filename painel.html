@@ -277,18 +277,15 @@
     document.getElementById('loading').style.display = 'block';
     document.getElementById('conteudoPainel').style.display = 'none';
 
-    // Criação de Timeout de segurança (8 segundos) para evitar carregamento eterno
-    const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error("Tempo limite esgotado ao conectar com o Firebase.")), 8000)
-    );
-
     try {
-      const fetchPromise = Promise.all([
-        db.collection('membros').where('rede', '==', dadosSessao.rede).get(),
-        db.collection('relatorios').where('rede', '==', dadosSessao.rede).get()
-      ]);
+      // Consulta limpa filtrada apenas por rede para evitar qualquer travamento de índice composto
+      const snapshotMembros = await db.collection('membros')
+        .where('rede', '==', dadosSessao.rede)
+        .get();
 
-      const [snapshotMembros, snapshotRelatorios] = await Promise.race([fetchPromise, timeoutPromise]);
+      const snapshotRelatorios = await db.collection('relatorios')
+        .where('rede', '==', dadosSessao.rede)
+        .get();
 
       membrosLocais = [];
       snapshotMembros.forEach(doc => {
@@ -305,10 +302,10 @@
 
       renderizarPainel(membrosLocais, relatoriosLocais);
     } catch (err) {
-      console.error("Erro no carregamento:", err);
+      console.error("Erro ao carregar dados do Firebase:", err);
       document.getElementById('loading').innerHTML = `
         <div style="color: var(--danger); text-align: center; padding: 20px;">
-          ⚠️ Erro ao carregar os dados da rede.<br>
+          ⚠️ Erro ao carregar os dados da rede do Firebase.<br>
           <small style="color: var(--text-muted);">${err.message}</small><br><br>
           <button class="btn-salvar" onclick="carregarDadosDashboard()" style="padding: 6px 12px; font-size: 0.85rem;">Tentar Novamente</button>
         </div>
@@ -351,7 +348,7 @@
       membrosRede.forEach(m => {
         const nome = m.nome;
         const nascimento = m.nascimento || '';
-        const sexo = m.sexo || 'Não inf.';
+        const sexo = m.sexo && m.sexo.trim() !== '' ? m.sexo : 'Não inf.';
         const whats = m.whatsapp ? m.whatsapp.trim() : '';
         const batizado = m.batizado || 'Não';
         const categoria = m.categoria || 'Liderado';
@@ -386,7 +383,7 @@
         div.innerHTML = `
           <div class="membro-main">
             <strong>${nome}</strong>
-            <small>Sexo: ${sexo} | 📱 ${whats !== '' ? whats : 'Sem WhatsApp'} \vert{} Batizado: ${batizado}</small>
+            <small>Sexo: ${sexo} | 📱 ${whats !== '' ? whats : 'Sem WhatsApp'} | Batizado: ${batizado}</small>
             <div class="tags">${tagsHTML}</div>
           </div>
           <div class="actions-group">
@@ -446,7 +443,8 @@
     if (qtdNiverMes > 0) {
       secaoNivers.innerHTML = `
         <div class="section-title">🎂 Aniversariantes do Mês</div>
-        ${aniversariantesHojeHtml}${aniversariantesMesHtml}
+        ${aniversariantesHojeHtml}
+        ${aniversariantesMesHtml}
       `;
       secaoNivers.style.display = 'block';
     } else {
@@ -466,7 +464,7 @@
         div.setAttribute('onclick', `abrirDetalhesRelatorio('${r.id}')`);
         div.innerHTML = `
           <div class="relatorio-header">
-            <span>📅 ${r.dataEncontro \vert{}\vert{} ''} (${r.horario || ''})</span>
+            <span>📅 ${r.dataEncontro || ''} (${r.horario || ''})</span>
             <span style="color: var(--primary);">📍 ${r.local || ''}</span>
           </div>
           <div class="relatorio-body">
@@ -498,7 +496,7 @@
   function renderizarDetalhesModoLeitura(rel) {
     const conteudo = document.getElementById('conteudoDetalhesRelatorio');
     conteudo.innerHTML = `
-      <div class="relatorio-detalhe-bloco"><label>Data e Horário</label><p>${rel.dataEncontro \vert{}\vert{} '-'} às ${rel.horario || '-'}</p></div>
+      <div class="relatorio-detalhe-bloco"><label>Data e Horário</label><p>${rel.dataEncontro || '-'} às ${rel.horario || '-'}</p></div>
       <div class="relatorio-detalhe-bloco"><label>Local do Encontro</label><p>${rel.local || '-'}</p></div>
       <div class="relatorio-detalhe-bloco"><label>Tema Ministrado</label><p>${rel.tema || '-'}</p></div>
       <div class="relatorio-detalhe-bloco"><label>Membros Presentes</label><p>${rel.presentes || 'Nenhum registrado'}</p></div>
@@ -633,7 +631,7 @@
           presentesArr.push(nome);
         } else {
           const txtJust = document.getElementById(`edit_just_${index}`).value.trim();
-          const textoFalta = txtJust ? `${nome} (Justificativa:${txtJust})` : `${nome} (Não justificou)`;
+          const textoFalta = txtJust ? `${nome} (Justificativa: ${txtJust})` : `${nome} (Não justificou)`;
           faltantesArr.push(textoFalta);
         }
       }
@@ -730,4 +728,15 @@
         status: "INATIVO"
       });
 
-      alert(`${nome} foi
+      alert(`${nome} foi removido(a) com sucesso.`);
+      carregarDadosDashboard();
+    } catch (err) {
+      alert("Erro ao remover membro.");
+      console.error(err);
+      document.getElementById('loading').style.display = 'none';
+    }
+  }
+</script>
+
+</body>
+</html>
