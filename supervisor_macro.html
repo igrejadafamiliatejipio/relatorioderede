@@ -33,16 +33,20 @@
     .tag { font-size: 0.72rem; padding: 3px 8px; border-radius: 12px; font-weight: 600; display: inline-block; }
     .tag-green { background: rgba(35, 209, 96, 0.2); color: var(--success); border: 1px solid rgba(35, 209, 96, 0.4); }
     .tag-yellow { background: rgba(227, 179, 65, 0.2); color: var(--warning); border: 1px solid rgba(227, 179, 65, 0.4); }
-    .tag-blue { background: rgba(56, 139, 253, 0.2); color: var(--info); border: 1px solid rgba(56, 139, 253, 0.4); }
+    .tag-blue { background: rgba(56, 139, 253, 0.2); color: var(--info); border: 1px solid rgba(56, 139, 253, 0.3); }
     .tag-danger { background: rgba(229, 83, 75, 0.2); color: var(--danger); border: 1px solid rgba(229, 83, 75, 0.4); }
+    .tag-informal { background: rgba(227, 179, 65, 0.15); color: #F1E05A; border: 1px solid rgba(227, 179, 65, 0.4); }
     .btn-whats { background: #23D160; color: #000; padding: 5px 10px; border-radius: 6px; font-size: 0.78rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
     .btn-action { background: rgba(56, 139, 253, 0.15); color: var(--info); border: 1px solid rgba(56, 139, 253, 0.3); padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer; }
     .btn-action:hover { background: var(--info); color: #FFF; }
-    
     .btn-lider-discreto { background: transparent; border: none; color: var(--text-muted); font-size: 0.75rem; cursor: pointer; text-decoration: underline; padding: 2px 4px; }
     .btn-lider-discreto:hover { color: var(--primary); }
 
+    /* Cards da Árvore */
     .supervisao-card { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 12px; margin-bottom: 12px; overflow: hidden; }
+    /* Estilo diferenciado para Rede Informal */
+    .supervisao-card.informal { border-color: rgba(227, 179, 65, 0.5); background: linear-gradient(135deg, rgba(227, 179, 65, 0.05) 0%, var(--input-bg) 100%); }
+
     .supervisao-header { padding: 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; }
     .supervisao-header:hover { background: rgba(255,255,255,0.02); }
     .supervisao-header-left { display: flex; align-items: center; gap: 12px; flex: 1; }
@@ -53,34 +57,20 @@
     
     .rede-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--card-border); font-size: 0.9rem; }
     .rede-item:last-child { border-bottom: none; }
-
-    /* Estilo de Destaque Forte para o Líder */
-    .rede-item-lider {
-      background: linear-gradient(135deg, rgba(35, 209, 96, 0.15) 0%, rgba(22, 27, 34, 0.9) 100%);
-      border: 1px solid rgba(35, 209, 96, 0.4);
-      border-radius: 10px;
-      padding: 12px 14px;
-      margin-bottom: 12px;
-      box-shadow: 0 4px 15px rgba(35, 209, 96, 0.1);
-    }
-    .rede-item-lider strong {
-      color: #23D160;
-      font-size: 1.1rem;
-      letter-spacing: 0.3px;
-    }
+    .rede-item-lider { background: linear-gradient(135deg, rgba(35, 209, 96, 0.15) 0%, rgba(22, 27, 34, 0.9) 100%); border: 1px solid rgba(35, 209, 96, 0.4); border-radius: 10px; padding: 12px 14px; margin-bottom: 12px; box-shadow: 0 4px 15px rgba(35, 209, 96, 0.1); }
+    .rede-item-lider strong { color: #23D160; font-size: 1.1rem; }
     
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 999; display: none; }
     .modal-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 24px; max-width: 480px; width: 100%; }
     .modal-header { font-size: 1.1rem; font-weight: 700; margin-bottom: 16px; color: var(--text); }
     .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
     .form-group { margin-bottom: 14px; text-align: left; }
-    label { display: block; font-weight: 500; font-size: 0.8rem; margin-bottom: 6px; color: var(--text-muted); text-transform: uppercase; }
+    label { display: block; font-weight: 500; font-size: 0.82rem; margin-bottom: 6px; color: var(--text-muted); text-transform: uppercase; }
     select, input { width: 100%; padding: 10px 14px; background-color: var(--input-bg); border: 1px solid var(--card-border); border-radius: 8px; font-size: 0.95rem; color: var(--text); outline: none; }
     select option { background-color: var(--card-bg); color: var(--text); }
     .btn-salvar { background: var(--primary); color: white; border: none; padding: 10px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; }
     .btn-salvar:hover { background: var(--primary-hover); }
     .btn-cancelar { background: #21262D; color: var(--text); border: 1px solid var(--card-border); padding: 10px 16px; border-radius: 8px; cursor: pointer; }
-    
     .loading-box { text-align: center; padding: 40px; color: var(--text-muted); }
     @media (max-width: 768px) { .metrics-grid { grid-template-columns: repeat(2, 1fr); } }
   </style>
@@ -103,8 +93,8 @@
     <div class="metrics-grid">
       <div class="metric-card"><h4>Total Membros</h4><div class="value" id="mTotalMembros">0</div></div>
       <div class="metric-card"><h4>Total Base</h4><div class="value" id="mTotalBase" style="color: var(--info);">0</div></div>
-      <div class="metric-card"><h4>Redes Meta (12)</h4><div class="value" id="mRedesMeta" style="color: var(--success);">0</div></div>
-      <div class="metric-card"><h4>Multiplicar</h4><div class="value" id="mRedesMulti" style="color: var(--info);">0</div></div>
+      <div class="metric-card"><h4>Redes Oficiais</h4><div class="value" id="mRedesMeta" style="color: var(--success);">0</div></div>
+      <div class="metric-card"><h4>Redes Informais</h4><div class="value" id="mRedesInformais" style="color: var(--warning);">0</div></div>
       <div class="metric-card"><h4>Em Alerta</h4><div class="value" id="mRedesAlerta" style="color: var(--warning);">0</div></div>
     </div>
 
@@ -189,7 +179,9 @@
   const db = firebase.firestore();
 
   let supervisorNome = '';
-  let supervisorRedes = [];
+  let supervisorRedesOficiais = [];
+  let redesInformaisCache = [];
+  let supervisorRedesTodas = [];
   let membrosCache = [];
   let relatoriosCache = [];
 
@@ -203,7 +195,7 @@
       return;
     }
 
-    supervisorRedes = JSON.parse(redesStr);
+    supervisorRedesOficiais = JSON.parse(redesStr);
     document.getElementById('labelSupervisorLogado').innerText = `${supervisorNome} - ${resp}`;
 
     await carregarDadosMacro();
@@ -211,17 +203,32 @@
 
   async function carregarDadosMacro() {
     try {
-      const snapMembros = await db.collection('membros').where('supervisao', '==', supervisorNome).get();
+      // 1. Busca redes informais criadas no Firebase para esta supervisão
+      const snapPerfis = await db.collection('perfis_redes')
+        .where('supervisao', '==', supervisorNome)
+        .where('status', '==', 'informal')
+        .get();
 
+      redesInformaisCache = [];
+      snapPerfis.forEach(doc => {
+        const d = doc.data();
+        redesInformaisCache.push({ nome: d.rede, lider: "A definir", informal: true });
+      });
+
+      // Une as redes oficiais com as informais (Oficiais primeiro, informais por último)
+      supervisorRedesTodas = [...supervisorRedesOficiais, ...redesInformaisCache];
+
+      // 2. Busca membros da supervisão
+      const snapMembros = await db.collection('membros').where('supervisao', '==', supervisorNome).get();
       membrosCache = [];
       snapMembros.forEach(doc => {
         const d = doc.data();
         if (d.status !== 'INATIVO') membrosCache.push({ id: doc.id, ...d });
       });
 
+      // 3. Busca relatórios
       relatoriosCache = [];
-      const nomesRedes = supervisorRedes.map(r => r.nome);
-      
+      const nomesRedes = supervisorRedesTodas.map(r => r.nome);
       for (let i = 0; i < nomesRedes.length; i += 10) {
         const lote = nomesRedes.slice(i, i + 10);
         if (lote.length > 0) {
@@ -243,12 +250,12 @@
   function renderizarMacro() {
     let totalMembros = membrosCache.length;
     let totalBase = 0;
-    let meta12 = 0, multi = 0, abaixo = 0;
+    let meta12 = 0, qtdInformais = 0;
 
     const tabelaRedes = document.getElementById('tabelaRedesBody');
     tabelaRedes.innerHTML = '';
 
-    supervisorRedes.forEach(r => {
+    supervisorRedesTodas.forEach(r => {
       const membrosRede = membrosCache.filter(m => m.rede === r.nome);
       const qtdTotal = membrosRede.length;
       const qtdBase = membrosRede.filter(m => m.categoria === 'Base da Rede' || m.categoria === 'Líder').length;
@@ -258,13 +265,21 @@
       relsRede.sort((a, b) => new Date(b.dataEncontro || 0) - new Date(a.dataEncontro || 0));
 
       let statusHtml = '';
-      if (qtdTotal === 12) { meta12++; statusHtml = `<span class="tag tag-green">Ideal (12)</span>`; }
-      else if (qtdTotal > 12) { multi++; statusHtml = `<span class="tag tag-blue">Multiplicar</span>`; }
-      else { abaixo++; statusHtml = `<span class="tag tag-yellow">Abaixo</span>`; }
+      if (r.informal) {
+        qtdInformais++;
+        statusHtml = `<span class="tag tag-informal">🌱 Rede Informal</span>`;
+      } else if (qtdTotal === 12) {
+        meta12++;
+        statusHtml = `<span class="tag tag-green">Ideal (12)</span>`;
+      } else if (qtdTotal > 12) {
+        statusHtml = `<span class="tag tag-blue">Multiplicar</span>`;
+      } else {
+        statusHtml = `<span class="tag tag-yellow">Abaixo</span>`;
+      }
 
       tabelaRedes.innerHTML += `
         <tr>
-          <td><strong>${r.nome}</strong></td>
+          <td><strong>${r.nome}</strong> ${r.informal ? '<small style="color:var(--warning)">(Informal)</small>' : ''}</td>
           <td>${qtdTotal}</td>
           <td>${qtdBase}</td>
           <td>${statusHtml}</td>
@@ -276,51 +291,34 @@
     document.getElementById('mTotalMembros').innerText = totalMembros;
     document.getElementById('mTotalBase').innerText = totalBase;
     document.getElementById('mRedesMeta').innerText = meta12;
-    document.getElementById('mRedesMulti').innerText = multi;
-    document.getElementById('mRedesAlerta').innerText = abaixo;
+    document.getElementById('mRedesInformais').innerText = qtdInformais;
+    document.getElementById('mRedesAlerta').innerText = supervisorRedesOficiais.length - meta12;
 
-    // Matriz de Alertas
+    // Alertas
     const tabelaAlertas = document.getElementById('tabelaAlertasBody');
     tabelaAlertas.innerHTML = '';
     let totalAlertasEncontrados = 0;
 
-    supervisorRedes.forEach(r => {
+    supervisorRedesTodas.forEach(r => {
       const membrosRede = membrosCache.filter(m => m.rede === r.nome);
       const relsRede = relatoriosCache.filter(rel => rel.rede === r.nome);
       relsRede.sort((a, b) => new Date(a.dataEncontro || 0) - new Date(b.dataEncontro || 0));
 
       membrosRede.forEach(m => {
-        const nomeMembro = m.nome;
         let faltasSeguidas = 0;
-
         for (let rel of [...relsRede].reverse()) {
           const faltantesTxt = rel.faltantes ? rel.faltantes.toString().toLowerCase() : '';
-          if (faltantesTxt.includes(nomeMembro.toLowerCase())) {
-            faltasSeguidas++;
-          } else {
-            break;
-          }
+          if (faltantesTxt.includes(m.nome.toLowerCase())) faltasSeguidas++;
+          else break;
         }
 
         if (faltasSeguidas >= 2) {
           totalAlertasEncontrados++;
-          const tagSit = faltasSeguidas >= 3 
-            ? `<span class="tag tag-danger">⛔ ${faltasSeguidas} faltas (Não pode servir)</span>` 
-            : `<span class="tag tag-warning">⚠️ ${faltasSeguidas} faltas (Apascentamento)</span>`;
-
+          const tagSit = faltasSeguidas >= 3 ? `<span class="tag tag-danger">⛔ ${faltasSeguidas} faltas</span>` : `<span class="tag tag-warning">⚠️ ${faltasSeguidas} faltas</span>`;
           const whats = m.whatsapp ? m.whatsapp.trim() : '';
-          const btnWhats = whats !== '' 
-            ? `<a href="https://api.whatsapp.com/send?phone=55${whats.replace(/\D/g,'')}&text=${encodeURIComponent('Olá ' + nomeMembro + ', tudo bem? Sentimos sua falta nos últimos encontros e estamos orando por você!')}" target="_blank" class="btn-whats">💬 WhatsApp</a>` 
-            : '<small style="color:var(--text-muted)">Sem WhatsApp</small>';
+          const btnWhats = whats !== '' ? `<a href="https://api.whatsapp.com/send?phone=55${whats.replace(/\D/g,'')}&text=${encodeURIComponent('Olá ' + m.nome + ', sentimos sua falta!')}" target="_blank" class="btn-whats">💬 WhatsApp</a>` : '<small style="color:var(--text-muted)">Sem WhatsApp</small>';
 
-          tabelaAlertas.innerHTML += `
-            <tr>
-              <td><strong>${nomeMembro}</strong></td>
-              <td>${r.nome}</td>
-              <td>${tagSit}</td>
-              <td>${btnWhats}</td>
-            </tr>
-          `;
+          tabelaAlertas.innerHTML += `<tr><td><strong>${m.nome}</strong></td><td>${r.nome}</td><td>${tagSit}</td><td>${btnWhats}</td></tr>`;
         }
       });
     });
@@ -329,7 +327,7 @@
       tabelaAlertas.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Nenhum alerta de falta consecutiva no momento. 👍</td></tr>`;
     }
 
-    // Aniversariantes do Mês (Botão de WhatsApp apenas para quem faz aniversário HOJE)
+    // Aniversariantes
     const tabelaNiver = document.getElementById('tabelaNiverBody');
     tabelaNiver.innerHTML = '';
     const hoje = new Date();
@@ -344,47 +342,38 @@
         if (partes.length === 3 && parseInt(partes[1]) === mesAtual) {
           qtdNivers++;
           const diaNasc = parseInt(partes[2]);
-          const isAniversarioHoje = (diaNasc === diaAtual);
-          const whatsNiver = m.whatsapp ? m.whatsapp.trim() : '';
-
+          const isHoje = (diaNasc === diaAtual);
+          const whats = m.whatsapp ? m.whatsapp.trim() : '';
           let acaoHtml = `<span style="color:var(--text-muted); font-size:0.85rem;">Dia ${partes[2]}</span>`;
-          if (isAniversarioHoje && whatsNiver !== '') {
-            acaoHtml = `<a href="https://api.whatsapp.com/send?phone=55${whatsNiver.replace(/\D/g,'')}&text=${encodeURIComponent('Parabéns ' + m.nome + '! Que o Senhor te abençoe muito em seu aniversário, com muita paz e alegria. Celebramos sua vida em nossa supervisão!')}" target="_blank" class="btn-whats">🎂 Dar os Parabéns (Hoje!)</a>`;
-          } else if (isAniversarioHoje) {
-            acaoHtml = `<span class="tag tag-green">🎉 Aniversário Hoje! (Sem WhatsApp)</span>`;
+
+          if (isHoje && whats !== '') {
+            acaoHtml = `<a href="https://api.whatsapp.com/send?phone=55${whats.replace(/\D/g,'')}&text=${encodeURIComponent('Parabéns ' + m.nome + '!')}" target="_blank" class="btn-whats">🎂 Dar os Parabéns</a>`;
           }
 
-          tabelaNiver.innerHTML += `
-            <tr>
-              <td><strong>${m.nome}</strong></td>
-              <td>${m.rede}</td>
-              <td>${partes[2]}/${partes[1]}</td>
-              <td>${acaoHtml}</td>
-            </tr>
-          `;
+          tabelaNiver.innerHTML += `<tr><td><strong>${m.nome}</strong></td><td>${m.rede}</td><td>${partes[2]}/${partes[1]}</td><td>${acaoHtml}</td></tr>`;
         }
       }
     });
 
     if (qtdNivers === 0) {
-      tabelaNiver.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Nenhum aniversariante registrado neste mês.</td></tr>`;
+      tabelaNiver.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Nenhum aniversariante neste mês.</td></tr>`;
     }
 
-    // Árvore de Redes (Sanfona vertical com líder em forte destaque)
+    // Árvore de Redes (Redes Oficiais primeiro, Redes Informais por último com destaque)
     const treeContainer = document.getElementById('treeContainerRedes');
     treeContainer.innerHTML = '';
-    supervisorRedes.forEach(r => {
+
+    supervisorRedesTodas.forEach(r => {
       const membrosRede = membrosCache.filter(m => m.rede === r.nome);
       membrosRede.sort((a, b) => (a.categoria === 'Líder' ? -1 : (b.categoria === 'Líder' ? 1 : a.nome.localeCompare(b.nome))));
 
       let membrosHtml = '';
       if (membrosRede.length === 0) {
-        membrosHtml = `<div style="color:var(--text-muted); padding:8px 0; font-size:0.85rem;">Nenhum membro cadastrado nesta rede.</div>`;
+        membrosHtml = `<div style="color:var(--text-muted); padding:8px 0; font-size:0.85rem;">Nenhum membro cadastrado nesta rede. Use a transferência para alocar membros e definir o líder.</div>`;
       } else {
         membrosRede.forEach(m => {
           const isLider = m.categoria === 'Líder';
           if (isLider) {
-            // Estilo de Forte Destaque para o Líder
             membrosHtml += `
               <div class="rede-item-lider">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -400,7 +389,6 @@
               </div>
             `;
           } else {
-            // Estilo padrão para os demais membros / base
             membrosHtml += `
               <div class="rede-item">
                 <div style="display:flex; align-items:center; gap:8px;">
@@ -416,10 +404,10 @@
       }
 
       treeContainer.innerHTML += `
-        <div class="supervisao-card">
+        <div class="supervisao-card ${r.informal ? 'informal' : ''}">
           <div class="supervisao-header" onclick="toggleSanfona(this)">
             <div class="supervisao-header-left">
-              <h3>📍 ${r.nome}</h3>
+              <h3>📍 ${r.nome} ${r.informal ? '<span class="tag tag-informal" style="margin-left: 8px;">🌱 REDE INFORMAL</span>' : ''}</h3>
               <span class="supervisao-badge">${membrosRede.length} membros</span>
             </div>
             <div>
@@ -433,15 +421,13 @@
   }
 
   function toggleSanfona(headerEl) {
-    const card = headerEl.parentElement;
-    card.classList.toggle('ativo');
+    headerEl.parentElement.classList.toggle('ativo');
   }
 
   function abrirModalMudarLider(nomeRede) {
     document.getElementById('liderRedeNome').value = nomeRede;
     const select = document.getElementById('selectNovoLider');
     select.innerHTML = '';
-
     const membrosRede = membrosCache.filter(m => m.rede === nomeRede);
     membrosRede.forEach(m => {
       const opt = document.createElement('option');
@@ -450,20 +436,15 @@
       if (m.categoria === 'Líder') opt.selected = true;
       select.appendChild(opt);
     });
-
     document.getElementById('modalMudarLider').style.display = 'flex';
   }
 
-  function fecharModalLider() {
-    document.getElementById('modalMudarLider').style.display = 'none';
-  }
+  function fecharModalLider() { document.getElementById('modalMudarLider').style.display = 'none'; }
 
   async function salvarNovoLider() {
     const nomeRede = document.getElementById('liderRedeNome').value;
     const novoLiderId = document.getElementById('selectNovoLider').value;
-
     if (!novoLiderId) return alert("Selecione um membro.");
-
     document.getElementById('loading').style.display = 'block';
     fecharModalLider();
 
@@ -472,15 +453,11 @@
       membrosCache.forEach(m => {
         if (m.rede === nomeRede) {
           const ref = db.collection('membros').doc(m.id);
-          if (m.id === novoLiderId) {
-            batch.update(ref, { categoria: 'Líder' });
-          } else if (m.categoria === 'Líder') {
-            batch.update(ref, { categoria: 'Base da Rede' });
-          }
+          if (m.id === novoLiderId) batch.update(ref, { categoria: 'Líder' });
+          else if (m.categoria === 'Líder') batch.update(ref, { categoria: 'Base da Rede' });
         }
       });
       await batch.commit();
-
       alert("✅ Líder atualizado com sucesso!");
       await carregarDadosMacro();
     } catch (err) {
@@ -493,29 +470,23 @@
   function abrirModalTransferir(membroId, membroNome) {
     document.getElementById('transMembroId').value = membroId;
     document.getElementById('transMembroNome').value = membroNome;
-
     const select = document.getElementById('selectRedeDestino');
     select.innerHTML = '';
-    supervisorRedes.forEach(r => {
+    supervisorRedesTodas.forEach(r => {
       const opt = document.createElement('option');
       opt.value = r.nome;
-      opt.textContent = r.nome;
+      opt.textContent = r.nome + (r.informal ? ' (Informal)' : '');
       select.appendChild(opt);
     });
-
     document.getElementById('modalTransferir').style.display = 'flex';
   }
 
-  function fecharModalTransferir() {
-    document.getElementById('modalTransferir').style.display = 'none';
-  }
+  function fecharModalTransferir() { document.getElementById('modalTransferir').style.display = 'none'; }
 
   async function executarTransferencia() {
     const membroId = document.getElementById('transMembroId').value;
     const novaRede = document.getElementById('selectRedeDestino').value;
-
     if (!membroId || !novaRede) return;
-
     document.getElementById('loading').style.display = 'block';
     fecharModalTransferir();
 
