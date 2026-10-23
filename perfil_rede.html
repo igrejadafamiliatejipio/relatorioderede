@@ -42,6 +42,7 @@
 <div class="container">
   <div class="top-nav">
     <button class="btn-voltar" onclick="voltarPagina()">← Voltar</button>
+    <span id="labelQuemLogou" style="font-size: 0.85rem; color: var(--text-muted);"></span>
   </div>
 
   <div class="header">
@@ -50,11 +51,7 @@
   </div>
 
   <div id="conteudoPerfil" style="display: none;">
-    <div class="card-info-base">
-      <div>
-        <p>Nome da Rede</p>
-        <strong id="labelNomeRede" style="color: var(--primary); font-size: 1.1rem;">-</strong>
-      </div>
+    <div class="card-info-base" id="blocoInfoLider">
       <div>
         <p>Líder Atual</p>
         <strong id="labelLiderRede">-</strong>
@@ -63,9 +60,14 @@
 
     <form id="formPerfilRede" onsubmit="salvarPerfil(event)">
       <div class="form-group">
+        <label>Nome da Rede</label>
+        <input type="text" id="inputNomeRede" required>
+        <span class="helper-text" id="avisoNomeRede" style="display:none; color: var(--warning);">⚠️ Alterar o nome da rede atualizará também o perfil e os membros vinculados.</span>
+      </div>
+
+      <div class="form-group">
         <label>Data de Início / Criação da Rede</label>
         <input type="date" id="inputDataCriacao" required>
-        <span class="helper-text">Dia em que a rede começou as atividades.</span>
       </div>
 
       <div class="form-group">
@@ -99,23 +101,39 @@
   if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
 
-  let nomeRedeAtual = '';
+  let redeOriginal = '';
+  let isSupervisor = false;
 
   document.addEventListener("DOMContentLoaded", async () => {
-    nomeRedeAtual = sessionStorage.getItem('topo_rede');
-    if (!nomeRedeAtual) {
+    const supNome = sessionStorage.getItem('topo_sup_nome');
+    redeOriginal = sessionStorage.getItem('topo_rede');
+
+    if (!redeOriginal) {
       alert("Nenhuma rede selecionada. Faça o login novamente.");
       window.location.href = "lider.html";
       return;
     }
-    document.getElementById('labelNomeRede').innerText = nomeRedeAtual;
+
+    if (supNome) {
+      isSupervisor = true;
+      document.getElementById('labelQuemLogou').innerText = `Supervisor: ${supNome}`;
+      document.getElementById('inputNomeRede').removeAttribute('readonly');
+      document.getElementById('avisoNomeRede').style.display = 'block';
+    } else {
+      isSupervisor = false;
+      document.getElementById('labelQuemLogou').innerText = `Líder`;
+      // Líder não altera o nome principal da rede por segurança, mas pode ver
+      document.getElementById('inputNomeRede').setAttribute('readonly', true);
+      document.getElementById('inputNomeRede').style.opacity = '0.7';
+    }
+
+    document.getElementById('inputNomeRede').value = redeOriginal;
     await carregarPerfilRede();
   });
 
   function voltarPagina() {
-    const isSupervisor = sessionStorage.getItem('topo_sup_nome');
     if (isSupervisor) {
-      window.location.href = "supervisor_macro.html";
+      window.location.href = "supervisor_selecionar_perfil_rede.html";
     } else {
       window.location.href = "lider.html";
     }
@@ -123,7 +141,7 @@
 
   async function carregarPerfilRede() {
     try {
-      const snapMembros = await db.collection('membros').where('rede', '==', nomeRedeAtual).get();
+      const snapMembros = await db.collection('membros').where('rede', '==', redeOriginal).get();
       let liderNome = "Não definido";
       snapMembros.forEach(doc => {
         const data = doc.data();
@@ -131,7 +149,7 @@
       });
       document.getElementById('labelLiderRede').innerText = liderNome;
 
-      const docPerfil = await db.collection('perfis_redes').doc(nomeRedeAtual).get();
+      const docPerfil = await db.collection('perfis_redes').doc(redeOriginal).get();
       if (docPerfil.exists) {
         const dadosPerfil = docPerfil.data();
         document.getElementById('inputDataCriacao').value = dadosPerfil.dataCriacao || '';
@@ -160,19 +178,54 @@
 
   async function salvarPerfil(e) {
     e.preventDefault();
+    const novoNomeRede = document.getElementById('inputNomeRede').value.trim();
+    const dataCriacao = document.getElementById('inputDataCriacao').value;
+    const endereco = document.getElementById('inputEndereco').value.trim();
+    const linkGoogleMaps = document.getElementById('inputGoogleMaps').value.trim();
+
+    if (!novoNomeRede) return alert("Informe o nome da rede.");
+
     const btn = document.getElementById('btnSalvar');
     btn.disabled = true;
     btn.innerText = "Salvando...";
 
     try {
-      await db.collection('perfis_redes').doc(nomeRedeAtual).set({
-        rede: nomeRedeAtual,
-        dataCriacao: document.getElementById('inputDataCriacao').value,
-        endereco: document.getElementById('inputEndereco').value.trim(),
-        linkGoogleMaps: document.getElementById('inputGoogleMaps').value.trim(),
-        ultimaAtualizacao: new Date().toISOString()
-      }, { merge: true });
+      const batch = db.batch();
 
+      // Se o supervisor alterou o nome da rede, precisamos recriar o documento no perfil e atualizar os membros
+      if (isSupervisor && novoNomeRede !== redeOriginal) {
+        // 1. Cria novo doc de perfil e apaga o antigo
+        const novoPerfilRef = db.collection('perfis_redes').doc(novoNomeRede);
+        batch.set(novoPerfilRef, {
+          rede: novoNomeRede,
+          dataCriacao: dataCriacao,
+          endereco: endereco,
+          linkGoogleMaps: linkGoogleMaps,
+          ultimaAtualizacao: new Date().toISOString()
+        });
+        batch.delete(db.collection('perfis_redes').doc(redeOriginal));
+
+        // 2. Atualiza todos os membros que pertenciam à rede antiga para o novo nome
+        const snapMembros = await db.collection('membros').where('rede', '==', redeOriginal).get();
+        snapMembros.forEach(docMem => {
+          batch.update(docMem.ref, { rede: novoNomeRede });
+        });
+
+        sessionStorage.setItem('topo_rede', novoNomeRede);
+        redeOriginal = novoNomeRede;
+      } else {
+        // Atualização padrão
+        const perfilRef = db.collection('perfis_redes').doc(redeOriginal);
+        batch.set(perfilRef, {
+          rede: redeOriginal,
+          dataCriacao: dataCriacao,
+          endereco: endereco,
+          linkGoogleMaps: linkGoogleMaps,
+          ultimaAtualizacao: new Date().toISOString()
+        }, { merge: true });
+      }
+
+      await batch.commit();
       alert("✅ Perfil da rede atualizado com sucesso!");
     } catch (err) {
       alert("Erro ao salvar o perfil.");
