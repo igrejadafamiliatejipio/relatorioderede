@@ -79,17 +79,16 @@
   const db = firebase.firestore();
 
   let supervisorNome = '';
+  let supervisorResp = '';
 
   document.addEventListener("DOMContentLoaded", () => {
     supervisorNome = sessionStorage.getItem('topo_sup_nome');
-    const resp = sessionStorage.getItem('topo_sup_responsavel');
+    supervisorResp = sessionStorage.getItem('topo_sup_responsavel');
     if (!supervisorNome) {
       window.location.href = "supervisor.html";
       return;
     }
-    document.getElementById('labelSupervisorLogado').innerText = `${supervisorNome} - ${resp}`;
-    
-    // Preenche a data de hoje por padrão
+    document.getElementById('labelSupervisorLogado').innerText = `${supervisorNome} - ${supervisorResp}`;
     document.getElementById('inputDataCriacao').value = new Date().toISOString().split('T')[0];
   });
 
@@ -106,18 +105,24 @@
     btn.innerText = "Cadastrando...";
 
     try {
-      // Salva o perfil da rede com o status "informal" vinculado ao supervisor
+      // Salva explicitamente vinculado à supervisão logada
       await db.collection('perfis_redes').doc(nomeRede).set({
         rede: nomeRede,
         supervisao: supervisorNome,
-        status: "informal", // Identifica que é uma rede em fase de multiplicação/informal
+        supervisorResponsavel: supervisorResp,
+        status: "informal",
         dataCriacao: dataCriacao,
         endereco: endereco,
         linkGoogleMaps: "",
         ultimaAtualizacao: new Date().toISOString()
       });
 
-      alert(`✅ Rede informal "${nomeRede}" criada com sucesso!\n\nAgora você pode transferir o líder e os membros para esta rede pelo Painel Macro.`);
+      // Atualiza o sessionStorage local para incluir a nova rede imediatamente nas consultas do painel
+      let redesSalvas = JSON.parse(sessionStorage.getItem('topo_sup_redes') || '[]');
+      redesSalvas.push({ nome: nomeRede, lider: "A definir", informal: true });
+      sessionStorage.setItem('topo_sup_redes', JSON.stringify(redesSalvas));
+
+      alert(`✅ Rede informal "${nomeRede}" criada com sucesso e adicionada à sua supervisão!`);
       window.location.href = "supervisor_macro.html";
     } catch (err) {
       alert("Erro ao criar rede informal.");
