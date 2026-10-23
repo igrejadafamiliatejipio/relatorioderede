@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Abrir Rede Informal - Ministério TOPO</title>
+  <style>
+    :root {
+      --bg: #0D0F12; --card-bg: #161B22; --card-border: #30363D;
+      --input-bg: #0D1117; --text: #F0F6FC; --text-muted: #8B949E;
+      --primary: #6E56CF; --primary-hover: #5B45B0;
+      --success: #23D160; --warning: #E3B341; --danger: #E5534B; --info: #388BFD;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); padding: 24px 12px; display: flex; justify-content: center; min-height: 100vh; }
+    .container { max-width: 540px; width: 100%; background: var(--card-bg); padding: 28px; border-radius: 16px; border: 1px solid var(--card-border); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); }
+    .top-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .btn-voltar { background: #21262D; color: var(--text); border: 1px solid var(--card-border); padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; text-decoration: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-voltar:hover { background: #30363D; }
+    .header { text-align: center; margin-bottom: 24px; }
+    .header h1 { font-size: 1.6rem; font-weight: 700; margin-top: 6px; }
+    .badge-topo { display: inline-block; background: var(--warning); color: #000; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 8px; }
+    .form-group { margin-bottom: 16px; text-align: left; }
+    label { display: block; font-weight: 500; font-size: 0.82rem; margin-bottom: 6px; color: var(--text-muted); text-transform: uppercase; }
+    input, textarea { width: 100%; padding: 12px 14px; background-color: var(--input-bg); border: 1px solid var(--card-border); border-radius: 8px; font-size: 0.95rem; color: var(--text); outline: none; }
+    input:focus, textarea:focus { border-color: var(--primary); }
+    textarea { resize: vertical; min-height: 80px; }
+    .helper-text { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; display: block; }
+    .btn-salvar { background: var(--primary); color: white; border: none; padding: 14px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 1rem; width: 100%; transition: 0.2s; margin-top: 10px; }
+    .btn-salvar:hover { background: var(--primary-hover); }
+  </style>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+<div class="container">
+  <div class="top-nav">
+    <a href="supervisor_menu.html" class="btn-voltar">← Voltar ao Menu</a>
+    <span id="labelSupervisorLogado" style="font-size: 0.85rem; color: var(--text-muted);"></span>
+  </div>
+
+  <div class="header">
+    <span class="badge-topo">NOVA REDE INFORMAL</span>
+    <h1>🌱 Cadastrar Rede de Multiplicação</h1>
+  </div>
+
+  <form id="formCriarRede" onsubmit="criarRedeInformal(event)">
+    <div class="form-group">
+      <label>Nome da Nova Rede (Informal)</label>
+      <input type="text" id="inputNomeRede" placeholder="Ex: Rede Esperança" required>
+      <span class="helper-text">Insira o nome da nova rede em processo de abertura.</span>
+    </div>
+
+    <div class="form-group">
+      <label>Data de Início da Rede</label>
+      <input type="date" id="inputDataCriacao" required>
+    </div>
+
+    <div class="form-group">
+      <label>Endereço Inicial dos Encontros</label>
+      <textarea id="inputEndereco" placeholder="Ex: Rua Principal, 45 - Bairro..." required></textarea>
+    </div>
+
+    <button type="submit" class="btn-salvar" id="btnSalvar">Criar Rede Informal</button>
+  </form>
+</div>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyB7FJXs9wiRFYIs2ugZoWrw7jTXPR5weGk",
+    authDomain: "app-redes-iftejipio.firebaseapp.com",
+    projectId: "app-redes-iftejipio",
+    storageBucket: "app-redes-iftejipio.firebasestorage.app",
+    messagingSenderId: "954529090793",
+    appId: "1:954529090793:web:6702d102b6e5b178b6b478",
+    measurementId: "G-2MJ96WMYQ5"
+  };
+  if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  let supervisorNome = '';
+
+  document.addEventListener("DOMContentLoaded", () => {
+    supervisorNome = sessionStorage.getItem('topo_sup_nome');
+    const resp = sessionStorage.getItem('topo_sup_responsavel');
+    if (!supervisorNome) {
+      window.location.href = "supervisor.html";
+      return;
+    }
+    document.getElementById('labelSupervisorLogado').innerText = `${supervisorNome} - ${resp}`;
+    
+    // Preenche a data de hoje por padrão
+    document.getElementById('inputDataCriacao').value = new Date().toISOString().split('T')[0];
+  });
+
+  async function criarRedeInformal(e) {
+    e.preventDefault();
+    const nomeRede = document.getElementById('inputNomeRede').value.trim();
+    const dataCriacao = document.getElementById('inputDataCriacao').value;
+    const endereco = document.getElementById('inputEndereco').value.trim();
+
+    if (!nomeRede) return alert("Informe o nome da rede.");
+
+    const btn = document.getElementById('btnSalvar');
+    btn.disabled = true;
+    btn.innerText = "Cadastrando...";
+
+    try {
+      // Salva o perfil da rede com o status "informal" vinculado ao supervisor
+      await db.collection('perfis_redes').doc(nomeRede).set({
+        rede: nomeRede,
+        supervisao: supervisorNome,
+        status: "informal", // Identifica que é uma rede em fase de multiplicação/informal
+        dataCriacao: dataCriacao,
+        endereco: endereco,
+        linkGoogleMaps: "",
+        ultimaAtualizacao: new Date().toISOString()
+      });
+
+      alert(`✅ Rede informal "${nomeRede}" criada com sucesso!\n\nAgora você pode transferir o líder e os membros para esta rede pelo Painel Macro.`);
+      window.location.href = "supervisor_macro.html";
+    } catch (err) {
+      alert("Erro ao criar rede informal.");
+      console.error(err);
+      btn.disabled = false;
+      btn.innerText = "Criar Rede Informal";
+    }
+  }
+</script>
+</body>
+</html>
