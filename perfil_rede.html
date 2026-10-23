@@ -51,7 +51,7 @@
   </div>
 
   <div id="conteudoPerfil" style="display: none;">
-    <div class="card-info-base" id="blocoInfoLider">
+    <div class="card-info-base">
       <div>
         <p>Líder Atual</p>
         <strong id="labelLiderRede">-</strong>
@@ -62,7 +62,7 @@
       <div class="form-group">
         <label>Nome da Rede</label>
         <input type="text" id="inputNomeRede" required>
-        <span class="helper-text" id="avisoNomeRede" style="display:none; color: var(--warning);">⚠️ Alterar o nome da rede atualizará também o perfil e os membros vinculados.</span>
+        <span class="helper-text" id="avisoNomeRede" style="display:none; color: var(--success);">O histórico, relatórios e membros serão preservados automaticamente sob o novo nome.</span>
       </div>
 
       <div class="form-group">
@@ -122,7 +122,6 @@
     } else {
       isSupervisor = false;
       document.getElementById('labelQuemLogou').innerText = `Líder`;
-      // Líder não altera o nome principal da rede por segurança, mas pode ver
       document.getElementById('inputNomeRede').setAttribute('readonly', true);
       document.getElementById('inputNomeRede').style.opacity = '0.7';
     }
@@ -192,9 +191,11 @@
     try {
       const batch = db.batch();
 
-      // Se o supervisor alterou o nome da rede, precisamos recriar o documento no perfil e atualizar os membros
       if (isSupervisor && novoNomeRede !== redeOriginal) {
-        // 1. Cria novo doc de perfil e apaga o antigo
+        // 1. Atualiza o nome da rede no documento de perfil existente (mantendo o mesmo ID base ou atualizando o campo 'rede')
+        const perfilRef = db.collection('perfis_redes').doc(redeOriginal);
+        
+        // Copia para o novo ID de documento e deleta o antigo para manter a organização limpa no Firestore
         const novoPerfilRef = db.collection('perfis_redes').doc(novoNomeRede);
         batch.set(novoPerfilRef, {
           rede: novoNomeRede,
@@ -203,18 +204,23 @@
           linkGoogleMaps: linkGoogleMaps,
           ultimaAtualizacao: new Date().toISOString()
         });
-        batch.delete(db.collection('perfis_redes').doc(redeOriginal));
+        batch.delete(perfilRef);
 
-        // 2. Atualiza todos os membros que pertenciam à rede antiga para o novo nome
+        // 2. Atualiza todos os membros da rede antiga para o novo nome
         const snapMembros = await db.collection('membros').where('rede', '==', redeOriginal).get();
         snapMembros.forEach(docMem => {
           batch.update(docMem.ref, { rede: novoNomeRede });
         });
 
+        // 3. Atualiza também todos os relatórios passados para o novo nome da rede (garantindo que o histórico antigo não suma!)
+        const snapRelatorios = await db.collection('relatorios').where('rede', '==', redeOriginal).get();
+        snapRelatorios.forEach(docRel => {
+          batch.update(docRel.ref, { rede: novoNomeRede });
+        });
+
         sessionStorage.setItem('topo_rede', novoNomeRede);
         redeOriginal = novoNomeRede;
       } else {
-        // Atualização padrão
         const perfilRef = db.collection('perfis_redes').doc(redeOriginal);
         batch.set(perfilRef, {
           rede: redeOriginal,
@@ -226,7 +232,7 @@
       }
 
       await batch.commit();
-      alert("✅ Perfil da rede atualizado com sucesso!");
+      alert("✅ Perfil e histórico da rede atualizados com sucesso sob o novo nome!");
     } catch (err) {
       alert("Erro ao salvar o perfil.");
       console.error(err);
