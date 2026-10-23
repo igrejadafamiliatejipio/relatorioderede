@@ -39,12 +39,16 @@
     .btn-whats { background: #23D160; color: #000; padding: 5px 10px; border-radius: 6px; font-size: 0.78rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
     .btn-action { background: rgba(56, 139, 253, 0.15); color: var(--info); border: 1px solid rgba(56, 139, 253, 0.3); padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer; }
     .btn-action:hover { background: var(--info); color: #FFF; }
+    
     .btn-lider-discreto { background: transparent; border: none; color: var(--text-muted); font-size: 0.75rem; cursor: pointer; text-decoration: underline; padding: 2px 4px; }
     .btn-lider-discreto:hover { color: var(--primary); }
+    .btn-promover { background: rgba(35, 209, 96, 0.15); color: var(--success); border: 1px solid rgba(35, 209, 96, 0.3); padding: 3px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 600; cursor: pointer; }
+    .btn-promover:hover { background: var(--success); color: #000; }
+    .btn-excluir-rede { background: rgba(229, 83, 75, 0.15); color: var(--danger); border: 1px solid rgba(229, 83, 75, 0.3); padding: 3px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 600; cursor: pointer; }
+    .btn-excluir-rede:hover { background: var(--danger); color: #FFF; }
 
     /* Cards da Árvore */
     .supervisao-card { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 12px; margin-bottom: 12px; overflow: hidden; }
-    /* Estilo diferenciado para Rede Informal */
     .supervisao-card.informal { border-color: rgba(227, 179, 65, 0.5); background: linear-gradient(135deg, rgba(227, 179, 65, 0.05) 0%, var(--input-bg) 100%); }
 
     .supervisao-header { padding: 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; }
@@ -203,7 +207,6 @@
 
   async function carregarDadosMacro() {
     try {
-      // 1. Busca redes informais criadas no Firebase para esta supervisão
       const snapPerfis = await db.collection('perfis_redes')
         .where('supervisao', '==', supervisorNome)
         .where('status', '==', 'informal')
@@ -215,10 +218,8 @@
         redesInformaisCache.push({ nome: d.rede, lider: "A definir", informal: true });
       });
 
-      // Une as redes oficiais com as informais (Oficiais primeiro, informais por último)
       supervisorRedesTodas = [...supervisorRedesOficiais, ...redesInformaisCache];
 
-      // 2. Busca membros da supervisão
       const snapMembros = await db.collection('membros').where('supervisao', '==', supervisorNome).get();
       membrosCache = [];
       snapMembros.forEach(doc => {
@@ -226,7 +227,6 @@
         if (d.status !== 'INATIVO') membrosCache.push({ id: doc.id, ...d });
       });
 
-      // 3. Busca relatórios
       relatoriosCache = [];
       const nomesRedes = supervisorRedesTodas.map(r => r.nome);
       for (let i = 0; i < nomesRedes.length; i += 10) {
@@ -359,7 +359,7 @@
       tabelaNiver.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Nenhum aniversariante neste mês.</td></tr>`;
     }
 
-    // Árvore de Redes (Redes Oficiais primeiro, Redes Informais por último com destaque)
+    // Árvore de Redes
     const treeContainer = document.getElementById('treeContainerRedes');
     treeContainer.innerHTML = '';
 
@@ -403,6 +403,17 @@
         });
       }
 
+      // Botões extras para redes informais (Promover e Excluir)
+      let botoesGestao = `<button class="btn-lider-discreto" onclick="event.stopPropagation(); abrirModalMudarLider('${r.nome}')">Alterar líder</button>`;
+      if (r.informal) {
+        botoesGestao = `
+          <div style="display: flex; gap: 6px; align-items: center;" onclick="event.stopPropagation()">
+            <button class="btn-promover" onclick="promoverRede('${r.nome}')">✅ Promover Oficial</button>
+            <button class="btn-excluir-rede" onclick="excluirRedeInformal('${r.nome}')">🗑️ Excluir</button>
+          </div>
+        `;
+      }
+
       treeContainer.innerHTML += `
         <div class="supervisao-card ${r.informal ? 'informal' : ''}">
           <div class="supervisao-header" onclick="toggleSanfona(this)">
@@ -410,9 +421,7 @@
               <h3>📍 ${r.nome} ${r.informal ? '<span class="tag tag-informal" style="margin-left: 8px;">🌱 REDE INFORMAL</span>' : ''}</h3>
               <span class="supervisao-badge">${membrosRede.length} membros</span>
             </div>
-            <div>
-              <button class="btn-lider-discreto" onclick="event.stopPropagation(); abrirModalMudarLider('${r.nome}')">Alterar líder</button>
-            </div>
+            <div>${botoesGestao}</div>
           </div>
           <div class="redes-list">${membrosHtml}</div>
         </div>
@@ -422,6 +431,34 @@
 
   function toggleSanfona(headerEl) {
     headerEl.parentElement.classList.toggle('ativo');
+  }
+
+  async function promoverRede(nomeRede) {
+    if (!confirm(`Deseja realmente aprovar e promover a "${nomeRede}" a uma Rede Oficial definitiva?`)) return;
+    document.getElementById('loading').style.display = 'block';
+    try {
+      await db.collection('perfis_redes').doc(nomeRede).update({ status: 'oficial' });
+      alert(`🎉 Parabéns! A rede "${nomeRede}" agora é uma Rede Oficial do Ministério TOPO!`);
+      await carregarDadosMacro();
+    } catch (err) {
+      alert("Erro ao promover a rede.");
+      console.error(err);
+      document.getElementById('loading').style.display = 'none';
+    }
+  }
+
+  async function excluirRedeInformal(nomeRede) {
+    if (!confirm(`⚠️ ATENÇÃO: Deseja excluir permanentemente a rede informal "${nomeRede}"? (Certifique-se de que não há membros alocados nela).`)) return;
+    document.getElementById('loading').style.display = 'block';
+    try {
+      await db.collection('perfis_redes').doc(nomeRede).delete();
+      alert(`🗑️ Rede informal "${nomeRede}" excluída com sucesso.`);
+      await carregarDadosMacro();
+    } catch (err) {
+      alert("Erro ao excluir rede.");
+      console.error(err);
+      document.getElementById('loading').style.display = 'none';
+    }
   }
 
   function abrirModalMudarLider(nomeRede) {
