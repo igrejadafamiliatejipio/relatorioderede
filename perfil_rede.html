@@ -6,59 +6,39 @@
   <title>Perfil da Rede - Ministério TOPO</title>
   <style>
     :root {
-      --bg: #0D0F12;
-      --card-bg: #161B22;
-      --card-border: #30363D;
-      --input-bg: #0D1117;
-      --text: #F0F6FC;
-      --text-muted: #8B949E;
-      --primary: #6E56CF;
-      --primary-hover: #5B45B0;
-      --success: #23D160;
-      --warning: #E3B341;
-      --danger: #E5534B;
-      --info: #388BFD;
+      --bg: #0D0F12; --card-bg: #161B22; --card-border: #30363D;
+      --input-bg: #0D1117; --text: #F0F6FC; --text-muted: #8B949E;
+      --primary: #6E56CF; --primary-hover: #5B45B0;
+      --success: #23D160; --warning: #E3B341; --danger: #E5534B; --info: #388BFD;
     }
-
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
     body { background-color: var(--bg); color: var(--text); padding: 24px 12px; display: flex; justify-content: center; min-height: 100vh; }
     .container { max-width: 600px; width: 100%; background: var(--card-bg); padding: 28px; border-radius: 16px; border: 1px solid var(--card-border); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); }
-
     .top-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
     .btn-voltar { background: #21262D; color: var(--text); border: 1px solid var(--card-border); padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; text-decoration: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
     .btn-voltar:hover { background: #30363D; }
-
     .header { text-align: center; margin-bottom: 24px; }
     .header h1 { font-size: 1.75rem; font-weight: 700; margin-top: 6px; }
     .badge-topo { display: inline-block; background: var(--primary); color: #FFF; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 8px; }
-
-    .card-info-base { background: var(--input-bg); border: 1px solid var(--card-border); padding: 16px; border-radius: 10px; margin-bottom: 20px; }
-    .card-info-base p { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 6px; }
+    .card-info-base { background: var(--input-bg); border: 1px solid var(--card-border); padding: 16px; border-radius: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+    .card-info-base p { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; }
     .card-info-base strong { color: var(--text); font-size: 1.05rem; }
-
     .form-group { margin-bottom: 16px; text-align: left; }
     label { display: block; font-weight: 500; font-size: 0.82rem; margin-bottom: 6px; color: var(--text-muted); text-transform: uppercase; }
     input, textarea { width: 100%; padding: 12px 14px; background-color: var(--input-bg); border: 1px solid var(--card-border); border-radius: 8px; font-size: 0.95rem; color: var(--text); outline: none; }
     input:focus, textarea:focus { border-color: var(--primary); }
-    textarea { resize: vertical; min-height: 90px; }
-
+    textarea { resize: vertical; min-height: 80px; }
     .helper-text { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; display: block; }
-    
     .btn-mapa-preview { background: rgba(56, 139, 253, 0.15); color: var(--info); border: 1px solid rgba(56, 139, 253, 0.3); padding: 8px 12px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; margin-top: 6px; cursor: pointer; }
     .btn-mapa-preview:hover { background: var(--info); color: #FFF; }
-
     .btn-salvar { background: var(--primary); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 1rem; width: 100%; transition: 0.2s; margin-top: 10px; }
     .btn-salvar:hover { background: var(--primary-hover); }
-
     .loading-box { text-align: center; padding: 40px; color: var(--text-muted); }
   </style>
-
-  <!-- Firebase SDK Compat -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
-
 <div class="container">
   <div class="top-nav">
     <button class="btn-voltar" onclick="voltarPagina()">← Voltar</button>
@@ -71,24 +51,32 @@
 
   <div id="conteudoPerfil" style="display: none;">
     <div class="card-info-base">
-      <p>Nome da Rede:</p>
-      <strong id="labelNomeRede" style="color: var(--primary); font-size: 1.2rem;">-</strong>
-      <p style="margin-top: 12px;">Líder Atual:</p>
-      <strong id="labelLiderRede">-</strong>
+      <div>
+        <p>Nome da Rede</p>
+        <strong id="labelNomeRede" style="color: var(--primary); font-size: 1.1rem;">-</strong>
+      </div>
+      <div>
+        <p>Líder Atual</p>
+        <strong id="labelLiderRede">-</strong>
+      </div>
     </div>
 
     <form id="formPerfilRede" onsubmit="salvarPerfil(event)">
       <div class="form-group">
+        <label>Data de Início / Criação da Rede</label>
+        <input type="date" id="inputDataCriacao" required>
+        <span class="helper-text">Dia em que a rede começou as atividades.</span>
+      </div>
+
+      <div class="form-group">
         <label>Endereço Completo do Encontro</label>
         <textarea id="inputEndereco" placeholder="Ex: Rua das Flores, 123 - Bairro Centro" required oninput="atualizarLinkMapa()"></textarea>
-        <span class="helper-text">Informe rua, número, bairro e referência.</span>
         <a id="linkPreviewMapa" href="#" target="_blank" class="btn-mapa-preview" style="display: none;">🗺️ Testar e ver localização no Google Maps</a>
       </div>
 
       <div class="form-group">
         <label>Link de Compartilhamento do Google Maps (Opcional)</label>
-        <input type="url" id="inputGoogleMaps" placeholder="Cole o link curto ou de compartilhamento do Maps aqui">
-        <span class="helper-text">Se preferir, cole o link direto do local exato no Google Maps.</span>
+        <input type="url" id="inputGoogleMaps" placeholder="Cole o link de compartilhamento do Maps aqui">
       </div>
 
       <button type="submit" class="btn-salvar" id="btnSalvar">Salvar Alterações</button>
@@ -108,23 +96,18 @@
     appId: "1:954529090793:web:6702d102b6e5b178b6b478",
     measurementId: "G-2MJ96WMYQ5"
   };
-
-  if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-  }
+  if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
 
   let nomeRedeAtual = '';
 
   document.addEventListener("DOMContentLoaded", async () => {
     nomeRedeAtual = sessionStorage.getItem('topo_rede');
-
     if (!nomeRedeAtual) {
       alert("Nenhuma rede selecionada. Faça o login novamente.");
       window.location.href = "lider.html";
       return;
     }
-
     document.getElementById('labelNomeRede').innerText = nomeRedeAtual;
     await carregarPerfilRede();
   });
@@ -140,30 +123,24 @@
 
   async function carregarPerfilRede() {
     try {
-      const snapMembros = await db.collection('membros')
-        .where('rede', '==', nomeRedeAtual)
-        .get();
-
+      const snapMembros = await db.collection('membros').where('rede', '==', nomeRedeAtual).get();
       let liderNome = "Não definido";
       snapMembros.forEach(doc => {
         const data = doc.data();
-        if (data.categoria === 'Líder' && data.status !== 'INATIVO') {
-          liderNome = data.nome;
-        }
+        if (data.categoria === 'Líder' && data.status !== 'INATIVO') liderNome = data.nome;
       });
       document.getElementById('labelLiderRede').innerText = liderNome;
 
       const docPerfil = await db.collection('perfis_redes').doc(nomeRedeAtual).get();
       if (docPerfil.exists) {
         const dadosPerfil = docPerfil.data();
+        document.getElementById('inputDataCriacao').value = dadosPerfil.dataCriacao || '';
         document.getElementById('inputEndereco').value = dadosPerfil.endereco || '';
         document.getElementById('inputGoogleMaps').value = dadosPerfil.linkGoogleMaps || '';
         atualizarLinkMapa();
       }
-
     } catch (err) {
       console.error("Erro ao carregar perfil:", err);
-      alert("Erro ao carregar as informações da rede.");
     } finally {
       document.getElementById('loading').style.display = 'none';
       document.getElementById('conteudoPerfil').style.display = 'block';
@@ -173,10 +150,8 @@
   function atualizarLinkMapa() {
     const endereco = document.getElementById('inputEndereco').value.trim();
     const btnPreview = document.getElementById('linkPreviewMapa');
-
     if (endereco.length > 5) {
-      const encoded = encodeURIComponent(endereco);
-      btnPreview.href = `https://www.google.com/maps/search/?api=1&query=${encoded}`;
+      btnPreview.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(endereco)}`;
       btnPreview.style.display = 'inline-flex';
     } else {
       btnPreview.style.display = 'none';
@@ -189,27 +164,24 @@
     btn.disabled = true;
     btn.innerText = "Salvando...";
 
-    const endereco = document.getElementById('inputEndereco').value.trim();
-    const linkGoogleMaps = document.getElementById('inputGoogleMaps').value.trim();
-
     try {
       await db.collection('perfis_redes').doc(nomeRedeAtual).set({
         rede: nomeRedeAtual,
-        endereco: endereco,
-        linkGoogleMaps: linkGoogleMaps,
+        dataCriacao: document.getElementById('inputDataCriacao').value,
+        endereco: document.getElementById('inputEndereco').value.trim(),
+        linkGoogleMaps: document.getElementById('inputGoogleMaps').value.trim(),
         ultimaAtualizacao: new Date().toISOString()
       }, { merge: true });
 
       alert("✅ Perfil da rede atualizado com sucesso!");
     } catch (err) {
-      console.error("Erro ao salvar:", err);
-      alert("Erro ao salvar o perfil. Tente novamente.");
+      alert("Erro ao salvar o perfil.");
+      console.error(err);
     } finally {
       btn.disabled = false;
       btn.innerText = "Salvar Alterações";
     }
   }
 </script>
-
 </body>
 </html>
