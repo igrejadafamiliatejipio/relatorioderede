@@ -403,7 +403,6 @@
         });
       }
 
-      // Botões extras para redes informais (Promover e Excluir)
       let botoesGestao = `<button class="btn-lider-discreto" onclick="event.stopPropagation(); abrirModalMudarLider('${r.nome}')">Alterar líder</button>`;
       if (r.informal) {
         botoesGestao = `
@@ -448,7 +447,15 @@
   }
 
   async function excluirRedeInformal(nomeRede) {
-    if (!confirm(`⚠️ ATENÇÃO: Deseja excluir permanentemente a rede informal "${nomeRede}"? (Certifique-se de que não há membros alocados nela).`)) return;
+    // Validação: Impede a exclusão se ainda houver membros alocados nesta rede
+    const membrosNaRede = membrosCache.filter(m => m.rede === nomeRede);
+    if (membrosNaRede.length > 0) {
+      alert(`⚠️ Não é possível excluir a rede "${nomeRede}" pois ainda existem ${membrosNaRede.length} membro(s) alocado(s) nela.\n\nPor favor, transfira todos os membros para outra rede antes de excluí-la.`);
+      return;
+    }
+
+    if (!confirm(`⚠️ ATENÇÃO: Deseja excluir permanentemente a rede informal "${nomeRede}"?`)) return;
+
     document.getElementById('loading').style.display = 'block';
     try {
       await db.collection('perfis_redes').doc(nomeRede).delete();
