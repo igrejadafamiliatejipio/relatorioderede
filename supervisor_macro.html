@@ -250,7 +250,7 @@
   function renderizarMacro() {
     let totalMembros = membrosCache.length;
     let totalBase = 0;
-    let meta12 = 0, qtdInformais = 0;
+    let totalRedesOficiais = 0, qtdInformais = 0;
 
     const tabelaRedes = document.getElementById('tabelaRedesBody');
     tabelaRedes.innerHTML = '';
@@ -268,13 +268,16 @@
       if (r.informal) {
         qtdInformais++;
         statusHtml = `<span class="tag tag-informal">🌱 Rede Informal</span>`;
-      } else if (qtdTotal === 12) {
-        meta12++;
-        statusHtml = `<span class="tag tag-green">Ideal (12)</span>`;
-      } else if (qtdTotal > 12) {
-        statusHtml = `<span class="tag tag-blue">Multiplicar</span>`;
       } else {
-        statusHtml = `<span class="tag tag-yellow">Abaixo</span>`;
+        totalRedesOficiais++; // Conta todas as redes oficiais cadastradas
+
+        if (qtdTotal === 12) {
+          statusHtml = `<span class="tag tag-green">Ideal (12)</span>`;
+        } else if (qtdTotal > 12) {
+          statusHtml = `<span class="tag tag-blue">Multiplicar</span>`;
+        } else {
+          statusHtml = `<span class="tag tag-yellow">Abaixo</span>`;
+        }
       }
 
       tabelaRedes.innerHTML += `
@@ -290,9 +293,9 @@
 
     document.getElementById('mTotalMembros').innerText = totalMembros;
     document.getElementById('mTotalBase').innerText = totalBase;
-    document.getElementById('mRedesMeta').innerText = meta12;
+    document.getElementById('mRedesMeta').innerText = totalRedesOficiais;
     document.getElementById('mRedesInformais').innerText = qtdInformais;
-    document.getElementById('mRedesAlerta').innerText = supervisorRedesOficiais.length - meta12;
+    document.getElementById('mRedesAlerta').innerText = Math.max(0, totalRedesOficiais - supervisorRedesOficiais.filter(r => membrosCache.filter(m => m.rede === r.nome).length === 12).length);
 
     // Alertas
     const tabelaAlertas = document.getElementById('tabelaAlertasBody');
@@ -447,7 +450,6 @@
   }
 
   async function excluirRedeInformal(nomeRede) {
-    // Validação: Impede a exclusão se ainda houver membros alocados nesta rede
     const membrosNaRede = membrosCache.filter(m => m.rede === nomeRede);
     if (membrosNaRede.length > 0) {
       alert(`⚠️ Não é possível excluir a rede "${nomeRede}" pois ainda existem ${membrosNaRede.length} membro(s) alocado(s) nela.\n\nPor favor, transfira todos os membros para outra rede antes de excluí-la.`);
