@@ -92,23 +92,32 @@
     document.getElementById('inputDataCriacao').value = new Date().toISOString().split('T')[0];
 
     try {
-      const snap = await db.collection('perfis_redes').get();
       const supervisoresSet = new Set();
-      snap.forEach(doc => {
+
+      // 1. Varre perfis_redes
+      const snapPerfis = await db.collection('perfis_redes').get();
+      snapPerfis.forEach(doc => {
+        const sup = doc.data().supervisao;
+        if (sup) supervisoresSet.add(sup);
+      });
+
+      // 2. Varre membros
+      const snapMembros = await db.collection('membros').get();
+      snapMembros.forEach(doc => {
         const sup = doc.data().supervisao;
         if (sup) supervisoresSet.add(sup);
       });
 
       const selSup = document.getElementById('selectSupervisor');
       selSup.innerHTML = '<option value="">Selecione o supervisor...</option>';
-      supervisoresSet.forEach(sup => {
+      Array.from(supervisoresSet).sort().forEach(sup => {
         const opt = document.createElement('option');
         opt.value = sup;
         opt.textContent = sup;
         selSup.appendChild(opt);
       });
     } catch (err) {
-      console.error(err);
+      console.error("Erro ao carregar supervisores:", err);
     }
   });
 
