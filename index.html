@@ -15,6 +15,7 @@
       --primary-hover: #8B70F0;
       --accent-lider: #388BFD;
       --accent-supervisor: #F85149;
+      --accent-coordenador: #A58BFF;
     }
 
     * {
@@ -35,7 +36,7 @@
     }
 
     .container {
-      max-width: 680px;
+      max-width: 920px;
       width: 100%;
       text-align: center;
     }
@@ -68,10 +69,10 @@
       line-height: 1.5;
     }
 
-    /* Grid com as 2 Grandes Opções */
+    /* Grid com as Opções */
     .menu-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 20px;
     }
 
@@ -86,7 +87,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: space-between;
-      min-height: 240px;
+      min-height: 260px;
       transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
       position: relative;
       overflow: hidden;
@@ -105,6 +106,7 @@
 
     .card-menu.lider::before { background: var(--accent-lider); }
     .card-menu.supervisor::before { background: var(--accent-supervisor); }
+    .card-menu.coordenador::before { background: var(--accent-coordenador); }
 
     .card-menu:hover {
       transform: translateY(-4px);
@@ -126,14 +128,14 @@
     }
 
     .card-body h3 {
-      font-size: 1.2rem;
+      font-size: 1.15rem;
       font-weight: 700;
       margin-bottom: 8px;
       color: var(--text);
     }
 
     .card-body p {
-      font-size: 0.85rem;
+      font-size: 0.83rem;
       color: var(--text-muted);
       line-height: 1.4;
     }
@@ -148,12 +150,11 @@
       margin-top: 20px;
     }
 
-    .card-menu.supervisor .card-footer {
-      color: #FF7B72;
-    }
+    .card-menu.supervisor .card-footer { color: #FF7B72; }
+    .card-menu.coordenador .card-footer { color: #D2A8FF; }
 
     /* Responsivo para Celulares */
-    @media (max-width: 600px) {
+    @media (max-width: 800px) {
       .menu-grid {
         grid-template-columns: 1fr;
         gap: 16px;
@@ -220,6 +221,18 @@
       <div class="card-body">
         <h3>Área do Supervisor</h3>
         <p>Visão macro, acompanhamento de faltas e suporte às redes</p>
+      </div>
+      <div class="card-footer">
+        Entrar <span>➔</span>
+      </div>
+    </a>
+
+    <!-- 3. Área do Coordenador (Protegida por Senha) -->
+    <a href="coordenador.html" class="card-menu coordenador">
+      <div class="card-icon">🛡️</div>
+      <div class="card-body">
+        <h3>Área do Coordenador</h3>
+        <p>Gestão geral e ferramentas de supervisão avançada</p>
       </div>
       <div class="card-footer">
         Entrar <span>➔</span>
