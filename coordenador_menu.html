@@ -70,14 +70,6 @@
       <p>Visualizar e editar endereços e dados cadastrais das redes.</p>
     </div>
   </div>
-
-  <!-- Botão Temporário para Sincronizar pelo iPad -->
-  <div style="margin-top: 24px; text-align: center;">
-    <button onclick="marcarMinisterioTopoAntigo()" style="background: rgba(110, 86, 207, 0.2); color: #A58BFF; border: 1px solid rgba(110, 86, 207, 0.4); padding: 12px 20px; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 0.88rem; width: 100%;">
-      🔄 Sincronizar Redes Antigas para o TOPO
-    </button>
-  </div>
-
 </div>
 
 <script>
@@ -105,42 +97,6 @@
 
   function irPara(pagina) { window.location.href = pagina; }
   function sair() { sessionStorage.clear(); window.location.href = "coordenador.html"; }
-
-  // Função para carimbar as redes e membros antigos com o ministério TOPO
-  async function marcarMinisterioTopoAntigo() {
-    if (!confirm("Deseja associar todas as redes e membros atuais ao Ministério TOPO?")) return;
-
-    try {
-      const batch = db.batch();
-      let contador = 0;
-      
-      const snapPerfis = await db.collection('perfis_redes').get();
-      snapPerfis.forEach(doc => {
-        if (!doc.data().ministerio) {
-          batch.update(doc.ref, { ministerio: 'TOPO' });
-          contador++;
-        }
-      });
-
-      const snapMembros = await db.collection('membros').get();
-      snapMembros.forEach(doc => {
-        if (!doc.data().ministerio) {
-          batch.update(doc.ref, { ministerio: 'TOPO' });
-          contador++;
-        }
-      });
-
-      if (contador > 0) {
-        await batch.commit();
-      }
-
-      alert("✅ Sincronização concluída com sucesso! Todas as redes antigas agora pertencem ao Ministério TOPO.");
-      window.location.reload();
-    } catch (err) {
-      console.error("Erro na sincronização:", err);
-      alert("Erro ao sincronizar. Veja o console se possível.");
-    }
-  }
 </script>
 </body>
 </html>
