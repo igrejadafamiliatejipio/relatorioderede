@@ -6,20 +6,15 @@
   <title>Menu do Coordenador - Ministério TOPO</title>
   <style>
     :root {
-      --bg: #0D0F12;
-      --card-bg: #161B22;
-      --card-border: #30363D;
-      --input-bg: #0D1117;
-      --text: #F0F6FC;
-      --text-muted: #8B949E;
-      --primary: #6E56CF;
-      --primary-hover: #5B45B0;
+      --bg: #0D0F12; --card-bg: #161B22; --card-border: #30363D;
+      --input-bg: #0D1117; --text: #F0F6FC; --text-muted: #8B949E;
+      --primary: #6E56CF; --primary-hover: #5B45B0;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
     body { background-color: var(--bg); color: var(--text); padding: 24px 12px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
     .container { max-width: 820px; width: 100%; background: var(--card-bg); padding: 32px; border-radius: 16px; border: 1px solid var(--card-border); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); }
     .top-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-    .btn-voltar { background: #21262D; color: var(--text); border: 1px solid var(--card-border); padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+    .btn-voltar { background: #21262D; color: var(--text); border: 1px solid var(--card-border); padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; text-decoration: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
     .btn-voltar:hover { background: #30363D; }
     .header { text-align: center; margin-bottom: 30px; }
     .header h1 { font-size: 1.6rem; font-weight: 700; margin-top: 6px; }
@@ -32,6 +27,9 @@
     .menu-card p { font-size: 0.78rem; color: var(--text-muted); line-height: 1.4; }
     @media (max-width: 768px) { .menu-grid { grid-template-columns: 1fr; } }
   </style>
+  <!-- SDKs do Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 <div class="container">
@@ -42,23 +40,23 @@
   <div class="header">
     <span class="badge-topo">PAINEL DO COORDENADOR</span>
     <h1>Escolha uma Opção</h1>
-    <p>Selecione a ferramenta de gestão desejada</p>
+    <p>Gestão Geral e Supervisão de Redes</p>
   </div>
   <div class="menu-grid">
     <div class="menu-card" onclick="irPara('coordenador_cadastro.html')">
       <div class="icon">📝</div>
       <h3>Cadastro de Membros</h3>
-      <p>Cadastrar novos membros no escopo da coordenação.</p>
+      <p>Cadastrar novos membros escolhendo a supervisão e rede.</p>
     </div>
     <div class="menu-card" onclick="irPara('coordenador_selecionar_rede.html')">
       <div class="icon">📊</div>
       <h3>Painel de Rede</h3>
-      <p>Acesse o painel detalhado de qualquer rede sob sua coordenação.</p>
+      <p>Acesse o painel detalhado de qualquer rede do ministério.</p>
     </div>
-    <div class="menu-card" onclick="irPara('coordenador_macro.html')">
+    <div class="menu-card" onclick="irPara('coordenador_selecionar_supervisor.html')">
       <div class="icon">📈</div>
-      <h3>Painel da Coordenação</h3>
-      <p>Raio-X macro, árvores, transferências e alertas gerais.</p>
+      <h3>Painel do Supervisor</h3>
+      <p>Raio-X macro, árvores e relatórios por supervisão.</p>
     </div>
     <div class="menu-card" onclick="irPara('coordenador_criar_rede.html')">
       <div class="icon">🌱</div>
@@ -74,17 +72,92 @@
 </div>
 
 <script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyB7FJXs9wiRFYIs2ugZoWrw7jTXPR5weGk",
+    authDomain: "app-redes-iftejipio.firebaseapp.com",
+    projectId: "app-redes-iftejipio",
+    storageBucket: "app-redes-iftejipio.firebasestorage.app",
+    messagingSenderId: "954529090793",
+    appId: "1:954529090793:web:6702d102b6e5b178b6b478",
+    measurementId: "G-2MJ96WMYQ5"
+  };
+  if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
   document.addEventListener('DOMContentLoaded', () => {
     const logado = sessionStorage.getItem('topo_coord_logado');
     if (!logado) {
       window.location.href = "coordenador.html";
       return;
     }
-    document.getElementById('labelCoordenador').innerText = "Coordenação Geral";
+    document.getElementById('labelCoordenador').innerText = "Coordenação Geral (Senha 740)";
   });
 
   function irPara(pagina) { window.location.href = pagina; }
   function sair() { sessionStorage.clear(); window.location.href = "coordenador.html"; }
+
+  // Função de Padronização do Banco de Dados
+  async function padronizarBancoDeDados() {
+    if (!confirm("Deseja executar a padronização e sincronização de todas as redes para a coleção 'perfis_redes'?")) return;
+
+    try {
+      console.log("Iniciando varredura de membros...");
+      const snapMembros = await db.collection('membros').get();
+      
+      let mapaRedes = {};
+
+      snapMembros.forEach(doc => {
+        const d = doc.data();
+        const rede = d.rede ? d.rede.trim() : null;
+        const supervisao = d.supervisao ? d.supervisao.trim() : null;
+
+        if (rede && supervisao) {
+          if (!mapaRedes[rede]) {
+            mapaRedes[rede] = supervisao;
+          }
+        }
+      });
+
+      console.log(`Encontradas ${Object.keys(mapaRedes).length} redes únicas nos registros de membros.`);
+
+      let criadas = 0;
+      let atualizadas = 0;
+
+      for (let nomeRede in mapaRedes) {
+        const supervisaoCorreta = mapaRedes[nomeRede];
+        const perfilRef = db.collection('perfis_redes').doc(nomeRede);
+        const docPerfil = await perfilRef.get();
+
+        if (!docPerfil.exists) {
+          await perfilRef.set({
+            rede: nomeRede,
+            supervisao: supervisaoCorreta,
+            status: "oficial",
+            dataCriacao: "",
+            endereco: "",
+            linkGoogleMaps: "",
+            ultimaAtualizacao: new Date().toISOString()
+          });
+          criadas++;
+          console.log(`➕ Perfil criado para a rede: ${nomeRede} (Supervisão: ${supervisaoCorreta})`);
+        } else {
+          const dadosAtuais = docPerfil.data();
+          if (!dadosAtuais.supervisao) {
+            await perfilRef.update({ supervisao: supervisaoCorreta });
+            atualizadas++;
+            console.log(`🔄 Supervisão atualizada no perfil da rede: ${nomeRede}`);
+          }
+        }
+      }
+
+      alert(`✅ Padronização concluída com sucesso!\n\n- Perfis criados: ${criadas}\n- Perfis ajustados: ${atualizadas}`);
+      window.location.reload();
+
+    } catch (err) {
+      console.error("Erro na padronização:", err);
+      alert("Erro ao padronizar o banco de dados. Veja o console.");
+    }
+  }
 </script>
 </body>
 </html>
