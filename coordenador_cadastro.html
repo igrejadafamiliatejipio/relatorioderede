@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cadastro de Membros - Coordenação</title>
+  <style>
+    :root {
+      --bg: #0D0F12; --card-bg: #161B22; --card-border: #30363D;
+      --input-bg: #0D1117; --text: #F0F6FC; --text-muted: #8B949E;
+      --primary: #6E56CF; --primary-hover: #5B45B0;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); padding: 24px 12px; display: flex; justify-content: center; min-height: 100vh; align-items: center; }
+    .container { max-width: 500px; width: 100%; background: var(--card-bg); padding: 28px; border-radius: 16px; border: 1px solid var(--card-border); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); }
+    .top-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .btn-voltar { background: #21262D; color: var(--text); border: 1px solid var(--card-border); padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; text-decoration: none; cursor: pointer; }
+    .btn-voltar:hover { background: #30363D; }
+    .header { text-align: center; margin-bottom: 24px; }
+    .header h1 { font-size: 1.6rem; font-weight: 700; margin-top: 6px; }
+    .badge-topo { display: inline-block; background: var(--primary); color: #FFF; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 8px; }
+    .form-group { margin-bottom: 16px; text-align: left; }
+    label { display: block; font-weight: 500; font-size: 0.82rem; margin-bottom: 6px; color: var(--text-muted); text-transform: uppercase; }
+    input, select { width: 100%; padding: 12px 14px; background-color: var(--input-bg); border: 1px solid var(--card-border); border-radius: 8px; font-size: 0.95rem; color: var(--text); outline: none; }
+    input:focus, select:focus { border-color: var(--primary); }
+    select option { background-color: var(--card-bg); color: var(--text); }
+    .btn-salvar { background: var(--primary); color: white; border: none; padding: 14px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 1rem; width: 100%; transition: 0.2s; margin-top: 10px; }
+    .btn-salvar:hover { background: var(--primary-hover); }
+  </style>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+<div class="container">
+  <div class="top-nav">
+    <a href="coordenador_menu.html" class="btn-voltar">← Voltar ao Menu</a>
+  </div>
+
+  <div class="header">
+    <span class="badge-topo">COORDENAÇÃO</span>
+    <h1>📝 Cadastro de Membro</h1>
+  </div>
+
+  <form onsubmit="cadastrarMembro(event)">
+    <div class="form-group">
+      <label>1. Supervisor</label>
+      <select id="selectSupervisor" onchange="carregarRedes()" required>
+        <option value="">Selecione o supervisor...</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>2. Rede de Destino</label>
+      <select id="selectRede" required disabled>
+        <option value="">Primeiro selecione o supervisor...</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Nome Completo do Membro</label>
+      <input type="text" id="inputNome" placeholder="Ex: João da Silva" required>
+    </div>
+
+    <div class="form-group">
+      <label>WhatsApp</label>
+      <input type="text" id="inputWhatsapp" placeholder="Ex: 11999999999">
+    </div>
+
+    <div class="form-group">
+      <label>Data de Nascimento</label>
+      <input type="date" id="inputNascimento">
+    </div>
+
+    <div class="form-group">
+      <label>Categoria</label>
+      <select id="selectCategoria">
+        <option value="Base da Rede">Base da Rede</option>
+        <option value="Líder">Líder</option>
+      </select>
+    </div>
+
+    <button type="submit" class="btn-salvar" id="btnSalvar">Cadastrar Membro</button>
+  </form>
+</div>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyB7FJXs9wiRFYIs2ugZoWrw7jTXPR5weGk",
+    authDomain: "app-redes-iftejipio.firebaseapp.com",
+    projectId: "app-redes-iftejipio",
+    storageBucket: "app-redes-iftejipio.firebasestorage.app",
+    messagingSenderId: "954529090793",
+    appId: "1:954529090793:web:6702d102b6e5b178b6b478",
+    measurementId: "G-2MJ96WMYQ5"
+  };
+  if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  let mapaSupRedes = {};
+
+  document.addEventListener("DOMContentLoaded", async () => {
+    const logado = sessionStorage.getItem('topo_coord_logado');
+    if (!logado) {
+      window.location.href = "coordenador.html";
+      return;
+    }
+
+    try {
+      const snap = await db.collection('perfis_redes').get();
+      mapaSupRedes = {};
+      snap.forEach(doc => {
+        const d = doc.data();
+        const sup = d.supervisao || "Geral";
+        const rede = d.rede;
+        if (rede) {
+          if (!mapaSupRedes[sup]) mapaSupRedes[sup] = [];
+          mapaSupRedes[sup].push(rede);
+        }
+      });
+
+      const selSup = document.getElementById('selectSupervisor');
+      selSup.innerHTML = '<option value="">Selecione o supervisor...</option>';
+      for (let sup in mapaSupRedes) {
+        const opt = document.createElement('option');
+        opt.value = sup;
+        opt.textContent = sup;
+        selSup.appendChild(opt);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  });
+
+  function carregarRedes() {
+    const sup = document.getElementById('selectSupervisor').value;
+    const selRede = document.getElementById('selectRede');
+    selRede.innerHTML = '';
+
+    if (!sup) {
+      selRede.innerHTML = '<option value="">Primeiro selecione o supervisor...</option>';
+      selRede.disabled = true;
+      return;
+    }
+
+    const redes = mapaSupRedes[sup] || [];
+    selRede.innerHTML = '<option value="">Selecione a rede...</option>';
+    redes.forEach(r => {
+      const opt = document.createElement('option');
+      opt.value = r;
+      opt.textContent = r;
+      selRede.appendChild(opt);
+    });
+    selRede.disabled = false;
+  }
+
+  async function cadastrarMembro(e) {
+    e.preventDefault();
+    const supervisao = document.getElementById('selectSupervisor').value;
+    const rede = document.getElementById('selectRede').value;
+    const nome = document.getElementById('inputNome').value.trim();
+    const whatsapp = document.getElementById('inputWhatsapp').value.trim();
+    const nascimento = document.getElementById('inputNascimento').value;
+    const categoria = document.getElementById('selectCategoria').value;
+
+    if (!supervisao || !rede || !nome) return alert("Preencha os campos obrigatórios.");
+
+    const btn = document.getElementById('btnSalvar');
+    btn.disabled = true;
+    btn.innerText = "Salvando...";
+
+    try {
+      await db.collection('membros').add({
+        nome: nome,
+        whatsapp: whatsapp,
+        nascimento: nascimento,
+        rede: rede,
+        supervisao: supervisao,
+        categoria: categoria,
+        status: "ATIVO",
+        criadoEm: new Date().toISOString()
+      });
+
+      alert(`✅ Membro "${nome}" cadastrado com sucesso na ${rede}!`);
+      document.getElementById('inputNome').value = '';
+      document.getElementById('inputWhatsapp').value = '';
+      document.getElementById('inputNascimento').value = '';
+    } catch (err) {
+      alert("Erro ao cadastrar membro.");
+      console.error(err);
+    } finally {
+      btn.disabled = false;
+      btn.innerText = "Cadastrar Membro";
+    }
+  }
+</script>
+</body>
+</html>
