@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ministério TOPO - Início</title>
+  <title>Gestão de REDES - Igreja da Família Tejipió</title>
   <style>
     :root {
       --bg: #0D0F12;
@@ -11,11 +11,9 @@
       --card-border: #30363D;
       --text: #F0F6FC;
       --text-muted: #8B949E;
-      --primary: #6E56CF;
-      --primary-hover: #8B70F0;
-      --accent-lider: #388BFD;
-      --accent-supervisor: #F85149;
-      --accent-coordenador: #A58BFF;
+      --accent-topo: #6E56CF;
+      --accent-elas: #EC4899;
+      --accent-eles: #388BFD;
     }
 
     * {
@@ -69,7 +67,6 @@
       line-height: 1.5;
     }
 
-    /* Grid com as Opções */
     .menu-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -91,6 +88,7 @@
       transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
       position: relative;
       overflow: hidden;
+      cursor: pointer;
     }
 
     .card-menu::before {
@@ -104,9 +102,9 @@
       transition: background 0.25s ease;
     }
 
-    .card-menu.lider::before { background: var(--accent-lider); }
-    .card-menu.supervisor::before { background: var(--accent-supervisor); }
-    .card-menu.coordenador::before { background: var(--accent-coordenador); }
+    .card-menu.topo::before { background: var(--accent-topo); }
+    .card-menu.elas::before { background: var(--accent-elas); }
+    .card-menu.eles::before { background: var(--accent-eles); }
 
     .card-menu:hover {
       transform: translateY(-4px);
@@ -128,7 +126,7 @@
     }
 
     .card-body h3 {
-      font-size: 1.15rem;
+      font-size: 1.2rem;
       font-weight: 700;
       margin-bottom: 8px;
       color: var(--text);
@@ -143,23 +141,21 @@
     .card-footer {
       font-size: 0.85rem;
       font-weight: 600;
-      color: var(--primary);
       display: flex;
       align-items: center;
       gap: 6px;
       margin-top: 20px;
     }
 
-    .card-menu.supervisor .card-footer { color: #FF7B72; }
-    .card-menu.coordenador .card-footer { color: #D2A8FF; }
+    .card-menu.topo .card-footer { color: #A58BFF; }
+    .card-menu.elas .card-footer { color: #F472B6; }
+    .card-menu.eles .card-footer { color: #60A5FA; }
 
-    /* Responsivo para Celulares */
     @media (max-width: 800px) {
       .menu-grid {
         grid-template-columns: 1fr;
         gap: 16px;
       }
-      
       .card-menu {
         min-height: auto;
         flex-direction: row;
@@ -167,14 +163,12 @@
         text-align: left;
         padding: 20px;
       }
-
       .card-menu::before {
         width: 4px;
         height: 100%;
         top: 0;
         left: 0;
       }
-
       .card-icon {
         margin-bottom: 0;
         margin-right: 16px;
@@ -183,64 +177,65 @@
         height: 52px;
         font-size: 2rem;
       }
-
-      .card-body {
-        flex: 1;
-      }
-
-      .card-footer {
-        margin-top: 0;
-      }
+      .card-body { flex: 1; }
+      .card-footer { margin-top: 0; }
     }
   </style>
 </head>
 <body>
 
 <div class="container">
-  <span class="badge-topo">MINISTÉRIO TOPO</span>
-  <h1>Portal de Gestão</h1>
-  <p class="subtitle">Selecione o seu nível de acesso para continuar</p>
+  <span class="badge-topo">IGREJA DA FAMÍLIA TEJIPIÓ</span>
+  <h1>Gestão de REDES</h1>
+  <p class="subtitle">Selecione o ministério desejado para acessar as áreas de gestão</p>
 
   <div class="menu-grid">
     
-    <!-- 1. Área do Líder de Rede -->
-    <a href="lider.html" class="card-menu lider">
-      <div class="card-icon">👥</div>
+    <!-- 1. Ministério TOPO -->
+    <div class="card-menu topo" onclick="selecionarMinisterio('TOPO')">
+      <div class="card-icon">🏔️</div>
       <div class="card-body">
-        <h3>Área do Líder de Rede</h3>
-        <p>Relatórios semanais, cadastro de membros e painel da sua rede</p>
+        <h3>Ministério TOPO</h3>
+        <p>Redes, supervisões e liderança do ministério principal</p>
       </div>
       <div class="card-footer">
         Acessar <span>➔</span>
       </div>
-    </a>
+    </div>
 
-    <!-- 2. Área do Supervisor (Protegida) -->
-    <a href="supervisor.html" class="card-menu supervisor">
-      <div class="card-icon">🔐</div>
+    <!-- 2. Ministério Elas -->
+    <div class="card-menu elas" onclick="selecionarMinisterio('ELAS')">
+      <div class="card-icon">🌸</div>
       <div class="card-body">
-        <h3>Área do Supervisor</h3>
-        <p>Visão macro, acompanhamento de faltas e suporte às redes</p>
+        <h3>Ministério Elas</h3>
+        <p>Redes, supervisões e liderança voltada ao público feminino</p>
       </div>
       <div class="card-footer">
-        Entrar <span>➔</span>
+        Acessar <span>➔</span>
       </div>
-    </a>
+    </div>
 
-    <!-- 3. Área do Coordenador (Protegida por Senha) -->
-    <a href="coordenador.html" class="card-menu coordenador">
+    <!-- 3. Ministério Eles -->
+    <div class="card-menu eles" onclick="selecionarMinisterio('ELES')">
       <div class="card-icon">🛡️</div>
       <div class="card-body">
-        <h3>Área do Coordenador</h3>
-        <p>Gestão geral e ferramentas de supervisão avançada</p>
+        <h3>Ministério Eles</h3>
+        <p>Redes, supervisões e liderança voltada ao público masculino</p>
       </div>
       <div class="card-footer">
-        Entrar <span>➔</span>
+        Acessar <span>➔</span>
       </div>
-    </a>
+    </div>
 
   </div>
 </div>
+
+<script>
+  function selecionarMinisterio(ministerio) {
+    sessionStorage.setItem('topo_ministerio', ministerio);
+    window.location.href = "niveis.html";
+  }
+</script>
 
 </body>
 </html>
