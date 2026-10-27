@@ -45,7 +45,7 @@
     <div class="form-group">
       <label>1. Supervisor</label>
       <select id="selectSupervisor" onchange="carregarRedes()" required>
-        <option value="">Selecione o supervisor...</option>
+        <option value="">Carregando supervisores...</option>
       </select>
     </div>
 
@@ -106,28 +106,47 @@
     }
 
     try {
-      const snap = await db.collection('perfis_redes').get();
       mapaSupRedes = {};
-      snap.forEach(doc => {
+
+      // 1. Busca em perfis_redes
+      const snapPerfis = await db.collection('perfis_redes').get();
+      snapPerfis.forEach(doc => {
         const d = doc.data();
-        const sup = d.supervisao || "Geral";
-        const rede = d.rede;
-        if (rede) {
-          if (!mapaSupRedes[sup]) mapaSupRedes[sup] = [];
-          mapaSupRedes[sup].push(rede);
+        const sup = d.supervisao;
+        const rede = d.rede || doc.id;
+        if (sup && rede) {
+          if (!mapaSupRedes[sup]) mapaSupRedes[sup] = new Set();
+          mapaSupRedes[sup].add(rede);
         }
+      });
+
+      // 2. Busca em membros (para garantir que nenhuma rede/supervisão fique de fora)
+      const snapMembros = await db.collection('membros').get();
+      snapMembros.forEach(doc => {
+        const d = doc.data();
+        const sup = d.supervisao;
+        const rede = d.rede;
+        if (sup && rede) {
+          if (!mapaSupRedes[sup]) mapaSupRedes[sup] = new Set();
+          mapaSupRedes[sup].add(rede);
+        }
+      });
+
+      // Converte Sets para Arrays ordenados
+      Object.keys(mapaSupRedes).forEach(sup => {
+        mapaSupRedes[sup] = Array.from(mapaSupRedes[sup]).sort();
       });
 
       const selSup = document.getElementById('selectSupervisor');
       selSup.innerHTML = '<option value="">Selecione o supervisor...</option>';
-      for (let sup in mapaSupRedes) {
+      Object.keys(mapaSupRedes).sort().forEach(sup => {
         const opt = document.createElement('option');
         opt.value = sup;
         opt.textContent = sup;
         selSup.appendChild(opt);
-      }
+      });
     } catch (err) {
-      console.error(err);
+      console.error("Erro ao carregar dados:", err);
     }
   });
 
