@@ -44,7 +44,7 @@
   <div class="form-group">
     <label>1. Supervisor</label>
     <select id="selectSupervisor" onchange="carregarRedesDoSupervisor()">
-      <option value="">Selecione um supervisor...</option>
+      <option value="">Carregando supervisores...</option>
     </select>
   </div>
 
@@ -81,31 +81,47 @@
     }
 
     try {
-      const snap = await db.collection('perfis_redes').get();
       mapaSupervisoes = {};
 
-      snap.forEach(doc => {
+      // 1. Busca em perfis_redes
+      const snapPerfis = await db.collection('perfis_redes').get();
+      snapPerfis.forEach(doc => {
         const d = doc.data();
-        const sup = d.supervisao || "Geral";
-        const rede = d.rede;
-        if (rede) {
-          if (!mapaSupervisoes[sup]) mapaSupervisoes[sup] = [];
-          mapaSupervisoes[sup].push(rede);
+        const sup = d.supervisao;
+        const rede = d.rede || doc.id;
+        if (sup && rede) {
+          if (!mapaSupervisoes[sup]) mapaSupervisoes[sup] = new Set();
+          mapaSupervisoes[sup].add(rede);
         }
+      });
+
+      // 2. Busca em membros
+      const snapMembros = await db.collection('membros').get();
+      snapMembros.forEach(doc => {
+        const d = doc.data();
+        const sup = d.supervisao;
+        const rede = d.rede;
+        if (sup && rede) {
+          if (!mapaSupervisoes[sup]) mapaSupervisoes[sup] = new Set();
+          mapaSupervisoes[sup].add(rede);
+        }
+      });
+
+      // Converte Sets para Arrays ordenados
+      Object.keys(mapaSupervisoes).forEach(sup => {
+        mapaSupervisoes[sup] = Array.from(mapaSupervisoes[sup]).sort();
       });
 
       const selSup = document.getElementById('selectSupervisor');
       selSup.innerHTML = '<option value="">Selecione um supervisor...</option>';
-
-      for (let sup in mapaSupervisoes) {
+      Object.keys(mapaSupervisoes).sort().forEach(sup => {
         const opt = document.createElement('option');
         opt.value = sup;
         opt.textContent = `Supervisor: ${sup}`;
         selSup.appendChild(opt);
-      }
+      });
     } catch (err) {
-      console.error(err);
-      alert("Erro ao carregar supervisões.");
+      console.error("Erro ao carregar supervisões:", err);
     }
   });
 
@@ -141,9 +157,8 @@
     const redeSelecionada = document.getElementById('selectRede').value;
     if (!redeSelecionada) return alert("Selecione uma rede.");
 
-    // Configura a sessão com a rede escolhida e abre o painel padrão do líder/rede
     sessionStorage.setItem('topo_rede', redeSelecionada);
-    window.location.href = "painel_rede.html"; // ou o arquivo de painel de rede que você utiliza
+    window.location.href = "lider.html";
   }
 </script>
 </body>
