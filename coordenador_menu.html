@@ -42,6 +42,7 @@
     <h1>Escolha uma Opção</h1>
     <p>Gestão Geral e Supervisão de Redes</p>
   </div>
+  
   <div class="menu-grid">
     <div class="menu-card" onclick="irPara('coordenador_cadastro.html')">
       <div class="icon">📝</div>
@@ -69,6 +70,14 @@
       <p>Visualizar e editar endereços e dados cadastrais das redes.</p>
     </div>
   </div>
+
+  <!-- Botão Temporário para Sincronizar pelo iPad -->
+  <div style="margin-top: 24px; text-align: center;">
+    <button onclick="marcarMinisterioTopoAntigo()" style="background: rgba(110, 86, 207, 0.2); color: #A58BFF; border: 1px solid rgba(110, 86, 207, 0.4); padding: 12px 20px; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 0.88rem; width: 100%;">
+      🔄 Sincronizar Redes Antigas para o TOPO
+    </button>
+  </div>
+
 </div>
 
 <script>
@@ -90,72 +99,46 @@
       window.location.href = "coordenador.html";
       return;
     }
-    document.getElementById('labelCoordenador').innerText = "Coordenação Geral (Senha 740)";
+    const ministerioAtual = sessionStorage.getItem('topo_ministerio') || 'TOPO';
+    document.getElementById('labelCoordenador').innerText = `Coordenação (${ministerioAtual}) - Senha 740`;
   });
 
   function irPara(pagina) { window.location.href = pagina; }
   function sair() { sessionStorage.clear(); window.location.href = "coordenador.html"; }
 
-  // Função de Padronização do Banco de Dados
-  async function padronizarBancoDeDados() {
-    if (!confirm("Deseja executar a padronização e sincronização de todas as redes para a coleção 'perfis_redes'?")) return;
+  // Função para carimbar as redes e membros antigos com o ministério TOPO
+  async function marcarMinisterioTopoAntigo() {
+    if (!confirm("Deseja associar todas as redes e membros atuais ao Ministério TOPO?")) return;
 
     try {
-      console.log("Iniciando varredura de membros...");
-      const snapMembros = await db.collection('membros').get();
+      const batch = db.batch();
+      let contador = 0;
       
-      let mapaRedes = {};
-
-      snapMembros.forEach(doc => {
-        const d = doc.data();
-        const rede = d.rede ? d.rede.trim() : null;
-        const supervisao = d.supervisao ? d.supervisao.trim() : null;
-
-        if (rede && supervisao) {
-          if (!mapaRedes[rede]) {
-            mapaRedes[rede] = supervisao;
-          }
+      const snapPerfis = await db.collection('perfis_redes').get();
+      snapPerfis.forEach(doc => {
+        if (!doc.data().ministerio) {
+          batch.update(doc.ref, { ministerio: 'TOPO' });
+          contador++;
         }
       });
 
-      console.log(`Encontradas ${Object.keys(mapaRedes).length} redes únicas nos registros de membros.`);
-
-      let criadas = 0;
-      let atualizadas = 0;
-
-      for (let nomeRede in mapaRedes) {
-        const supervisaoCorreta = mapaRedes[nomeRede];
-        const perfilRef = db.collection('perfis_redes').doc(nomeRede);
-        const docPerfil = await perfilRef.get();
-
-        if (!docPerfil.exists) {
-          await perfilRef.set({
-            rede: nomeRede,
-            supervisao: supervisaoCorreta,
-            status: "oficial",
-            dataCriacao: "",
-            endereco: "",
-            linkGoogleMaps: "",
-            ultimaAtualizacao: new Date().toISOString()
-          });
-          criadas++;
-          console.log(`➕ Perfil criado para a rede: ${nomeRede} (Supervisão: ${supervisaoCorreta})`);
-        } else {
-          const dadosAtuais = docPerfil.data();
-          if (!dadosAtuais.supervisao) {
-            await perfilRef.update({ supervisao: supervisaoCorreta });
-            atualizadas++;
-            console.log(`🔄 Supervisão atualizada no perfil da rede: ${nomeRede}`);
-          }
+      const snapMembros = await db.collection('membros').get();
+      snapMembros.forEach(doc => {
+        if (!doc.data().ministerio) {
+          batch.update(doc.ref, { ministerio: 'TOPO' });
+          contador++;
         }
+      });
+
+      if (contador > 0) {
+        await batch.commit();
       }
 
-      alert(`✅ Padronização concluída com sucesso!\n\n- Perfis criados: ${criadas}\n- Perfis ajustados: ${atualizadas}`);
+      alert("✅ Sincronização concluída com sucesso! Todas as redes antigas agora pertencem ao Ministério TOPO.");
       window.location.reload();
-
     } catch (err) {
-      console.error("Erro na padronização:", err);
-      alert("Erro ao padronizar o banco de dados. Veja o console.");
+      console.error("Erro na sincronização:", err);
+      alert("Erro ao sincronizar. Veja o console se possível.");
     }
   }
 </script>
