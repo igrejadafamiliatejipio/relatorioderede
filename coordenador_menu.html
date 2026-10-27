@@ -3,62 +3,88 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login do Coordenador - Ministério TOPO</title>
+  <title>Menu do Coordenador - Ministério TOPO</title>
   <style>
     :root {
-      --bg: #0D0F12; --card-bg: #161B22; --card-border: #30363D;
-      --input-bg: #0D1117; --text: #F0F6FC; --text-muted: #8B949E;
-      --primary: #6E56CF; --primary-hover: #5B45B0;
+      --bg: #0D0F12;
+      --card-bg: #161B22;
+      --card-border: #30363D;
+      --input-bg: #0D1117;
+      --text: #F0F6FC;
+      --text-muted: #8B949E;
+      --primary: #6E56CF;
+      --primary-hover: #5B45B0;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
     body { background-color: var(--bg); color: var(--text); padding: 24px 12px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-    .container { max-width: 400px; width: 100%; background: var(--card-bg); padding: 32px; border-radius: 16px; border: 1px solid var(--card-border); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); text-align: center; }
-    .header h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 6px; }
-    .header p { color: var(--text-muted); font-size: 0.88rem; margin-bottom: 24px; }
-    .badge-topo { display: inline-block; background: var(--primary); color: #FFF; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 12px; }
-    .form-group { margin-bottom: 16px; text-align: left; }
-    label { display: block; font-weight: 500; font-size: 0.82rem; margin-bottom: 6px; color: var(--text-muted); text-transform: uppercase; }
-    input { width: 100%; padding: 12px 14px; background-color: var(--input-bg); border: 1px solid var(--card-border); border-radius: 8px; font-size: 0.95rem; color: var(--text); outline: none; }
-    input:focus { border-color: var(--primary); }
-    .btn { background-color: var(--primary); color: white; border: none; padding: 14px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 1rem; width: 100%; margin-top: 10px; transition: 0.2s; }
-    .btn:hover { background-color: var(--primary-hover); }
-    .btn-voltar { background: #21262D; color: var(--text); border: 1px solid var(--card-border); padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; text-decoration: none; display: inline-block; margin-top: 16px; }
+    .container { max-width: 820px; width: 100%; background: var(--card-bg); padding: 32px; border-radius: 16px; border: 1px solid var(--card-border); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); }
+    .top-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .btn-voltar { background: #21262D; color: var(--text); border: 1px solid var(--card-border); padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
     .btn-voltar:hover { background: #30363D; }
+    .header { text-align: center; margin-bottom: 30px; }
+    .header h1 { font-size: 1.6rem; font-weight: 700; margin-top: 6px; }
+    .badge-topo { display: inline-block; background: var(--primary); color: #FFF; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 8px; }
+    .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .menu-card { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 24px 16px; text-align: center; cursor: pointer; transition: 0.2s; }
+    .menu-card:hover { border-color: var(--primary); transform: translateY(-3px); }
+    .menu-card .icon { font-size: 2.2rem; margin-bottom: 12px; }
+    .menu-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 6px; color: var(--text); }
+    .menu-card p { font-size: 0.78rem; color: var(--text-muted); line-height: 1.4; }
+    @media (max-width: 768px) { .menu-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
 <div class="container">
-  <div class="header">
-    <span class="badge-topo">MINISTÉRIO TOPO</span>
-    <h1>Área do Coordenador</h1>
-    <p>Digite a senha de acesso para continuar</p>
+  <div class="top-nav">
+    <button class="btn-voltar" onclick="sair()">← Sair / Trocar Senha</button>
+    <span id="labelCoordenador" style="font-size: 0.85rem; color: var(--text-muted);"></span>
   </div>
-
-  <form onsubmit="fazerLogin(event)">
-    <div class="form-group">
-      <label>Senha de Acesso</label>
-      <input type="password" id="inputSenha" placeholder="Digite a senha" required autofocus>
+  <div class="header">
+    <span class="badge-topo">PAINEL DO COORDENADOR</span>
+    <h1>Escolha uma Opção</h1>
+    <p>Selecione a ferramenta de gestão desejada</p>
+  </div>
+  <div class="menu-grid">
+    <div class="menu-card" onclick="irPara('coordenador_cadastro.html')">
+      <div class="icon">📝</div>
+      <h3>Cadastro de Membros</h3>
+      <p>Cadastrar novos membros no escopo da coordenação.</p>
     </div>
-
-    <button type="submit" class="btn">Entrar</button>
-  </form>
-
-  <a href="index.html" class="btn-voltar">← Voltar ao Início</a>
+    <div class="menu-card" onclick="irPara('coordenador_selecionar_rede.html')">
+      <div class="icon">📊</div>
+      <h3>Painel de Rede</h3>
+      <p>Acesse o painel detalhado de qualquer rede sob sua coordenação.</p>
+    </div>
+    <div class="menu-card" onclick="irPara('coordenador_macro.html')">
+      <div class="icon">📈</div>
+      <h3>Painel da Coordenação</h3>
+      <p>Raio-X macro, árvores, transferências e alertas gerais.</p>
+    </div>
+    <div class="menu-card" onclick="irPara('coordenador_criar_rede.html')">
+      <div class="icon">🌱</div>
+      <h3>Abrir Rede Informal</h3>
+      <p>Cadastrar uma nova rede em processo de multiplicação.</p>
+    </div>
+    <div class="menu-card" onclick="irPara('coordenador_selecionar_perfil_rede.html')">
+      <div class="icon">🏠</div>
+      <h3>Perfil das Redes</h3>
+      <p>Visualizar e editar endereços e dados cadastrais das redes.</p>
+    </div>
+  </div>
 </div>
 
 <script>
-  function fazerLogin(e) {
-    e.preventDefault();
-    const senha = document.getElementById('inputSenha').value.trim();
-
-    if (senha !== "740") {
-      alert("❌ Senha incorreta!");
+  document.addEventListener('DOMContentLoaded', () => {
+    const logado = sessionStorage.getItem('topo_coord_logado');
+    if (!logado) {
+      window.location.href = "coordenador.html";
       return;
     }
+    document.getElementById('labelCoordenador').innerText = "Coordenação Geral";
+  });
 
-    sessionStorage.setItem('topo_coord_logado', 'true');
-    window.location.href = "coordenador_menu.html";
-  }
+  function irPara(pagina) { window.location.href = pagina; }
+  function sair() { sessionStorage.clear(); window.location.href = "coordenador.html"; }
 </script>
 </body>
 </html>
