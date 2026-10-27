@@ -31,18 +31,13 @@
   <div class="header">
     <span class="badge-topo">MINISTÉRIO TOPO</span>
     <h1>Área do Coordenador</h1>
-    <p>Digite seu nome e a senha de acesso</p>
+    <p>Digite a senha de acesso para continuar</p>
   </div>
 
   <form onsubmit="fazerLogin(event)">
     <div class="form-group">
-      <label>Nome do Coordenador</label>
-      <input type="text" id="inputNome" placeholder="Seu nome completo" required>
-    </div>
-
-    <div class="form-group">
       <label>Senha de Acesso</label>
-      <input type="password" id="inputSenha" placeholder="Digite a senha" required>
+      <input type="password" id="inputSenha" placeholder="Digite a senha" required autofocus>
     </div>
 
     <button type="submit" class="btn">Entrar</button>
@@ -54,20 +49,14 @@
 <script>
   function fazerLogin(e) {
     e.preventDefault();
-    const nome = document.getElementById('inputNome').value.trim();
     const senha = document.getElementById('inputSenha').value.trim();
 
     if (senha !== "740") {
-      alert("❌ Senha incorreta! A senha de acesso do coordenador é 740.");
+      alert("❌ Senha incorreta!");
       return;
     }
 
-    if (!nome) {
-      alert("Por favor, informe seu nome.");
-      return;
-    }
-
-    sessionStorage.setItem('topo_coord_nome', nome);
+    sessionStorage.setItem('topo_coord_logado', 'true');
     window.location.href = "coordenador_menu.html";
   }
 </script>
