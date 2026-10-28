@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cadastro de Membros - Supervisor - Ministério TOPO</title>
+  <title>Cadastro de Membros - Supervisor - Gestão de Redes</title>
   <style>
     :root {
       --bg: #0D0F12; --card-bg: #161B22; --card-border: #30363D;
@@ -17,7 +17,7 @@
     .btn-voltar:hover { background: #30363D; }
     .header { text-align: center; margin-bottom: 24px; }
     .header h1 { font-size: 1.5rem; font-weight: 700; margin-top: 6px; }
-    .badge-topo { display: inline-block; background: var(--primary); color: #FFF; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 8px; }
+    .badge-topo { display: inline-block; background: var(--primary); color: #FFF; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 8px; text-transform: uppercase; }
     .form-group { margin-bottom: 16px; text-align: left; }
     label { display: block; font-weight: 500; font-size: 0.82rem; margin-bottom: 6px; color: var(--text-muted); text-transform: uppercase; }
     input, select { width: 100%; padding: 12px 14px; background-color: var(--input-bg); border: 1px solid var(--card-border); border-radius: 8px; font-size: 0.95rem; color: var(--text); outline: none; }
@@ -34,12 +34,13 @@
 <div class="container">
   <a href="supervisor_menu.html" class="btn-voltar">← Voltar ao Menu</a>
   <div class="header">
-    <span class="badge-topo">CADASTRO DE MEMBROS</span>
+    <span class="badge-topo" id="badgeMinisterio">Ministério TOPO</span>
     <h1>Novo Membro na Supervisão</h1>
   </div>
   <div id="formContainer">
     <div class="form-group"><label>Nome Completo do Membro</label><input type="text" id="cadNome" placeholder="Digite o nome completo"></div>
     <div class="form-group"><label>WhatsApp</label><input type="text" id="cadWhatsapp" placeholder="(81) 99999-9999"></div>
+    <div class="form-group"><label>E-mail de Acesso <span style="text-transform: none; color: var(--text-muted);">(Para futuros líderes)</span></label><input type="email" id="cadEmail" placeholder="exemplo@email.com"></div>
     <div class="form-group"><label>Data de Nascimento</label><input type="date" id="cadNascimento"></div>
     <div class="form-group"><label>Sexo</label><select id="cadSexo"><option value="Masculino">Masculino</option><option value="Feminino">Feminino</option></select></div>
     <div class="form-group"><label>Batizado?</label><select id="cadBatizado"><option value="Sim">Sim</option><option value="Não">Não</option></select></div>
@@ -65,8 +66,12 @@
 
   let supervisaoNome = '';
   let redesSup = [];
+  let ministerioAtivo = 'TOPO';
 
   document.addEventListener('DOMContentLoaded', () => {
+    ministerioAtivo = sessionStorage.getItem('topo_ministerio') || 'TOPO';
+    document.getElementById('badgeMinisterio').innerText = `Ministério ${ministerioAtivo}`;
+
     supervisaoNome = sessionStorage.getItem('topo_sup_nome');
     const redesStr = sessionStorage.getItem('topo_sup_redes');
     if (!supervisaoNome || !redesStr) {
@@ -87,6 +92,7 @@
   async function salvarNovoMembro() {
     const nome = document.getElementById('cadNome').value.trim();
     const whatsapp = document.getElementById('cadWhatsapp').value.trim();
+    const email = document.getElementById('cadEmail').value.trim().toLowerCase();
     const nascimento = document.getElementById('cadNascimento').value;
     const sexo = document.getElementById('cadSexo').value;
     const batizado = document.getElementById('cadBatizado').value;
@@ -100,7 +106,15 @@
 
     try {
       await db.collection('membros').add({
-        nome, whatsapp, nascimento, sexo, batizado, categoria, rede,
+        ministerio: ministerioAtivo, // Salva o ministério atual
+        nome, 
+        whatsapp, 
+        email, // Salva o e-mail em minúsculas
+        nascimento, 
+        sexo, 
+        batizado, 
+        categoria, 
+        rede,
         supervisao: supervisaoNome,
         status: "ATIVO"
       });
@@ -116,4 +130,3 @@
 </script>
 </body>
 </html>
-
