@@ -144,7 +144,7 @@
     nomeSup = sessionStorage.getItem('topo_sup_nome');
     const respSup = sessionStorage.getItem('topo_sup_responsavel');
     if (!nomeSup) {
-      window.location.href = "supervisor.html";
+      window.location.href = "index.html"; // CORRIGIDO: Redireciona para o login unificado
       return;
     }
     ministerioAtivo = sessionStorage.getItem('topo_ministerio') || 'TOPO';
@@ -153,7 +153,7 @@
   });
 
   function irPara(pagina) { window.location.href = pagina; }
-  function sair() { sessionStorage.clear(); window.location.href = "supervisor.html"; }
+  function sair() { sessionStorage.clear(); window.location.href = "index.html"; } // CORRIGIDO: Redireciona para o login unificado
 
   async function abrirMeuPerfil() {
     const modal = document.getElementById('modalPerfil');
