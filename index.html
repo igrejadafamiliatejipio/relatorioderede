@@ -8,7 +8,7 @@
     :root {
       --bg: #0D0F12; --card-bg: #161B22; --card-border: #30363D;
       --input-bg: #0D1117; --text: #F0F6FC; --text-muted: #8B949E;
-      --primary: #6E56CF; --primary-hover: #5B45B0; --danger: #E5534B;
+      --primary: #6E56CF; --primary-hover: #5B45B0; --danger: #E5534B; --success: #23D160;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
     body { background-color: var(--bg); color: var(--text); padding: 24px 12px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
@@ -22,13 +22,17 @@
     input:focus { border-color: var(--primary); }
     .btn { background-color: var(--primary); color: white; border: none; padding: 14px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 1rem; width: 100%; margin-top: 10px; transition: 0.2s; }
     .btn:hover { background-color: var(--primary-hover); }
-    .error-msg { background: rgba(229, 83, 75, 0.15); color: var(--danger); border: 1px solid rgba(229, 83, 75, 0.3); padding: 10px; border-radius: 8px; font-size: 0.85rem; margin-bottom: 16px; display: none; text-align: left; }
+    .btn-secondary { background-color: #21262D; border: 1px solid var(--card-border); margin-top: 8px; }
+    .btn-secondary:hover { background-color: #30363D; }
+    .msg-box { padding: 10px; border-radius: 8px; font-size: 0.85rem; margin-bottom: 16px; display: none; text-align: left; }
+    .error-msg { background: rgba(229, 83, 75, 0.15); color: var(--danger); border: 1px solid rgba(229, 83, 75, 0.3); }
+    .success-msg { background: rgba(35, 209, 96, 0.15); color: var(--success); border: 1px solid rgba(35, 209, 96, 0.3); }
     .links-container { margin-top: 20px; display: flex; flex-direction: column; gap: 8px; }
     .link-ajuda { font-size: 0.82rem; color: var(--text-muted); text-decoration: none; cursor: pointer; }
     .link-ajuda:hover { color: var(--primary); text-decoration: underline; }
   </style>
 
-  <!-- Firebase SDKs (App, Auth e Firestore) -->
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
@@ -39,12 +43,13 @@
   <div class="header">
     <span class="badge-topo">MINISTÉRIO TOPO</span>
     <h1>🔐 Acesso ao Sistema</h1>
-    <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 6px;">Digite seu e-mail e senha para entrar.</p>
+    <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 6px;">Entre com suas credenciais de Líder, Supervisor ou Coordenador.</p>
   </div>
 
-  <div id="errorBox" class="error-msg"></div>
+  <div id="msgBox" class="msg-box"></div>
 
-  <form onsubmit="realizarLogin(event)">
+  <!-- Formulário de Login -->
+  <form id="formLogin" onsubmit="realizarLogin(event)">
     <div class="form-group">
       <label>E-mail</label>
       <input type="email" id="inputEmail" placeholder="seu.email@exemplo.com" required>
@@ -56,9 +61,26 @@
     <button type="submit" class="btn" id="btnLogin">Entrar</button>
   </form>
 
-  <div class="links-container">
-    <a class="link-ajuda" onclick="esqueciSenha()">Esqueceu sua senha ou é seu primeiro acesso? Clique aqui</a>
-    <a href="atualizar_email.html" class="link-ajuda">Ainda não cadastrou seu e-mail? Clique aqui</a>
+  <!-- Formulário de Primeiro Acesso (Oculto por padrão) -->
+  <form id="formPrimeiroAcesso" onsubmit="ativarPrimeiroAcesso(event)" style="display: none;">
+    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 14px; text-align: left;">
+      Informe o seu e-mail cadastrado e defina a senha que deseja usar a partir de agora:
+    </p>
+    <div class="form-group">
+      <label>Seu E-mail Cadastrado</label>
+      <input type="email" id="inputPrimeiroEmail" placeholder="seu.email@exemplo.com" required>
+    </div>
+    <div class="form-group">
+      <label>Criar Nova Senha</label>
+      <input type="password" id="inputPrimeiroSenha" placeholder="Mínimo de 6 caracteres" minlength="6" required>
+    </div>
+    <button type="submit" class="btn" id="btnPrimeiroAcesso">Cadastrar Senha e Entrar</button>
+    <button type="button" class="btn btn-secondary" onclick="alternarTela('login')">Voltar ao Login</button>
+  </form>
+
+  <div class="links-container" id="linksContainer">
+    <a class="link-ajuda" onclick="alternarTela('primeiroAcesso')">✨ É seu primeiro acesso? Crie sua senha aqui</a>
+    <a class="link-ajuda" onclick="esqueciSenha()">🔄 Esqueceu sua senha? Clique aqui</a>
   </div>
 </div>
 
@@ -80,86 +102,155 @@
   // Defina aqui o seu e-mail de Administrador Mestre
   const EMAIL_MASTER = "seu-email-master@exemplo.com"; 
 
+  function mostrarMensagem(texto, tipo = 'erro') {
+    const box = document.getElementById('msgBox');
+    box.className = `msg-box ${tipo === 'sucesso' ? 'success-msg' : 'error-msg'}`;
+    box.innerText = texto;
+    box.style.display = 'block';
+  }
+
+  function alternarTela(tela) {
+    document.getElementById('msgBox').style.display = 'none';
+    if (tela === 'primeiroAcesso') {
+      document.getElementById('formLogin').style.display = 'none';
+      document.getElementById('linksContainer').style.display = 'none';
+      document.getElementById('formPrimeiroAcesso').style.display = 'block';
+    } else {
+      document.getElementById('formLogin').style.display = 'block';
+      document.getElementById('linksContainer').style.display = 'flex';
+      document.getElementById('formPrimeiroAcesso').style.display = 'none';
+    }
+  }
+
+  // Validação estrita de permissão baseada no banco de dados
+  async function validarPermissaoRedirecionar(userEmail) {
+    sessionStorage.clear();
+
+    // 1. Verifica Administrador Master
+    if (userEmail === EMAIL_MASTER) {
+      sessionStorage.setItem('topo_ministerio', 'TOPO');
+      sessionStorage.setItem('topo_coord_logado', 'true');
+      sessionStorage.setItem('topo_coord_nome', 'Administrador Master');
+      window.location.href = 'coordenador_menu.html';
+      return;
+    }
+
+    // 2. Busca na coleção membros
+    const snapshot = await db.collection('membros').where('email', '==', userEmail).get();
+
+    if (snapshot.empty) {
+      throw new Error("Este e-mail não está vinculado a nenhum membro ativo no sistema.");
+    }
+
+    const membroDoc = snapshot.docs[0].data();
+    const ministerio = membroDoc.ministerio || 'TOPO';
+    const categoria = membroDoc.categoria ? membroDoc.categoria.trim() : '';
+
+    sessionStorage.setItem('topo_ministerio', ministerio);
+
+    // 3. Regra estrita: Só permite acesso se for Supervisor, Líder ou Coordenador
+    if (categoria === 'Supervisor') {
+      sessionStorage.setItem('topo_sup_nome', membroDoc.nome);
+      sessionStorage.setItem('topo_sup_responsavel', 'Supervisor(a)');
+      window.location.href = 'supervisor_menu.html';
+    } 
+    else if (categoria === 'Líder' || categoria === 'Lider') {
+      sessionStorage.setItem('topo_rede', membroDoc.rede || 'Rede Geral');
+      sessionStorage.setItem('topo_supervisao', membroDoc.supervisao || membroDoc.nome);
+      sessionStorage.setItem('topo_lider', membroDoc.nome);
+      window.location.href = 'painel.html';
+    } 
+    else {
+      throw new Error("Acesso negado. Apenas Líderes, Supervisores e Coordenadores podem acessar o sistema.");
+    }
+  }
+
   async function realizarLogin(e) {
     e.preventDefault();
     const email = document.getElementById('inputEmail').value.trim().toLowerCase();
     const senha = document.getElementById('inputSenha').value;
-    const errorBox = document.getElementById('errorBox');
     const btn = document.getElementById('btnLogin');
 
-    errorBox.style.display = 'none';
+    document.getElementById('msgBox').style.display = 'none';
     btn.disabled = true;
-    btn.innerText = "Verificando...";
+    btn.innerText = "Entrando...";
 
     try {
-      // 1. Autentica no Firebase Auth
       const userCredential = await auth.signInWithEmailAndPassword(email, senha);
-      const userEmail = userCredential.user.email;
+      await validarPermissaoRedirecionar(userCredential.user.email);
+    } catch (err) {
+      console.error(err);
+      let msg = "E-mail ou senha incorretos.";
+      if (err.code === 'auth/invalid-credential') msg = "E-mail ou senha incorretos.";
+      else if (err.message) msg = err.message;
+      
+      mostrarMensagem(msg, 'erro');
+      btn.disabled = false;
+      btn.innerText = "Entrar";
+    }
+  }
 
-      sessionStorage.clear();
+  // Fluxo inteligente para o Primeiro Acesso (Cria a conta no Auth se o e-mail estiver liberado no Firestore)
+  async function ativarPrimeiroAcesso(e) {
+    e.preventDefault();
+    const email = document.getElementById('inputPrimeiroEmail').value.trim().toLowerCase();
+    const senha = document.getElementById('inputPrimeiroSenha').value;
+    const btn = document.getElementById('btnPrimeiroAcesso');
 
-      // 2. Verifica se é o Admin Mestre
-      if (userEmail === EMAIL_MASTER) {
-        sessionStorage.setItem('topo_ministerio', 'TOPO');
-        sessionStorage.setItem('topo_coord_logado', 'true');
-        sessionStorage.setItem('topo_coord_nome', 'Administrador Master');
-        window.location.href = 'coordenador_menu.html';
-        return;
+    document.getElementById('msgBox').style.display = 'none';
+    btn.disabled = true;
+    btn.innerText = "Verificando cadastro...";
+
+    try {
+      // 1. Verifica se o e-mail realmente pertence a um líder ou supervisor cadastrado no Firestore
+      const snapshot = await db.collection('membros').where('email', '==', email).get();
+      if (snapshot.empty && email !== EMAIL_MASTER) {
+        throw new Error("Este e-mail não foi encontrado na base de dados de líderes/supervisores. Solicite o cadastro à coordenação.");
       }
 
-      // 3. Procura o e-mail na coleção de membros para descobrir quem é
-      const snapshot = await db.collection('membros').where('email', '==', userEmail).get();
-
-      if (snapshot.empty) {
-        throw new Error("Este e-mail está autenticado, mas não está vinculado a nenhum membro ou líder ativo no sistema. Procure a coordenação.");
+      if (!snapshot.empty) {
+        const cat = snapshot.docs[0].data().categoria;
+        if (cat !== 'Supervisor' && cat !== 'Líder' && cat !== 'Lider') {
+          throw new Error("Este e-mail pertence a um membro comum, que não possui acesso ao painel de liderança.");
+        }
       }
 
-      const membroDoc = snapshot.docs[0].data();
-      const ministerio = membroDoc.ministerio || 'TOPO';
-      const categoria = membroDoc.categoria ? membroDoc.categoria.trim() : '';
-
-      sessionStorage.setItem('topo_ministerio', ministerio);
-
-      // 4. Direciona de acordo com a categoria do membro
-      if (categoria === 'Supervisor') {
-        sessionStorage.setItem('topo_sup_nome', membroDoc.nome);
-        sessionStorage.setItem('topo_sup_responsavel', 'Supervisor(a)');
-        window.location.href = 'supervisor_menu.html';
-      } 
-      else if (categoria === 'Líder' || categoria === 'Lider') {
-        sessionStorage.setItem('topo_rede', membroDoc.rede || 'Rede Geral');
-        sessionStorage.setItem('topo_supervisao', membroDoc.supervisao || membroDoc.nome);
-        sessionStorage.setItem('topo_lider', membroDoc.nome);
-        window.location.href = 'painel.html';
-      } 
-      else {
-        throw new Error("Sua conta não possui permissão de Supervisor ou Líder.");
-      }
+      // 2. Cria a credencial no Firebase Auth para o primeiro acesso
+      btn.innerText = "Criando senha...";
+      const userCredential = await auth.createUserWithEmailAndPassword(email, senha);
+      
+      mostrarMensagem("✅ Senha cadastrada com sucesso! Redirecionando...", 'sucesso');
+      setTimeout(async () => {
+        await validarPermissaoRedirecionar(userCredential.user.email);
+      }, 1000);
 
     } catch (err) {
       console.error(err);
-      errorBox.style.display = 'block';
-      errorBox.innerText = err.code === 'auth/invalid-credential' 
-        ? "E-mail ou senha incorretos." 
-        : (err.message || "Erro ao realizar login.");
+      let msg = "Erro ao configurar a senha.";
+      if (err.code === 'auth/email-already-in-use') {
+        msg = "Este e-mail já possui uma senha cadastrada. Utilize a opção 'Esqueceu sua senha' na tela anterior.";
+      } else if (err.message) {
+        msg = err.message;
+      }
+      mostrarMensagem(msg, 'erro');
       btn.disabled = false;
-      btn.innerText = "Entrar";
+      btn.innerText = "Cadastrar Senha e Entrar";
     }
   }
 
   async function esqueciSenha() {
     const email = document.getElementById('inputEmail').value.trim().toLowerCase();
     if (!email) {
-      alert("Por favor, digite o seu e-mail no campo acima primeiro e depois clique em 'Esqueceu sua senha'.");
+      alert("Por favor, digite o seu e-mail no campo de login acima primeiro e depois clique em 'Esqueceu sua senha'.");
       return;
     }
 
     try {
       await auth.sendPasswordResetEmail(email);
-      alert("✅ E-mail de redefinição enviado! Verifique sua caixa de entrada e spam para criar ou redefinir sua senha.");
+      mostrarMensagem("✅ E-mail de redefinição enviado! Verifique sua caixa de entrada e spam para redefinir sua senha.", 'sucesso');
     } catch (err) {
       console.error(err);
-      alert("Erro ao enviar e-mail de recuperação. Verifique se o e-mail foi digitado corretamente.");
+      mostrarMensagem("Erro ao enviar e-mail. Verifique se o e-mail foi digitado corretamente ou se a conta já foi ativada.", 'erro');
     }
   }
 </script>
