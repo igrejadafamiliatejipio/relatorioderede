@@ -92,10 +92,22 @@
     input:focus, select:focus, textarea:focus { border-color: var(--primary); }
     select option { background-color: var(--card-bg); color: var(--text); }
 
-    .relatorio-item { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 10px; padding: 14px; margin-bottom: 12px; cursor: pointer; transition: 0.2s; }
-    .relatorio-item:hover { border-color: var(--primary); transform: translateY(-2px); }
-    .relatorio-header { display: flex; justify-content: space-between; font-weight: 600; font-size: 0.9rem; margin-bottom: 6px; }
-    .relatorio-body { font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; }
+    /* Estilos modernizados para os relatórios */
+    .relatorio-item { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 18px; margin-bottom: 16px; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; gap: 12px; }
+    .relatorio-item:hover { border-color: var(--primary); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(110, 86, 207, 0.15); }
+    
+    .relatorio-header-grid { display: flex; gap: 16px; align-items: flex-start; }
+    .relatorio-foto { width: 90px; height: 90px; border-radius: 8px; object-fit: cover; border: 1px solid var(--card-border); flex-shrink: 0; background: #000; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: var(--text-muted); }
+    .relatorio-meta { flex: 1; }
+    .relatorio-data-hora { font-size: 0.8rem; color: var(--primary); font-weight: 700; text-transform: uppercase; margin-bottom: 4px; }
+    .relatorio-tema { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .relatorio-local { font-size: 0.85rem; color: var(--text-muted); display: flex; align-items: center; gap: 4px; }
+
+    .relatorio-chamada-resumo { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; background: rgba(0,0,0,0.2); padding: 10px 12px; border-radius: 8px; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.03); }
+    .presenca-col h5 { font-size: 0.75rem; text-transform: uppercase; margin-bottom: 4px; font-weight: 700; }
+    .presenca-col.presentes h5 { color: var(--success); }
+    .presenca-col.faltantes h5 { color: var(--danger); }
+    .presenca-col p { color: var(--text-muted); line-height: 1.3; font-size: 0.82rem; }
 
     .relatorio-detalhe-bloco { margin-bottom: 14px; background: var(--input-bg); padding: 12px; border-radius: 8px; border: 1px solid var(--card-border); }
     .relatorio-detalhe-bloco label { font-size: 0.75rem; color: var(--primary); font-weight: bold; margin-bottom: 4px; text-transform: uppercase; display: block; }
@@ -113,7 +125,13 @@
     .btn-whats:hover { background: #1EBE55; }
     .loading-box { text-align: center; padding: 40px; color: var(--text-muted); }
 
-    @media (max-width: 500px) { .membro-card, .niver-hoje-card { flex-direction: column; align-items: flex-start; gap: 10px; } .actions-group { width: 100%; justify-content: flex-end; margin-top: 8px; } }
+    @media (max-width: 500px) { 
+      .membro-card, .niver-hoje-card { flex-direction: column; align-items: flex-start; gap: 10px; } 
+      .actions-group { width: 100%; justify-content: flex-end; margin-top: 8px; } 
+      .relatorio-header-grid { flex-direction: column; }
+      .relatorio-foto { width: 100%; height: 140px; }
+      .relatorio-chamada-resumo { grid-template-columns: 1fr; }
+    }
   </style>
 
   <!-- Firebase SDK Compat -->
@@ -181,7 +199,11 @@
     </div>
     <div class="form-group">
       <label>Categoria</label>
-      <select id="editCategoria"><option value="Liderado">Liderado</option><option value="Base da Rede">Base da Rede</option><option value="Líder">Líder</option></select>
+      <select id="editCategoria">
+        <option value="Liderado">Liderado</option>
+        <option value="Base da Rede">Base da Rede</option>
+        <option value="Líder" id="optLiderOption">Líder</option>
+      </select>
     </div>
 
     <div class="modal-footer">
@@ -239,11 +261,18 @@
 
     const supervisao = sessionStorage.getItem('topo_supervisao');
     const rede = sessionStorage.getItem('topo_rede');
+    const liderSessao = sessionStorage.getItem('topo_lider');
 
     if (!rede) {
       alert("Nenhuma rede selecionada. Faça o login novamente.");
       window.location.href = "lider.html";
       return;
+    }
+
+    // Se quem está logado for Líder de Rede comum (e não Supervisor), remove a opção de categorizar como Líder
+    if (liderSessao && !liderSessao.includes('Supervisor') && !sessionStorage.getItem('topo_sup_nome')) {
+      const optLider = document.getElementById('optLiderOption');
+      if (optLider) optLider.remove();
     }
 
     dadosSessao = { supervisao, rede };
@@ -306,6 +335,24 @@
         </div>
       `;
     }
+  }
+
+  // Funções auxiliares solicitadas para os relatórios
+  function formatarNomeSobrenome(nomeCompleto) {
+    if (!nomeCompleto) return '';
+    const partes = nomeCompleto.trim().split(' ');
+    if (partes.length === 1) return partes[0];
+    return `${partes[0]} ${partes[partes.length - 1]}`;
+  }
+
+  function limparFaltantesResumo(textoFaltantes) {
+    if (!textoFaltantes) return 'Nenhum';
+    const itens = textoFaltantes.split(',');
+    const nomesLimpos = itens.map(item => {
+      const nomePuro = item.split('(')[0].trim();
+      return formatarNomeSobrenome(nomePuro);
+    });
+    return nomesLimpos.join(', ');
   }
 
   function renderizarPainel(membrosRede, relatoriosRede) {
@@ -445,25 +492,46 @@
       secaoNivers.style.display = 'none';
     }
 
-    // RELATÓRIOS
+    // RELATÓRIOS MODERNIZADOS
     const containerRel = document.getElementById('listaRelatorios');
     containerRel.innerHTML = '';
     if (relatoriosRede.length === 0) {
       containerRel.innerHTML = `<div style="color: var(--text-muted); font-size: 0.9rem;">Nenhum relatório enviado para esta rede até o momento.</div>`;
     } else {
       relatoriosRede.slice(-5).reverse().forEach(r => {
+        let presentesFormatados = '-';
+        if (r.presentes) {
+          presentesFormatados = r.presentes.split(',').map(p => formatarNomeSobrenome(p.trim())).join(', ');
+        }
+
+        let faltantesFormatados = limparFaltantesResumo(r.faltantes);
+
+        const fotoHtml = r.fotoRede 
+          ? `<img src="${r.fotoRede}" class="relatorio-foto" alt="Foto da Rede">` 
+          : `<div class="relatorio-foto">📷</div>`;
+
         const div = document.createElement('div');
         div.className = 'relatorio-item';
         div.setAttribute('onclick', `abrirDetalhesRelatorio('${r.id}')`);
         div.innerHTML = `
-          <div class="relatorio-header">
-            <span>📅 ${r.dataEncontro || ''} (${r.horario || ''})</span>
-            <span style="color: var(--primary);">📍 ${r.local || ''}</span>
+          <div class="relatorio-header-grid">
+            ${fotoHtml}
+            <div class="relatorio-meta">
+              <div class="relatorio-data-hora">📅 ${r.dataEncontro || 'Data não informada'} às ${r.horario || ''}</div>
+              <div class="relatorio-tema">📌 ${r.tema || 'Sem Tema'}</div>
+              <div class="relatorio-local">📍 Local: ${r.local || 'Não informado'}</div>
+            </div>
           </div>
-          <div class="relatorio-body">
-            <strong>Tema:</strong> ${r.tema || ''}<br>
-            <strong>Presentes:</strong> ${r.presentes || ''}<br>
-            <span style="color: var(--danger);"><strong>Faltantes:</strong> ${r.faltantes || 'Nenhum'}</span>
+
+          <div class="relatorio-chamada-resumo">
+            <div class="presenca-col presentes">
+              <h5>✅ Presentes</h5>
+              <p>${presentesFormatados}</p>
+            </div>
+            <div class="presenca-col faltantes">
+              <h5>❌ Faltantes</h5>
+              <p>${faltantesFormatados}</p>
+            </div>
           </div>
         `;
         containerRel.appendChild(div);
@@ -488,7 +556,10 @@
 
   function renderizarDetalhesModoLeitura(rel) {
     const conteudo = document.getElementById('conteudoDetalhesRelatorio');
+    const fotoDetalhe = rel.fotoRede ? `<img src="${rel.fotoRede}" style="width:100%; max-height:220px; object-fit:cover; border-radius:8px; margin-bottom:12px;" alt="Foto da Rede">` : '';
+
     conteudo.innerHTML = `
+      ${fotoDetalhe}
       <div class="relatorio-detalhe-bloco"><label>Data e Horário</label><p>${rel.dataEncontro || '-'} às ${rel.horario || '-'}</p></div>
       <div class="relatorio-detalhe-bloco"><label>Local do Encontro</label><p>${rel.local || '-'}</p></div>
       <div class="relatorio-detalhe-bloco"><label>Tema Ministrado</label><p>${rel.tema || '-'}</p></div>
@@ -548,7 +619,10 @@
     });
 
     const conteudo = document.getElementById('conteudoDetalhesRelatorio');
+    const fotoDetalhe = rel.fotoRede ? `<img src="${rel.fotoRede}" style="width:100%; max-height:220px; object-fit:cover; border-radius:8px; margin-bottom:12px;" alt="Foto da Rede">` : '';
+
     conteudo.innerHTML = `
+      ${fotoDetalhe}
       <div style="display:flex; gap:10px; margin-bottom:12px;">
         <div class="relatorio-detalhe-bloco" style="flex:1; margin-bottom:0;"><label>Data</label><input type="date" id="editRelData" value="${rel.dataEncontro || ''}"></div>
         <div class="relatorio-detalhe-bloco" style="flex:1; margin-bottom:0;"><label>Horário</label><input type="time" id="editRelHorario" value="${rel.horario || ''}"></div>
