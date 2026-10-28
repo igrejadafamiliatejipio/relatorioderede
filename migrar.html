@@ -2,17 +2,23 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Padronizar Supervisores nas Redes</title>
+  <title>Limpar Prefixos "REDE" das Redes</title>
+  <style>
+    body { background: #0D0F12; color: #F0F6FC; font-family: sans-serif; text-align: center; padding-top: 50px; }
+    button { background: #6E56CF; color: white; border: none; padding: 15px 25px; font-size: 16px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+    button:hover { background: #5B45B0; }
+    #log { margin-top: 20px; text-align: left; display: inline-block; max-width: 600px; background: #161B22; padding: 15px; border-radius: 8px; border: 1px solid #30363D; font-family: monospace; font-size: 0.85rem; }
+  </style>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 </head>
-<body style="background: #0D0F12; color: #F0F6FC; font-family: sans-serif; text-align: center; padding-top: 50px;">
-  <h1>Padronização de Redes e Supervisores</h1>
-  <p>Clique no botão para vincular corretamente cada rede ao seu respectivo supervisor.</p>
+<body>
+  <h1>🧹 Limpeza de Nomes de Redes</h1>
+  <p>Este script vai remover o prefixo "REDE " (maiúsculo ou minúsculo) dos nomes das redes.</p>
   <br>
-  <button onclick="padronizarRedes()" style="background: #6E56CF; color: white; border: none; padding: 15px 25px; font-size: 16px; border-radius: 8px; cursor: pointer;">
-    ⚙️ Executar Padronização
-  </button>
+  <button onclick="executarLimpeza()">Executar Limpeza no Banco</button>
+  <br><br>
+  <div id="log">Aguardando execução...</div>
 
   <script>
     const firebaseConfig = {
@@ -28,44 +34,87 @@
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    async function padronizarRedes() {
-      if (!confirm("Deseja padronizar o campo de supervisão das redes com base nos supervisores cadastrados?")) return;
+    function log(msg) {
+      const d = document.getElementById('log');
+      d.innerHTML += msg + "<br>";
+      console.log(msg);
+    }
+
+    // Função auxiliar para remover "REDE " do início do nome (ex: "REDE ÁGUIAS" -> "ÁGUIAS")
+    function limparNomeRede(nomeAntigo) {
+      if (!nomeAntigo) return "";
+      // Remove "REDE " ou "Rede " ou "rede " do começo, ignorando espaços extras
+      return nomeAntigo.replace(/^rede\s+/i, '').trim();
+    }
+
+    async function executarLimpeza() {
+      if (!confirm("Tem certeza que deseja atualizar todas as redes removendo o prefixo 'REDE'?")) return;
+      
+      document.getElementById('log').innerHTML = "Iniciando processo...<br>";
 
       try {
-        const batch = db.batch();
+        // 1. Atualizar a coleção 'membros' (onde o campo 'rede' estiver preenchido)
+        log("--- Atualizando coleção 'membros' ---");
+        const snapMembros = await db.collection('membros').get();
+        let countMembros = 0;
         
-        // 1. Busca todos os supervisores na coleção membros
-        const snapSup = await db.collection('membros')
-          .where('categoria', '==', 'Supervisor')
-          .get();
-
-        const supervisoresNomes = [];
-        snapSup.forEach(doc => {
-          if (doc.data().nome) supervisoresNomes.push(doc.data().nome);
-        });
-
-        if (supervisoresNomes.length === 0) {
-          alert("Nenhum supervisor cadastrado na coleção membros!");
-          return;
+        for (const doc of snapMembros.docs) {
+          const dados = doc.data();
+          if (dados.rede) {
+            const redeLimpa = limparNomeRede(dados.rede);
+            if (redeLimpa !== dados.rede) {
+              await doc.ref.update({ rede: redeLimpa });
+              log(`Membro ${dados.nome || doc.id}: "${dados.rede}" ➔ "${redeLimpa}"`);
+              countMembros++;
+            }
+          }
         }
+        log(`Total de membros atualizados: ${countMembros}`);
 
-        // 2. Busca todas as redes em 'perfis_redes'
-        const snapRedes = await db.collection('perfis_redes').get();
-        let atualizadas = 0;
+        // 2. Atualizar a coleção 'perfis_redes' (onde o ID do documento é o nome da rede)
+        log("--- Atualizando coleção 'perfis_redes' ---");
+        const snapPerfis = await db.collection('perfis_redes').get();
+        let countPerfis = 0;
 
-        snapRedes.forEach(docRede => {
-          const dadosRede = docRede.data();
-          const nomeRede = docRede.id;
+        for (const doc of snapPerfis.docs) {
+          const nomeAtual = doc.id;
+          const redeLimpa = limparNomeRede(nomeAtual);
 
-          // Aqui você pode mapear caso queira associar redes específicas a supervisores específicos,
-          // ou se já estiver ajustando manualmente no perfil da rede.
-          // O painel 'perfil_rede.html' que atualizamos agora já faz essa escolha de forma limpa.
-        });
+          if (redeLimpa !== nomeAtual) {
+            const dadosPerfil = doc.data();
+            dadosPerfil.rede = redeLimpa;
 
-        alert("✅ Verificação concluída! Use a tela de 'Perfil das Redes' para ajustar qualquer vínculo pendente.");
+            // Como o ID é o nome da rede, precisamos criar o novo e apagar o antigo
+            await db.collection('perfis_redes').doc(redeLimpa).set(dadosPerfil);
+            await doc.ref.delete();
+            log(`Perfil de rede: "${nomeAtual}" ➔ "${redeLimpa}"`);
+            countPerfis++;
+          }
+        }
+        log(`Total de perfis de redes atualizados: ${countPerfis}`);
+
+        // 3. Atualizar a coleção 'relatorios' (caso exista o campo 'rede')
+        log("--- Atualizando coleção 'relatorios' ---");
+        const snapRelatorios = await db.collection('relatorios').get();
+        let countRelatorios = 0;
+
+        for (const doc of snapRelatorios.docs) {
+          const dados = doc.data();
+          if (dados.rede) {
+            const redeLimpa = limparNomeRede(dados.rede);
+            if (redeLimpa !== dados.rede) {
+              await doc.ref.update({ rede: redeLimpa });
+              countRelatorios++;
+            }
+          }
+        }
+        log(`Total de relatórios atualizados: ${countRelatorios}`);
+
+        log("<br><strong>✅ Limpeza concluída com sucesso em todo o banco de dados!</strong>");
+
       } catch (err) {
-        console.error("Erro:", err);
-        alert("Erro ao executar. Veja o console.");
+        console.error(err);
+        log(`<br><strong>❌ Erro:</strong> ${err.message}`);
       }
     }
   </script>
