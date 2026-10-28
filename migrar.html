@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Migração de Supervisores</title>
+  <!-- SDKs do Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+</head>
+<body style="background: #0D0F12; color: #F0F6FC; font-family: sans-serif; text-align: center; padding-top: 50px;">
+  <h1>Ferramenta de Migração de Supervisores</h1>
+  <p>Clique no botão abaixo para transformar todos os supervisores em membros do Ministério TOPO.</p>
+  <br>
+  <button onclick="migrarSupervisoresParaMembros()" style="background: #6E56CF; color: white; border: none; padding: 15px 25px; font-size: 16px; border-radius: 8px; cursor: pointer;">
+    🚀 Executar Migração Agora
+  </button>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyB7FJXs9wiRFYIs2ugZoWrw7jTXPR5weGk",
+      authDomain: "app-redes-iftejipio.firebaseapp.com",
+      projectId: "app-redes-iftejipio",
+      storageBucket: "app-redes-iftejipio.firebasestorage.app",
+      messagingSenderId: "954529090793",
+      appId: "1:954529090793:web:6702d102b6e5b178b6b478",
+      measurementId: "G-2MJ96WMYQ5"
+    };
+
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    async function migrarSupervisoresParaMembros() {
+      if (!confirm("Deseja transformar automaticamente todos os supervisores atuais em membros com a categoria 'Supervisor'?")) return;
+
+      try {
+        const batch = db.batch();
+        
+        // 1. Busca todas as redes para pegar os supervisores
+        const snapPerfis = await db.collection('perfis_redes').get();
+        const supervisoresMap = new Map();
+
+        snapPerfis.forEach(doc => {
+          const d = doc.data();
+          const supNome = d.supervisao ? d.supervisao.trim() : null;
+          const ministerio = d.ministerio || 'TOPO';
+
+          if (supNome) {
+            const chave = `${ministerio}_${supNome}`;
+            supervisoresMap.set(chave, { nome: supNome, ministerio: ministerio });
+          }
+        });
+
+        // 2. Busca membros existentes para não duplicar
+        const snapMembros = await db.collection('membros').get();
+        const membrosExistentes = new Set();
+        
+        snapMembros.forEach(doc => {
+          const d = doc.data();
+          if (d.categoria === 'Supervisor' && d.nome) {
+            const min = d.ministerio || 'TOPO';
+            membrosExistentes.add(`${min}_${d.nome.trim()}`);
+          }
+        });
+
+        let criados = 0;
+
+        // 3. Cria o registro na coleção membros
+        supervisoresMap.forEach((sup, chave) => {
+          if (!membrosExistentes.has(chave)) {
+            const novoRef = db.collection('membros').doc();
+            batch.set(novoRef, {
+              nome: sup.nome,
+              ministerio: sup.ministerio,
+              categoria: 'Supervisor',
+              rede: 'Supervisão Geral',
+              supervisao: sup.nome,
+              whatsapp: '',
+              email: '',
+              nascimento: '',
+              sexo: '',
+              batizado: 'Sim',
+              status: 'ATIVO',
+              criadoEm: new Date().toISOString()
+            });
+            criados++;
+          }
+        });
+
+        if (criados > 0) {
+          await batch.commit();
+          alert(`✅ Sucesso! ${criados} supervisores foram cadastrados automaticamente como membros.`);
+        } else {
+          alert("ℹ️ Todos os supervisores já possuem cadastro de membro!");
+        }
+
+        window.location.reload();
+      } catch (err) {
+        console.error("Erro na migração:", err);
+        alert("Erro ao migrar supervisores. Veja o console.");
+      }
+    }
+  </script>
+</body>
+</html>
