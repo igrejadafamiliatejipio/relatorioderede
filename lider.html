@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Acesso do Líder - Ministério TOPO</title>
+  <title>Menu do Líder - Ministério TOPO</title>
   <style>
     :root {
       --bg: #0D0F12;
@@ -14,181 +14,117 @@
       --text-muted: #8B949E;
       --primary: #6E56CF;
       --primary-hover: #5B45B0;
+      --danger: #E5534B;
     }
-
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
     body { background-color: var(--bg); color: var(--text); padding: 24px 12px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-    .container { max-width: 440px; width: 100%; background: var(--card-bg); padding: 32px; border-radius: 16px; border: 1px solid var(--card-border); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); text-align: center; }
+    .container { max-width: 820px; width: 100%; background: var(--card-bg); padding: 32px; border-radius: 16px; border: 1px solid var(--card-border); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); }
     
-    .top-nav { display: flex; justify-content: flex-start; margin-bottom: 16px; }
-    .btn-voltar { background: #21262D; color: var(--text); border: 1px solid var(--card-border); padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; text-decoration: none; }
-    .btn-voltar:hover { background: #30363D; }
+    .top-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .btn-sair { background: rgba(229, 83, 75, 0.15); color: var(--danger); border: 1px solid rgba(229, 83, 75, 0.3); padding: 6px 14px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; text-decoration: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: 0.2s; }
+    .btn-sair:hover { background: var(--danger); color: #FFF; }
+    
+    .header { text-align: center; margin-bottom: 30px; }
+    .header h1 { font-size: 1.6rem; font-weight: 700; margin-top: 6px; }
+    .badge-topo { display: inline-block; background: var(--primary); color: #FFF; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 8px; text-transform: uppercase; }
+    
+    .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .menu-card { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 24px 16px; text-align: center; cursor: pointer; transition: 0.2s; }
+    .menu-card:hover { border-color: var(--primary); transform: translateY(-3px); }
+    .menu-card .icon { font-size: 2.2rem; margin-bottom: 12px; }
+    .menu-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 6px; color: var(--text); }
+    .menu-card p { font-size: 0.78rem; color: var(--text-muted); line-height: 1.4; }
 
-    .header h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 6px; }
-    .header p { color: var(--text-muted); font-size: 0.88rem; margin-bottom: 24px; }
-    .badge-topo { display: inline-block; background: var(--primary); color: #FFF; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 12px; }
-
-    .form-group { margin-bottom: 16px; text-align: left; }
-    label { display: block; font-weight: 500; font-size: 0.82rem; margin-bottom: 6px; color: var(--text-muted); text-transform: uppercase; }
-    select, input { width: 100%; padding: 12px 14px; background-color: var(--input-bg); border: 1px solid var(--card-border); border-radius: 8px; font-size: 0.95rem; color: var(--text); outline: none; }
-    select option { background-color: var(--card-bg); color: var(--text); }
-
-    .btn { background-color: var(--primary); color: white; border: none; padding: 14px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 1rem; width: 100%; margin-top: 10px; transition: 0.2s; }
-    .btn:hover { background-color: var(--primary-hover); }
-
-    /* Menu de Ações após o login */
-    #menuLider { display: none; }
-    .menu-grid { display: flex; flex-direction: column; gap: 12px; margin-top: 20px; }
-    .menu-btn { background: var(--input-bg); border: 1px solid var(--card-border); color: var(--text); padding: 16px; border-radius: 10px; text-decoration: none; font-weight: 600; display: flex; align-items: center; justify-content: space-between; transition: 0.2s; }
-    .menu-btn:hover { border-color: var(--primary); background: rgba(110, 86, 207, 0.1); }
+    @media (max-width: 768px) { .menu-grid { grid-template-columns: 1fr; } }
   </style>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
 <div class="container">
   <div class="top-nav">
-    <a href="index.html" class="btn-voltar">← Voltar ao Início</a>
+    <span id="labelLiderInfo" style="font-size: 0.85rem; color: var(--text-muted);"></span>
+    <button class="btn-sair" onclick="sairSistema()">🚪 Sair</button>
   </div>
 
-  <!-- TELA DE LOGIN DO LÍDER -->
-  <div id="loginBox">
-    <div class="header">
-      <span class="badge-topo">MINISTÉRIO TOPO</span>
-      <h1>🔑 Acesso do Líder</h1>
-      <p>Selecione sua supervisão, sua rede e digite a senha</p>
-    </div>
-
-    <div class="form-group">
-      <label>Supervisão</label>
-      <select id="selectSupervisao"><option value="">Selecione a Supervisão...</option></select>
-    </div>
-
-    <div class="form-group">
-      <label>Rede</label>
-      <select id="selectRede" disabled><option value="">Selecione a Supervisão primeiro</option></select>
-    </div>
-
-    <div class="form-group">
-      <label>Senha de Acesso</label>
-      <input type="password" id="inputSenha" placeholder="Digite a senha (1234)">
-    </div>
-
-    <button class="btn" onclick="fazerLoginLider()">Entrar na Rede</button>
+  <div class="header">
+    <span class="badge-topo" id="badgeMinisterio">PAINEL DO LÍDER</span>
+    <h1 id="tituloLiderLogado">Menu Principal</h1>
+    <p id="subLiderLogado" style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;">Gerenciamento da sua Rede</p>
   </div>
 
-  <!-- MENU DO LÍDER (APÓS LOGAR) -->
-  <div id="menuLider">
-    <div class="header">
-      <span class="badge-topo" id="badgeRedeLogada">REDE</span>
-      <h1 id="tituloLiderLogado">Painel da Rede</h1>
-      <p id="subLiderLogado" style="color: var(--text-muted); font-size: 0.85rem;"></p>
+  <div class="menu-grid">
+    <div class="menu-card" onclick="irPara('painel.html')">
+      <div class="icon">📊</div>
+      <h3>Painel da Rede</h3>
+      <p>Visualizar membros, aniversariantes e registrar relatórios da rede.</p>
+    </div>
+    
+    <div class="menu-card" onclick="irPara('cadastro.html')">
+      <div class="icon">👤</div>
+      <h3>Cadastrar Membro</h3>
+      <p>Cadastrar novos membros ou líderes na sua rede.</p>
     </div>
 
-    <div class="menu-grid">
-      <a href="painel.html" class="menu-btn"><span>📊 Painel da Rede & Aniversariantes</span> ➔</a>
-      <a href="cadastro.html" class="menu-btn"><span>👤 Cadastrar Novo Membro</span> ➔</a>
-      <a href="relatorio.html" class="menu-btn"><span>📋 Enviar Relatório Semanal</span> ➔</a>
-      <a href="perfil_rede.html" class="menu-btn"><span>🏠 Perfil e Endereço da Rede</span> ➔</a>
+    <div class="menu-card" onclick="irPara('relatorio.html')">
+      <div class="icon">📋</div>
+      <h3>Relatório Semanal</h3>
+      <p>Enviar o relatório de frequência e dados da reunião semanal.</p>
     </div>
 
-    <button class="btn" style="background: #21262D; border: 1px solid var(--card-border); margin-top: 24px;" onclick="sairDaSessao()">Trocar de Rede / Sair</button>
+    <div class="menu-card" onclick="irPara('perfil_rede.html')">
+      <div class="icon">🏠</div>
+      <h3>Perfil da Rede</h3>
+      <p>Atualizar endereço, dados de encontro e link do Google Maps.</p>
+    </div>
   </div>
 </div>
 
 <script>
-  const supervisoresDB = [
-    { supervisao: "Supervisão Monte Hor", supervisor: "Luís Felipe", redes: [{ nome: "Rede Moisés", lider: "Gabriel" }, { nome: "Rede Alfa", lider: "Plinio" }, { nome: "Rede Timóteo", lider: "Sotero" }, { nome: "Rede Next", lider: "Vyni Léo" }, { nome: "Rede Inconformados", lider: "Maurilio" }, { nome: "Rede Atalaia", lider: "Mancine" }] },
-    { supervisao: "Supervisão Monte Tabor", supervisor: "Danylo Brissantt", redes: [{ nome: "Hazak", lider: "Vitinho" }, { nome: "Monte Pisga", lider: "Ezequiel" }, { nome: "Escolhidos", lider: "João" }, { nome: "Paroikos", lider: "Iago" }, { nome: "Atos", lider: "Arley" }, { nome: "Karygma", lider: "Richard" }] },
-    { supervisao: "Supervisão Monte Nebo", supervisor: "Emanuel Henrique", redes: [{ nome: "Rede Invictos", lider: "Éden" }, { nome: "Rede Ekballo", lider: "Cristian" }, { nome: "Rede Ousadia", lider: "Wallyson" }, { nome: "Rede Maranata", lider: "Richarlyson" }, { nome: "Rede Ruah", lider: "Vinícius" }] },
-    { supervisao: "Supervisão Monte Horebe", supervisor: "Andryo Henrique", redes: [{ nome: "Rede Aljava", lider: "Taycilio" }, { nome: "Rede Sal da Terra", lider: "Marcelo Flexa" }, { nome: "Rede Ekklesia", lider: "Rodrigo" }, { nome: "Rede Forjados", lider: "Alef" }] },
-    { supervisao: "Supervisão Monte Carmelo", supervisor: "Diana Guerra", redes: [{ nome: "Rede Flame", lider: "Cecília" }, { nome: "Rede Aurora", lider: "Ester" }, { nome: "Rede Colossenses", lider: "Ingrid" }, { nome: "Rede Perazim", lider: "Íris" }, { nome: "Rede Rise", lider: "Gabriela" }] },
-    { supervisao: "Supervisão Monte Moriá", supervisor: "Larissa Neves", redes: [{ nome: "Rede Peregrina", lider: "Saiwry" }, { nome: "Rede Lume", lider: "Myrella" }, { nome: "Rede Promessa", lider: "Júlia" }, { nome: "Rede Áquila", lider: "Thaynara" }, { nome: "Rede Carmesim", lider: "Lívia" }, { nome: "Rede Emunah", lider: "Mayara" }, { nome: "Rede Margaridas", lider: "Lara" }] },
-    { supervisao: "Supervisão Monte Sinai", supervisor: "Sara Gomes", redes: [{ nome: "Rede Jardim", lider: "Joana" }, { nome: "Rede Dunamis", lider: "Mikaele" }, { nome: "Rede Grace", lider: "Fernanda" }, { nome: "Rede Graciosa", lider: "Gleicy" }, { nome: "Rede Zoe", lider: "Karol" }, { nome: "Rede Lamparinas", lider: "Laura Ester" }] },
-    { supervisao: "Supervisão Monte Sião", supervisor: "Clara Dione", redes: [{ nome: "Rede Águias", lider: "Anny" }, { nome: "Rede Hope", lider: "Laysa" }, { nome: "Rede Bloom", lider: "Clara" }, { nome: "Rede Herdeiras", lider: "Mika" }] },
-    { supervisao: "Supervisão Monte das Oliveiras", supervisor: "Letícia Sampaio", redes: [{ nome: "Monte das Oliveiras", lider: "Letícia Sampaio" }, { nome: "Rede Lily", lider: "Dayanne Lethicia" }, { nome: "Rede Liz", lider: "Letícia Rodrigues" }, { nome: "Rede Âmbar", lider: "Gabriella A." }] },
-    { supervisao: "Supervisão Monte Seir", supervisor: "Karol Nogueira", redes: [{ nome: "Rede Joy", lider: "Leticia" }, { nome: "Rede Legacy", lider: "Laura" }, { nome: "Rede Ramá", lider: "Raianny" }] }
-  ];
+  const firebaseConfig = {
+    apiKey: "AIzaSyB7FJXs9wiRFYIs2ugZoWrw7jTXPR5weGk",
+    authDomain: "app-redes-iftejipio.firebaseapp.com",
+    projectId: "app-redes-iftejipio",
+    storageBucket: "app-redes-iftejipio.firebasestorage.app",
+    messagingSenderId: "954529090793",
+    appId: "1:954529090793:web:6702d102b6e5b178b6b478",
+    measurementId: "G-2MJ96WMYQ5"
+  };
+  if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 
-  document.addEventListener("DOMContentLoaded", () => {
-    const selSup = document.getElementById('selectSupervisao');
-    supervisoresDB.forEach((item, index) => {
-      const opt = document.createElement('option');
-      opt.value = index;
-      opt.textContent = `${item.supervisao} (${item.supervisor})`;
-      selSup.appendChild(opt);
-    });
+  document.addEventListener('DOMContentLoaded', () => {
+    const nomeLider = sessionStorage.getItem('topo_lider');
+    const nomeRede = sessionStorage.getItem('topo_rede');
+    const ministerio = sessionStorage.getItem('topo_ministerio') || 'TOPO';
 
-    selSup.addEventListener('change', atualizarRedesLogin);
-
-    // Verifica se já existe login na sessão
-    const redeSalva = sessionStorage.getItem('topo_rede');
-    if (redeSalva) {
-      mostrarMenuLider();
-    }
-  });
-
-  function atualizarRedesLogin() {
-    const indexSup = document.getElementById('selectSupervisao').value;
-    const selRede = document.getElementById('selectRede');
-    selRede.innerHTML = '';
-
-    if (indexSup === "") {
-      selRede.disabled = true;
-      selRede.innerHTML = '<option value="">Selecione a Supervisão primeiro</option>';
+    if (!nomeLider) {
+      window.location.href = "index.html";
       return;
     }
 
-    selRede.disabled = false;
-    selRede.innerHTML = '<option value="">Selecione sua Rede</option>';
-    supervisoresDB[indexSup].redes.forEach((r, idx) => {
-      const opt = document.createElement('option');
-      opt.value = idx;
-      opt.textContent = `${r.nome} (Líder: ${r.lider})`;
-      selRede.appendChild(opt);
-    });
+    document.getElementById('badgeMinisterio').innerText = `MINISTÉRIO ${ministerio}`;
+    document.getElementById('labelLiderInfo').innerText = `${nomeLider} (${nomeRede || 'Rede'})`;
+    document.getElementById('tituloLiderLogado').innerText = `Rede: ${nomeRede || 'Minha Rede'}`;
+    document.getElementById('subLiderLogado').innerText = `Líder: ${nomeLider}`;
+  });
+
+  function irPara(pagina) {
+    window.location.href = pagina;
   }
 
-  function fazerLoginLider() {
-    const indexSup = document.getElementById('selectSupervisao').value;
-    const indexRede = document.getElementById('selectRede').value;
-    const senha = document.getElementById('inputSenha').value.trim();
-
-    if (indexSup === "" || indexRede === "") return alert("Selecione sua supervisão e sua rede.");
-    if (senha !== "1234") return alert("Senha incorreta! A senha padrão é 1234.");
-
-    const supObj = supervisoresDB[indexSup];
-    const redeObj = supObj.redes[indexRede];
-
-    // Salva na sessão do navegador
-    sessionStorage.setItem('topo_supervisao', supObj.supervisao);
-    sessionStorage.setItem('topo_supervisor', supObj.supervisor);
-    sessionStorage.setItem('topo_rede', redeObj.nome);
-    sessionStorage.setItem('topo_lider', redeObj.lider);
-
-    mostrarMenuLider();
-  }
-
-  function mostrarMenuLider() {
-    document.getElementById('loginBox').style.display = 'none';
-    document.getElementById('menuLider').style.display = 'block';
-
-    const rede = sessionStorage.getItem('topo_rede');
-    const lider = sessionStorage.getItem('topo_lider');
-    const supervisao = sessionStorage.getItem('topo_supervisao');
-
-    document.getElementById('badgeRedeLogada').innerText = rede;
-    document.getElementById('tituloLiderLogado').innerText = `Líder: ${lider}`;
-    document.getElementById('subLiderLogado').innerText = supervisao;
-  }
-
-  function sairDaSessao() {
+  async function sairSistema() {
+    if (!confirm("Deseja realmente sair do sistema?")) return;
+    try {
+      await firebase.auth().signOut();
+    } catch (e) {
+      console.error(e);
+    }
     sessionStorage.clear();
-    document.getElementById('menuLider').style.display = 'none';
-    document.getElementById('loginBox').style.display = 'block';
-    document.getElementById('selectSupervisao').value = "";
-    document.getElementById('selectRede').innerHTML = '<option value="">Selecione a Supervisão primeiro</option>';
-    document.getElementById('selectRede').disabled = true;
-    document.getElementById('inputSenha').value = "";
+    window.location.href = "index.html";
   }
 </script>
 
