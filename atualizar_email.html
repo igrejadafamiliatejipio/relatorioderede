@@ -14,6 +14,7 @@
       --text-muted: #8B949E;
       --primary: #6E56CF;
       --primary-hover: #5B45B0;
+      --success: #23D160;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
@@ -32,7 +33,7 @@
 
     .btn { background-color: var(--primary); color: white; border: none; padding: 14px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 1rem; width: 100%; margin-top: 10px; transition: 0.2s; }
     .btn:hover { background-color: var(--primary-hover); }
-    .success-box { display: none; text-align: center; padding: 20px; color: #23D160; font-weight: 600; }
+    .success-box { display: none; text-align: center; padding: 20px; color: var(--success); font-weight: 600; }
   </style>
 
   <!-- Firebase SDKs -->
@@ -109,15 +110,21 @@
 
     try {
       listaOpcoes = [];
-      // Busca direto na coleção membros filtrando pela categoria (Líder ou Supervisor)
       const snapshot = await db.collection('membros')
-        .where('categoria', '==', funcao)
+        .where('categoria', 'in', funcao === 'Líder' ? ['Líder', 'Lider'] : ['Supervisor'])
         .get();
 
       snapshot.forEach(doc => {
         const d = doc.data();
         if (d.status !== 'INATIVO' && d.nome) {
-          listaOpcoes.push({ id: doc.id, nome: d.nome, detalhe: funcao === 'Líder' ? `Rede: ${d.rede || 'Geral'}` : 'Supervisão' });
+          let detalheText = '';
+          if (funcao === 'Líder') {
+            const nomeSupervisao = d.supervisao || 'Geral';
+            detalheText = `Rede: ${d.rede || 'Geral'} | Supervisor(a): ${nomeSupervisao}`;
+          } else {
+            detalheText = `Supervisor(a) do Ministério ${d.ministerio || 'TOPO'}`;
+          }
+          listaOpcoes.push({ id: doc.id, nome: d.nome, detalhe: detalheText });
         }
       });
 
@@ -147,7 +154,6 @@
     btn.innerText = "Salvando...";
 
     try {
-      // Atualiza diretamente o documento do membro (seja líder ou supervisor)
       await db.collection('membros').doc(docId).update({ email: email });
 
       document.getElementById('formAtualizar').style.display = 'none';
