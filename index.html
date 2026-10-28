@@ -158,7 +158,7 @@
       sessionStorage.setItem('topo_rede', membroDoc.rede || 'Rede Geral');
       sessionStorage.setItem('topo_supervisao', membroDoc.supervisao || membroDoc.nome);
       sessionStorage.setItem('topo_lider', membroDoc.nome);
-      window.location.href = 'painel.html';
+      window.location.href = 'lider.html';
     } 
     else {
       throw new Error("Acesso negado. Apenas Líderes, Supervisores e Coordenadores podem acessar o sistema.");
