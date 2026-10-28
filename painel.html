@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Painel da Rede - Ministério TOPO</title>
+  <title>Painel da Rede - Gestão de Redes</title>
   <style>
     :root {
       --bg: #0D0F12;
@@ -29,7 +29,7 @@
     .btn-voltar:hover { background: #30363D; }
 
     .header { text-align: center; margin-bottom: 24px; }
-    .badge-topo { display: inline-block; background: var(--primary); color: #FFF; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 8px; }
+    .badge-topo { display: inline-block; background: var(--primary); color: #FFF; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 8px; text-transform: uppercase; }
 
     .health-card { padding: 18px; border-radius: 12px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; border: 1px solid transparent; }
     .health-card.green { background: rgba(35, 209, 96, 0.1); border-color: rgba(35, 209, 96, 0.3); color: var(--success); }
@@ -41,12 +41,6 @@
     .health-count { font-size: 2rem; font-weight: 800; }
 
     .section-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; }
-
-    .tabs-nav { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 1px solid var(--card-border); padding-bottom: 12px; overflow-x: auto; }
-    .tab-btn { background: var(--input-bg); color: var(--text-muted); border: 1px solid var(--card-border); padding: 8px 14px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.85rem; white-space: nowrap; }
-    .tab-btn.active { background: var(--primary); color: #FFF; border-color: var(--primary); }
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
 
     .niver-hoje-card {
       background: linear-gradient(135deg, rgba(35, 209, 96, 0.2) 0%, var(--input-bg) 100%);
@@ -134,7 +128,7 @@
   </div>
 
   <div class="header">
-    <span class="badge-topo">MINISTÉRIO TOPO</span>
+    <span class="badge-topo" id="badgeMinisterio">MINISTÉRIO TOPO</span>
     <h1 id="tituloNomeRede" style="font-size: 2rem; font-weight: 800; color: var(--text); margin-top: 4px;">Carregando Rede...</h1>
     <p id="subtituloLiderRede" style="color: var(--text-muted); font-size: 0.9rem; margin-top: 4px;"></p>
   </div>
@@ -180,6 +174,7 @@
       <select id="editSexo"><option value="">Selecione...</option><option value="Masculino">Masculino</option><option value="Feminino">Feminino</option></select>
     </div>
     <div class="form-group"><label>WhatsApp</label><input type="text" id="editWhatsapp" placeholder="Deixe em branco se não possuir"></div>
+    <div class="form-group"><label>E-mail de Acesso</label><input type="email" id="editEmail" placeholder="exemplo@email.com"></div>
     <div class="form-group">
       <label>Batizado?</label>
       <select id="editBatizado"><option value="Sim">Sim</option><option value="Não">Não</option></select>
@@ -236,8 +231,12 @@
   let dadosSessao = {};
   let membrosLocais = [];
   let relatoriosLocais = [];
+  let ministerioAtivo = 'TOPO';
 
   document.addEventListener("DOMContentLoaded", async function() {
+    ministerioAtivo = sessionStorage.getItem('topo_ministerio') || 'TOPO';
+    document.getElementById('badgeMinisterio').innerText = `MINISTÉRIO ${ministerioAtivo}`;
+
     const supervisao = sessionStorage.getItem('topo_supervisao');
     const rede = sessionStorage.getItem('topo_rede');
 
@@ -289,9 +288,7 @@
         }
       });
 
-      // Ordena para o líder aparecer no topo
       membrosLocais.sort((a, b) => (a.categoria === 'Líder' ? -1 : (b.categoria === 'Líder' ? 1 : a.nome.localeCompare(b.nome))));
-
       document.getElementById('subtituloLiderRede').innerText = `Líder: ${nomeLiderEncontrado}`;
 
       relatoriosLocais = [];
@@ -348,6 +345,7 @@
         const nascimento = m.nascimento || '';
         const sexo = m.sexo && m.sexo.trim() !== '' ? m.sexo : 'Não inf.';
         const whats = m.whatsapp ? m.whatsapp.trim() : '';
+        const email = m.email ? m.email.trim() : '';
         const batizado = m.batizado || 'Não';
         const categoria = m.categoria || 'Liderado';
         const isLider = categoria === 'Líder';
@@ -382,7 +380,7 @@
         div.innerHTML = `
           <div class="membro-main">
             <strong style="${isLider ? 'color: var(--success); font-size: 1.05rem;' : ''}">${isLider ? '⭐ ' : ''}${nome}</strong>
-            <small>Sexo: ${sexo} | 📱 ${whats !== '' ? whats : 'Sem WhatsApp'} | Batizado: ${batizado}</small>
+            <small>Sexo: ${sexo} | 📱 ${whats !== '' ? whats : 'Sem WhatsApp'} ${email ? '| ✉️ ' + email : ''} | Batizado: ${batizado}</small>
             <div class="tags">${tagsHTML}</div>
           </div>
           <div class="actions-group">
@@ -634,6 +632,7 @@
     document.getElementById('editNascimento').value = membro.nascimento || '';
     document.getElementById('editSexo').value = membro.sexo || '';
     document.getElementById('editWhatsapp').value = membro.whatsapp || '';
+    document.getElementById('editEmail').value = membro.email || '';
     document.getElementById('editBatizado').value = membro.batizado || 'Não';
     document.getElementById('editCategoria').value = membro.categoria || 'Liderado';
 
@@ -650,6 +649,7 @@
     const nascimento = document.getElementById('editNascimento').value;
     const sexo = document.getElementById('editSexo').value;
     const whatsapp = document.getElementById('editWhatsapp').value.trim();
+    const email = document.getElementById('editEmail').value.trim().toLowerCase();
     const batizado = document.getElementById('editBatizado').value;
     const categoria = document.getElementById('editCategoria').value;
 
@@ -659,7 +659,7 @@
     document.getElementById('loading').style.display = 'block';
 
     try {
-      await db.collection('membros').doc(docId).update({ nome, nascimento, sexo, whatsapp, batizado, categoria });
+      await db.collection('membros').doc(docId).update({ nome, nascimento, sexo, whatsapp, email, batizado, categoria });
       alert("✅ Membro atualizado!");
       await carregarDadosDashboard();
     } catch (err) {
