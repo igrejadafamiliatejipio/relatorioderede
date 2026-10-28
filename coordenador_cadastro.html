@@ -18,7 +18,7 @@
     .btn-voltar:hover { background: #30363D; }
     .header { text-align: center; margin-bottom: 24px; }
     .header h1 { font-size: 1.6rem; font-weight: 700; margin-top: 6px; }
-    .badge-topo { display: inline-block; background: var(--primary); color: #FFF; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 8px; }
+    .badge-topo { display: inline-block; background: var(--primary); color: #FFF; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 8px; text-transform: uppercase; }
     .form-group { margin-bottom: 16px; text-align: left; }
     label { display: block; font-weight: 500; font-size: 0.82rem; margin-bottom: 6px; color: var(--text-muted); text-transform: uppercase; }
     input, select { width: 100%; padding: 12px 14px; background-color: var(--input-bg); border: 1px solid var(--card-border); border-radius: 8px; font-size: 0.95rem; color: var(--text); outline: none; }
@@ -37,7 +37,7 @@
   </div>
 
   <div class="header">
-    <span class="badge-topo">COORDENAÇÃO</span>
+    <span class="badge-topo" id="badgeMinisterio">COORDENAÇÃO</span>
     <h1>📝 Cadastro de Membro</h1>
   </div>
 
@@ -64,6 +64,11 @@
     <div class="form-group">
       <label>WhatsApp</label>
       <input type="text" id="inputWhatsapp" placeholder="Ex: 11999999999">
+    </div>
+
+    <div class="form-group">
+      <label>E-mail de Acesso <span style="text-transform: none; color: var(--text-muted);">(Para futuros líderes)</span></label>
+      <input type="email" id="inputEmail" placeholder="exemplo@email.com">
     </div>
 
     <div class="form-group">
@@ -97,6 +102,7 @@
   const db = firebase.firestore();
 
   let mapaSupRedes = {};
+  let ministerioAtivo = 'TOPO';
 
   document.addEventListener("DOMContentLoaded", async () => {
     const logado = sessionStorage.getItem('topo_coord_logado');
@@ -105,30 +111,39 @@
       return;
     }
 
+    ministerioAtivo = sessionStorage.getItem('topo_ministerio') || 'TOPO';
+    document.getElementById('badgeMinisterio').innerText = `COORDENAÇÃO - ${ministerioAtivo}`;
+
     try {
       mapaSupRedes = {};
 
-      // 1. Busca em perfis_redes
+      // 1. Busca em perfis_redes filtrando pelo ministério ativo
       const snapPerfis = await db.collection('perfis_redes').get();
       snapPerfis.forEach(doc => {
         const d = doc.data();
-        const sup = d.supervisao;
-        const rede = d.rede || doc.id;
-        if (sup && rede) {
-          if (!mapaSupRedes[sup]) mapaSupRedes[sup] = new Set();
-          mapaSupRedes[sup].add(rede);
+        const minDoc = d.ministerio || 'TOPO';
+        if (minDoc === ministerioAtivo) {
+          const sup = d.supervisao;
+          const rede = d.rede || doc.id;
+          if (sup && rede) {
+            if (!mapaSupRedes[sup]) mapaSupRedes[sup] = new Set();
+            mapaSupRedes[sup].add(rede);
+          }
         }
       });
 
-      // 2. Busca em membros (para garantir que nenhuma rede/supervisão fique de fora)
+      // 2. Busca em membros filtrando pelo ministério ativo
       const snapMembros = await db.collection('membros').get();
       snapMembros.forEach(doc => {
         const d = doc.data();
-        const sup = d.supervisao;
-        const rede = d.rede;
-        if (sup && rede) {
-          if (!mapaSupRedes[sup]) mapaSupRedes[sup] = new Set();
-          mapaSupRedes[sup].add(rede);
+        const minDoc = d.ministerio || 'TOPO';
+        if (minDoc === ministerioAtivo) {
+          const sup = d.supervisao;
+          const rede = d.rede;
+          if (sup && rede) {
+            if (!mapaSupRedes[sup]) mapaSupRedes[sup] = new Set();
+            mapaSupRedes[sup].add(rede);
+          }
         }
       });
 
@@ -178,6 +193,7 @@
     const rede = document.getElementById('selectRede').value;
     const nome = document.getElementById('inputNome').value.trim();
     const whatsapp = document.getElementById('inputWhatsapp').value.trim();
+    const email = document.getElementById('inputEmail').value.trim().toLowerCase();
     const nascimento = document.getElementById('inputNascimento').value;
     const categoria = document.getElementById('selectCategoria').value;
 
@@ -189,8 +205,10 @@
 
     try {
       await db.collection('membros').add({
+        ministerio: ministerioAtivo, // Associa ao ministério atual
         nome: nome,
         whatsapp: whatsapp,
+        email: email, // Salva o e-mail em minúsculas
         nascimento: nascimento,
         rede: rede,
         supervisao: supervisao,
@@ -199,9 +217,10 @@
         criadoEm: new Date().toISOString()
       });
 
-      alert(`✅ Membro "${nome}" cadastrado com sucesso na ${rede}!`);
+      alert(`✅ Membro "${nome}" cadastrado com sucesso na ${rede} (${ministerioAtivo})!`);
       document.getElementById('inputNome').value = '';
       document.getElementById('inputWhatsapp').value = '';
+      document.getElementById('inputEmail').value = '';
       document.getElementById('inputNascimento').value = '';
     } catch (err) {
       alert("Erro ao cadastrar membro.");
