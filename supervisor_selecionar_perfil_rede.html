@@ -26,6 +26,10 @@
     .btn { background-color: var(--primary); color: white; border: none; padding: 14px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 1rem; width: 100%; margin-top: 10px; transition: 0.2s; }
     .btn:hover { background-color: var(--primary-hover); }
   </style>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 <div class="container">
@@ -48,26 +52,59 @@
 </div>
 
 <script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const supNome = sessionStorage.getItem('topo_sup_nome');
-    const redesStr = sessionStorage.getItem('topo_sup_redes');
+  const firebaseConfig = {
+    apiKey: "AIzaSyB7FJXs9wiRFYIs2ugZoWrw7jTXPR5weGk",
+    authDomain: "app-redes-iftejipio.firebaseapp.com",
+    projectId: "app-redes-iftejipio",
+    storageBucket: "app-redes-iftejipio.firebasestorage.app",
+    messagingSenderId: "954529090793",
+    appId: "1:954529090793:web:6702d102b6e5b178b6b478",
+    measurementId: "G-2MJ96WMYQ5"
+  };
+  if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
 
-    if (!supNome || !redesStr) {
+  document.addEventListener("DOMContentLoaded", async () => {
+    const supNome = sessionStorage.getItem('topo_sup_nome');
+
+    if (!supNome) {
       alert("Sessão expirada. Faça login novamente.");
-      window.location.href = "supervisor.html";
+      window.location.href = "index.html"; // CORRIGIDO: Redireciona para o login unificado
       return;
     }
 
-    const redes = JSON.parse(redesStr);
     const selRede = document.getElementById('selectRedePerfil');
-    selRede.innerHTML = '<option value="">Selecione uma Rede...</option>';
+    selRede.innerHTML = '<option value="">Carregando redes...</option>';
 
-    redes.forEach(r => {
-      const opt = document.createElement('option');
-      opt.value = r.nome;
-      opt.textContent = `${r.nome} (Líder: ${r.lider})`;
-      selRede.appendChild(opt);
-    });
+    try {
+      // Busca as redes no Firestore associadas a este supervisor
+      const snapshot = await db.collection('perfis_redes')
+        .where('supervisao', '==', supNome)
+        .get();
+
+      selRede.innerHTML = '';
+
+      if (snapshot.empty) {
+        selRede.innerHTML = '<option value="">Nenhuma rede encontrada para sua supervisão</option>';
+        return;
+      }
+
+      selRede.innerHTML = '<option value="">Selecione uma Rede...</option>';
+      snapshot.forEach(doc => {
+        const redeNome = doc.id; // O ID é o nome da rede
+        const data = doc.data();
+        const liderNome = data.lider || 'Líder';
+
+        const opt = document.createElement('option');
+        opt.value = redeNome;
+        opt.textContent = `${redeNome} (Líder: ${liderNome})`;
+        selRede.appendChild(opt);
+      });
+
+    } catch (err) {
+      console.error("Erro ao carregar redes:", err);
+      selRede.innerHTML = '<option value="">Erro ao carregar redes</option>';
+    }
   });
 
   function acessarPerfilRede() {
