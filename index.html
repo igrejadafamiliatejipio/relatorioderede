@@ -135,14 +135,22 @@
       return;
     }
 
-    // 2. Busca na coleção membros
-    const snapshot = await db.collection('membros').where('email', '==', userEmail).get();
+    // 2. Busca flexível na coleção membros pelo e-mail
+    const snapshot = await db.collection('membros').get();
+    let membroDoc = null;
 
-    if (snapshot.empty) {
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      const emailBanco = data.email ? data.email.trim().toLowerCase() : '';
+      if (emailBanco === userEmail.toLowerCase()) {
+        membroDoc = data;
+      }
+    });
+
+    if (!membroDoc) {
       throw new Error("Este e-mail não está vinculado a nenhum membro ativo no sistema.");
     }
 
-    const membroDoc = snapshot.docs[0].data();
     const ministerio = membroDoc.ministerio || 'TOPO';
     const categoria = membroDoc.categoria ? membroDoc.categoria.trim() : '';
 
@@ -193,7 +201,7 @@
   // Fluxo inteligente para o Primeiro Acesso (Cria a conta no Auth se o e-mail estiver liberado no Firestore)
   async function ativarPrimeiroAcesso(e) {
     e.preventDefault();
-    const email = document.getElementById('inputPrimeiroEmail').value.trim().toLowerCase();
+    const emailInput = document.getElementById('inputPrimeiroEmail').value.trim().toLowerCase();
     const senha = document.getElementById('inputPrimeiroSenha').value;
     const btn = document.getElementById('btnPrimeiroAcesso');
 
@@ -202,22 +210,29 @@
     btn.innerText = "Verificando cadastro...";
 
     try {
-      // 1. Verifica se o e-mail realmente pertence a um líder ou supervisor cadastrado no Firestore
-      const snapshot = await db.collection('membros').where('email', '==', email).get();
-      if (snapshot.empty && email !== EMAIL_MASTER) {
-        throw new Error("Este e-mail não foi encontrado na base de dados de líderes/supervisores. Solicite o cadastro à coordenação.");
-      }
+      // 1. Busca flexível em toda a coleção para verificar se o e-mail pertence a um líder ou supervisor
+      const snapshot = await db.collection('membros').get();
+      let membroEncontrado = false;
 
-      if (!snapshot.empty) {
-        const cat = snapshot.docs[0].data().categoria;
-        if (cat !== 'Supervisor' && cat !== 'Líder' && cat !== 'Lider') {
-          throw new Error("Este e-mail pertence a um membro comum, que não possui acesso ao painel de liderança.");
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        const emailBanco = data.email ? data.email.trim().toLowerCase() : '';
+        const cat = data.categoria ? data.categoria.trim() : '';
+
+        if (emailBanco === emailInput) {
+          if (cat === 'Supervisor' || cat === 'Líder' || cat === 'Lider') {
+            membroEncontrado = true;
+          }
         }
+      });
+
+      if (!membroEncontrado && emailInput !== EMAIL_MASTER) {
+        throw new Error("Este e-mail não foi encontrado na base de dados ou não pertence a um Líder/Supervisor cadastrado. Certifique-se de ter cadastrado seu e-mail previamente na tela de atualização.");
       }
 
       // 2. Cria a credencial no Firebase Auth para o primeiro acesso
       btn.innerText = "Criando senha...";
-      const userCredential = await auth.createUserWithEmailAndPassword(email, senha);
+      const userCredential = await auth.createUserWithEmailAndPassword(emailInput, senha);
       
       mostrarMensagem("✅ Senha cadastrada com sucesso! Redirecionando...", 'sucesso');
       setTimeout(async () => {
