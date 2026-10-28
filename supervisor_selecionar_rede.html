@@ -25,6 +25,10 @@
     .btn { background-color: var(--primary); color: white; border: none; padding: 12px 18px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.95rem; width: 100%; transition: 0.2s; margin-top: 8px; }
     .btn:hover { background-color: var(--primary-hover); }
   </style>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 <div class="container">
@@ -45,22 +49,54 @@
 </div>
 
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
+  const firebaseConfig = {
+    apiKey: "AIzaSyB7FJXs9wiRFYIs2ugZoWrw7jTXPR5weGk",
+    authDomain: "app-redes-iftejipio.firebaseapp.com",
+    projectId: "app-redes-iftejipio",
+    storageBucket: "app-redes-iftejipio.firebasestorage.app",
+    messagingSenderId: "954529090793",
+    appId: "1:954529090793:web:6702d102b6e5b178b6b478",
+    measurementId: "G-2MJ96WMYQ5"
+  };
+  if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  document.addEventListener('DOMContentLoaded', async () => {
     const supervisao = sessionStorage.getItem('topo_sup_nome');
-    const redesStr = sessionStorage.getItem('topo_sup_redes');
-    if (!supervisao || !redesStr) {
-      window.location.href = "supervisor.html";
+    if (!supervisao) {
+      alert("Sessão expirada. Faça login novamente.");
+      window.location.href = "index.html"; // CORRIGIDO: Redireciona para o login unificado
       return;
     }
-    const redes = JSON.parse(redesStr);
+
     const select = document.getElementById('selectRede');
-    select.innerHTML = '<option value="">Selecione uma rede</option>';
-    redes.forEach(r => {
-      const opt = document.createElement('option');
-      opt.value = r.nome;
-      opt.textContent = r.nome;
-      select.appendChild(opt);
-    });
+    select.innerHTML = '<option value="">Carregando redes...</option>';
+
+    try {
+      const snapshot = await db.collection('perfis_redes')
+        .where('supervisao', '==', supervisao)
+        .get();
+
+      select.innerHTML = '';
+
+      if (snapshot.empty) {
+        select.innerHTML = '<option value="">Nenhuma rede encontrada para sua supervisão</option>';
+        return;
+      }
+
+      select.innerHTML = '<option value="">Selecione uma rede</option>';
+      snapshot.forEach(doc => {
+        const redeNome = doc.id; // O ID do documento é o nome da rede
+        const opt = document.createElement('option');
+        opt.value = redeNome;
+        opt.textContent = redeNome;
+        select.appendChild(opt);
+      });
+
+    } catch (err) {
+      console.error("Erro ao carregar redes:", err);
+      select.innerHTML = '<option value="">Erro ao carregar redes</option>';
+    }
   });
 
   function acessarPainelRede() {
