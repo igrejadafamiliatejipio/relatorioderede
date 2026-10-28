@@ -96,12 +96,10 @@
 
   document.addEventListener("DOMContentLoaded", async () => {
     try {
-      // Busca todos os membros sem filtros restritivos para evitar perder registros sem o campo status
       const snapshot = await db.collection('membros').get();
       dadosMembros = [];
       snapshot.forEach(doc => {
         const d = doc.data();
-        // Ignora apenas se explicitamente inativo
         if (d.status !== 'INATIVO') {
           dadosMembros.push({ id: doc.id, ...d });
         }
@@ -161,7 +159,7 @@
     });
   }
 
-    function entrarComo(e) {
+  function entrarComo(e) {
     e.preventDefault();
     const ministerio = document.getElementById('selectMinisterio').value;
     const perfil = document.getElementById('selectPerfil').value;
@@ -191,7 +189,7 @@
       sessionStorage.setItem('topo_rede', dados.rede || 'Rede Geral');
       sessionStorage.setItem('topo_supervisao', dados.supervisao || 'Supervisão Geral');
       sessionStorage.setItem('topo_lider', dados.nome);
-      window.location.href = 'painel.html';
+      window.location.href = 'lider.html'; // <--- CORRIGIDO AQUI PARA LEVAR AO MENU DO LÍDER
     }
   }
 </script>
