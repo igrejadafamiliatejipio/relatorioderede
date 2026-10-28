@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Limpar Prefixos "REDE" das Redes</title>
+  <title>Corrigir Nomes de Supervisores</title>
   <style>
     body { background: #0D0F12; color: #F0F6FC; font-family: sans-serif; text-align: center; padding-top: 50px; }
     button { background: #6E56CF; color: white; border: none; padding: 15px 25px; font-size: 16px; border-radius: 8px; cursor: pointer; font-weight: bold; }
@@ -13,10 +13,10 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
-  <h1>🧹 Limpeza de Nomes de Redes</h1>
-  <p>Este script vai remover o prefixo "REDE " (maiúsculo ou minúsculo) dos nomes das redes.</p>
+  <h1>🔄 Corrigir Vínculos de Supervisores</h1>
+  <p>Este script substitui os nomes antigos de supervisão (ex: "Supervisão Monte Sião") pelo nome real do supervisor correspondente.</p>
   <br>
-  <button onclick="executarLimpeza()">Executar Limpeza no Banco</button>
+  <button onclick="executarCorrecao()">Executar Correção no Banco</button>
   <br><br>
   <div id="log">Aguardando execução...</div>
 
@@ -40,77 +40,59 @@
       console.log(msg);
     }
 
-    // Função auxiliar para remover "REDE " do início do nome (ex: "REDE ÁGUIAS" -> "ÁGUIAS")
-    function limparNomeRede(nomeAntigo) {
-      if (!nomeAntigo) return "";
-      // Remove "REDE " ou "Rede " ou "rede " do começo, ignorando espaços extras
-      return nomeAntigo.replace(/^rede\s+/i, '').trim();
-    }
+    // Mapeamento exato de qual supervisão antiga pertence a qual nome de supervisor real
+    const mapaSupervisores = {
+      "Supervisão Monte Hor": "Luís Felipe",
+      "Supervisão Monte Tabor": "Danylo Brissantt",
+      "Supervisão Monte Nebo": "Emanuel Henrique",
+      "Supervisão Monte Horebe": "Andryo Henrique",
+      "Supervisão Monte Carmelo": "Diana Guerra",
+      "Supervisão Monte Moriá": "Larissa Neves",
+      "Supervisão Monte Sinai": "Sara Gomes",
+      "Supervisão Monte Sião": "Clara Dione",
+      "Supervisão Monte das Oliveiras": "Letícia Sampaio",
+      "Supervisão Monte Seir": "Karol Nogueira"
+    };
 
-    async function executarLimpeza() {
-      if (!confirm("Tem certeza que deseja atualizar todas as redes removendo o prefixo 'REDE'?")) return;
+    async function executarCorrecao() {
+      if (!confirm("Deseja aplicar a correção dos nomes dos supervisores em todo o banco?")) return;
       
-      document.getElementById('log').innerHTML = "Iniciando processo...<br>";
+      document.getElementById('log').innerHTML = "Iniciando correção...<br>";
 
       try {
-        // 1. Atualizar a coleção 'membros' (onde o campo 'rede' estiver preenchido)
+        // 1. Atualizar coleção 'membros'
         log("--- Atualizando coleção 'membros' ---");
         const snapMembros = await db.collection('membros').get();
         let countMembros = 0;
-        
+
         for (const doc of snapMembros.docs) {
           const dados = doc.data();
-          if (dados.rede) {
-            const redeLimpa = limparNomeRede(dados.rede);
-            if (redeLimpa !== dados.rede) {
-              await doc.ref.update({ rede: redeLimpa });
-              log(`Membro ${dados.nome || doc.id}: "${dados.rede}" ➔ "${redeLimpa}"`);
-              countMembros++;
-            }
+          if (dados.supervisao && mapaSupervisores[dados.supervisao]) {
+            const nomeReal = mapaSupervisores[dados.supervisao];
+            await doc.ref.update({ supervisao: nomeReal });
+            log(`Membro ${dados.nome}: Supervisão "${dados.supervisao}" ➔ "${nomeReal}"`);
+            countMembros++;
           }
         }
         log(`Total de membros atualizados: ${countMembros}`);
 
-        // 2. Atualizar a coleção 'perfis_redes' (onde o ID do documento é o nome da rede)
+        // 2. Atualizar coleção 'perfis_redes'
         log("--- Atualizando coleção 'perfis_redes' ---");
         const snapPerfis = await db.collection('perfis_redes').get();
         let countPerfis = 0;
 
         for (const doc of snapPerfis.docs) {
-          const nomeAtual = doc.id;
-          const redeLimpa = limparNomeRede(nomeAtual);
-
-          if (redeLimpa !== nomeAtual) {
-            const dadosPerfil = doc.data();
-            dadosPerfil.rede = redeLimpa;
-
-            // Como o ID é o nome da rede, precisamos criar o novo e apagar o antigo
-            await db.collection('perfis_redes').doc(redeLimpa).set(dadosPerfil);
-            await doc.ref.delete();
-            log(`Perfil de rede: "${nomeAtual}" ➔ "${redeLimpa}"`);
+          const dados = doc.data();
+          if (dados.supervisao && mapaSupervisores[dados.supervisao]) {
+            const nomeReal = mapaSupervisores[dados.supervisao];
+            await doc.ref.update({ supervisao: nomeReal });
+            log(`Rede ${doc.id}: Supervisão "${dados.supervisao}" ➔ "${nomeReal}"`);
             countPerfis++;
           }
         }
         log(`Total de perfis de redes atualizados: ${countPerfis}`);
 
-        // 3. Atualizar a coleção 'relatorios' (caso exista o campo 'rede')
-        log("--- Atualizando coleção 'relatorios' ---");
-        const snapRelatorios = await db.collection('relatorios').get();
-        let countRelatorios = 0;
-
-        for (const doc of snapRelatorios.docs) {
-          const dados = doc.data();
-          if (dados.rede) {
-            const redeLimpa = limparNomeRede(dados.rede);
-            if (redeLimpa !== dados.rede) {
-              await doc.ref.update({ rede: redeLimpa });
-              countRelatorios++;
-            }
-          }
-        }
-        log(`Total de relatórios atualizados: ${countRelatorios}`);
-
-        log("<br><strong>✅ Limpeza concluída com sucesso em todo o banco de dados!</strong>");
+        log("<br><strong>✅ Correção concluída com sucesso! Os nomes reais dos supervisores agora substituíram os nomes antigos.</strong>");
 
       } catch (err) {
         console.error(err);
