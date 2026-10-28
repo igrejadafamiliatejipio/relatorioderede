@@ -195,7 +195,7 @@
 
     if (!supervisorNome) {
       alert("Sessão expirada. Faça login novamente.");
-      window.location.href = "index.html"; // CORRIGIDO: Redireciona para o login unificado
+      window.location.href = "index.html";
       return;
     }
 
@@ -206,7 +206,7 @@
 
   async function carregarDadosMacro() {
     try {
-      // Busca redes oficiais e informais diretamente do Firestore associadas a este supervisor
+      // 1. Busca redes do supervisor
       const snapPerfis = await db.collection('perfis_redes')
         .where('supervisao', '==', supervisorNome)
         .get();
@@ -226,6 +226,7 @@
 
       supervisorRedesTodas = [...supervisorRedesOficiais, ...redesInformaisCache];
 
+      // 2. Busca membros da supervisão
       const snapMembros = await db.collection('membros').where('supervisao', '==', supervisorNome).get();
       membrosCache = [];
       snapMembros.forEach(doc => {
@@ -233,21 +234,26 @@
         if (d.status !== 'INATIVO') membrosCache.push({ id: doc.id, ...d });
       });
 
+      // 3. Busca relatórios com proteção para evitar consulta vazia no `in`
       relatoriosCache = [];
       const nomesRedes = supervisorRedesTodas.map(r => r.nome);
-      for (let i = 0; i < nomesRedes.length; i += 10) {
-        const lote = nomesRedes.slice(i, i + 10);
-        if (lote.length > 0) {
-          const snapRels = await db.collection('relatorios').where('rede', 'in', lote).get();
-          snapRels.forEach(doc => relatoriosCache.push(doc.data()));
+      
+      if (nomesRedes.length > 0) {
+        for (let i = 0; i < nomesRedes.length; i += 10) {
+          const lote = nomesRedes.slice(i, i + 10);
+          if (lote.length > 0) {
+            const snapRels = await db.collection('relatorios').where('rede', 'in', lote).get();
+            snapRels.forEach(doc => relatoriosCache.push(doc.data()));
+          }
         }
       }
 
       renderizarMacro();
     } catch (err) {
-      alert("Erro ao carregar dados do painel macro.");
+      alert("Erro ao carregar dados do painel macro. Verifique o console.");
       console.error(err);
     } finally {
+      // Garante que o loading sempre vai sumir, mesmo se der erro
       document.getElementById('loading').style.display = 'none';
       document.getElementById('painelMacro').style.display = 'block';
     }
@@ -486,4 +492,72 @@
       opt.value = m.id;
       opt.textContent = `${m.nome} (${m.categoria || 'Liderado'})`;
       if (m.categoria === 'Líder') opt.selected = true;
-      select.
+      select.appendChild(opt);
+    });
+    document.getElementById('modalMudarLider').style.display = 'flex';
+  }
+
+  function fecharModalLider() { document.getElementById('modalMudarLider').style.display = 'none'; }
+
+  async function salvarNovoLider() {
+    const nomeRede = document.getElementById('liderRedeNome').value;
+    const novoLiderId = document.getElementById('selectNovoLider').value;
+    if (!novoLiderId) return alert("Selecione um membro.");
+    document.getElementById('loading').style.display = 'block';
+    fecharModalLider();
+
+    try {
+      const batch = db.batch();
+      membrosCache.forEach(m => {
+        if (m.rede === nomeRede) {
+          const ref = db.collection('membros').doc(m.id);
+          if (m.id === novoLiderId) batch.update(ref, { categoria: 'Líder' });
+          else if (m.categoria === 'Líder') batch.update(ref, { categoria: 'Base da Rede' });
+        }
+      });
+      await batch.commit();
+      alert("✅ Líder atualizado com sucesso!");
+      await carregarDadosMacro();
+    } catch (err) {
+      alert("Erro ao alterar líder.");
+      console.error(err);
+      document.getElementById('loading').style.display = 'none';
+    }
+  }
+
+  function abrirModalTransferir(membroId, membroNome) {
+    document.getElementById('transMembroId').value = membroId;
+    document.getElementById('transMembroNome').value = membroNome;
+    const select = document.getElementById('selectRedeDestino');
+    select.innerHTML = '';
+    supervisorRedesTodas.forEach(r => {
+      const opt = document.createElement('option');
+      opt.value = r.nome;
+      opt.textContent = r.nome + (r.informal ? ' (Informal)' : '');
+      select.appendChild(opt);
+    });
+    document.getElementById('modalTransferir').style.display = 'flex';
+  }
+
+  function fecharModalTransferir() { document.getElementById('modalTransferir').style.display = 'none'; }
+
+  async function executarTransferencia() {
+    const membroId = document.getElementById('transMembroId').value;
+    const novaRede = document.getElementById('selectRedeDestino').value;
+    if (!membroId || !novaRede) return;
+    document.getElementById('loading').style.display = 'block';
+    fecharModalTransferir();
+
+    try {
+      await db.collection('membros').doc(membroId).update({ rede: novaRede });
+      alert("✅ Membro transferido com sucesso!");
+      await carregarDadosMacro();
+    } catch (err) {
+      alert("Erro ao transferir membro.");
+      console.error(err);
+      document.getElementById('loading').style.display = 'none';
+    }
+  }
+</script>
+</body>
+</html>
