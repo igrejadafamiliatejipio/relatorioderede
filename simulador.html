@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulador de Perfis - Gestão de Redes</title>
+  <style>
+    :root {
+      --bg: #0D0F12;
+      --card-bg: #161B22;
+      --card-border: #30363D;
+      --text: #F0F6FC;
+      --text-muted: #8B949E;
+      --primary: #6E56CF;
+      --primary-hover: #5B45B0;
+      --success: #23D160;
+      --warning: #E3B341;
+      --info: #388BFD;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); padding: 24px 12px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+    .container { max-width: 550px; width: 100%; background: var(--card-bg); padding: 32px; border-radius: 16px; border: 1px solid var(--card-border); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); text-align: center; }
+    
+    .header { margin-bottom: 28px; }
+    .header h1 { font-size: 1.6rem; font-weight: 700; margin-top: 6px; }
+    .badge-topo { display: inline-block; background: var(--primary); color: #FFF; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 8px; text-transform: uppercase; }
+
+    .btn-perfil { background: var(--input-bg, #0D1117); color: var(--text); border: 1px solid var(--card-border); padding: 16px 20px; border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 1rem; width: 100%; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; transition: 0.2s; text-align: left; }
+    .btn-perfil:hover { border-color: var(--primary); transform: translateY(-2px); background: #1f242c; }
+    
+    .btn-perfil.admin { border-left: 4px solid var(--success); }
+    .btn-perfil.sup { border-left: 4px solid var(--info); }
+    .btn-perfil.lider { border-left: 4px solid var(--warning); }
+
+    .btn-perfil span small { display: block; font-size: 0.78rem; color: var(--text-muted); font-weight: normal; margin-top: 2px; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <span class="badge-topo">PAINEL DE TESTES / DESENVOLVIMENTO</span>
+    <h1>🧭 Simulador de Perfis</h1>
+    <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 6px;">Escolha qual perfil você deseja simular agora:</p>
+  </div>
+
+  <div>
+    <!-- Coordenador / Admin -->
+    <button class="btn-perfil admin" onclick="simularCoordenador()">
+      <span>
+        👑 Coordenador / Master
+        <small>Acesso total aos cadastros cruzados e menu da coordenação</small>
+      </span>
+      <span>→</span>
+    </button>
+
+    <!-- Supervisor -->
+    <button class="btn-perfil sup" onclick="simularSupervisor()">
+      <span>
+        🛡️ Supervisor(a)
+        <small>Acessar painel de redes, cadastros e perfil próprio</small>
+      </span>
+      <span>→</span>
+    </button>
+
+    <!-- Líder de Rede -->
+    <button class="btn-perfil lider" onclick="simularLider()">
+      <span>
+        ⭐ Líder de Rede
+        <small>Acessar o painel da Rede Alfa (Visualizar membros e relatórios)</small>
+      </span>
+      <span>→</span>
+    </button>
+  </div>
+</div>
+
+<script>
+  function simularCoordenador() {
+    sessionStorage.clear();
+    sessionStorage.setItem('topo_ministerio', 'TOPO');
+    sessionStorage.setItem('topo_coord_logado', 'true');
+    sessionStorage.setItem('topo_coord_nome', 'Administrador Teste');
+    window.location.href = 'coordenador_menu.html';
+  }
+
+  function simularSupervisor() {
+    sessionStorage.clear();
+    sessionStorage.setItem('topo_ministerio', 'TOPO');
+    sessionStorage.setItem('topo_sup_nome', 'Pr. João');
+    sessionStorage.setItem('topo_sup_responsavel', 'Supervisor Teste');
+    window.location.href = 'supervisor_menu.html';
+  }
+
+  function simularLider() {
+    sessionStorage.clear();
+    sessionStorage.setItem('topo_ministerio', 'TOPO');
+    sessionStorage.setItem('topo_rede', 'Rede Alfa');
+    sessionStorage.setItem('topo_supervisao', 'Pr. João');
+    sessionStorage.setItem('topo_lider', 'Maria Silva');
+    window.location.href = 'painel.html';
+  }
+</script>
+
+</body>
+</html>
