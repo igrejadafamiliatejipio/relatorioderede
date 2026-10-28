@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel Administrativo - Ministério TOPO</title>
+  <style>
+    :root {
+      --bg: #0D0F12;
+      --card-bg: #161B22;
+      --card-border: #30363D;
+      --input-bg: #0D1117;
+      --text: #F0F6FC;
+      --text-muted: #8B949E;
+      --primary: #6E56CF;
+      --primary-hover: #5B45B0;
+      --success: #23D160;
+      --warning: #E3B341;
+      --danger: #E5534B;
+      --info: #388BFD;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); padding: 24px 12px; display: flex; justify-content: center; min-height: 100vh; }
+    .container { max-width: 900px; width: 100%; background: var(--card-bg); padding: 28px; border-radius: 16px; border: 1px solid var(--card-border); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); }
+
+    /* Tela de Login Admin */
+    #loginAdminScreen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; text-align: center; }
+    #loginAdminScreen h2 { margin-bottom: 16px; font-size: 1.5rem; }
+    #loginAdminScreen input { max-width: 300px; margin-bottom: 12px; text-align: center; }
+
+    .top-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .btn-voltar { background: #21262D; color: var(--text); border: 1px solid var(--card-border); padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; text-decoration: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-voltar:hover { background: #30363D; }
+
+    .header { text-align: center; margin-bottom: 24px; }
+    .badge-topo { display: inline-block; background: var(--danger); color: #FFF; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 8px; text-transform: uppercase; }
+
+    .section-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; }
+    
+    .card-form { background: var(--input-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; margin-bottom: 28px; }
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    .form-group { margin-bottom: 12px; text-align: left; }
+    label { display: block; font-weight: 500; font-size: 0.82rem; margin-bottom: 6px; color: var(--text-muted); text-transform: uppercase; }
+    input, select { width: 100%; padding: 10px 14px; background-color: var(--card-bg); border: 1px solid var(--card-border); border-radius: 8px; font-size: 0.95rem; color: var(--text); outline: none; }
+    input:focus, select:focus { border-color: var(--primary); }
+    select option { background-color: var(--card-bg); color: var(--text); }
+
+    .btn { background-color: var(--primary); color: white; border: none; padding: 10px 18px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.9rem; }
+    .btn:hover { background-color: var(--primary-hover); }
+    .btn-danger { background-color: var(--danger); }
+    .btn-danger:hover { background-color: #c93b33; }
+
+    .membro-admin-card { background: var(--input-bg); border: 1px solid var(--card-border); padding: 14px 16px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+    .membro-main strong { font-size: 1rem; color: var(--text); display: block; }
+    .membro-main small { color: var(--text-muted); font-size: 0.82rem; }
+
+    .tag { font-size: 0.72rem; padding: 3px 8px; border-radius: 12px; font-weight: 600; display: inline-block; margin-top: 4px; }
+    .tag-coordenador { background: rgba(227, 179, 65, 0.2); color: var(--warning); border: 1px solid rgba(227, 179, 65, 0.4); }
+    .tag-supervisor { background: rgba(56, 139, 253, 0.2); color: var(--info); border: 1px solid rgba(56, 139, 253, 0.4); }
+    .tag-lider { background: rgba(35, 209, 96, 0.2); color: var(--success); border: 1px solid rgba(35, 209, 96, 0.4); }
+    .tag-comum { background: rgba(139, 148, 158, 0.2); color: var(--text-muted); border: 1px solid rgba(139, 148, 158, 0.3); }
+
+    .loading-box { text-align: center; padding: 30px; color: var(--text-muted); }
+  </style>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- TELA DE SENHA ADMIN -->
+  <div id="loginAdminScreen">
+    <span class="badge-topo">ÁREA RESTRITA</span>
+    <h2>🔐 Painel Administrativo Master</h2>
+    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 16px;">Digite a senha de administrador para continuar.</p>
+    <input type="password" id="senhaAdminInput" placeholder="Senha mestre">
+    <button class="btn" onclick="verificarSenhaAdmin()">Entrar no Painel</button>
+  </div>
+
+  <!-- TELA PRINCIPAL DO ADMIN (Oculta até logar) -->
+  <div id="conteudoAdminMaster" style="display: none;">
+    <div class="top-nav">
+      <button class="btn-voltar" onclick="window.location.href='lider.html'">← Voltar ao Início</button>
+      <button class="btn btn-danger" style="padding: 4px 10px; font-size: 0.75rem;" onclick="logoutAdmin()">Sair</button>
+    </div>
+
+    <div class="header">
+      <span class="badge-topo">ADMINISTRAÇÃO GERAL</span>
+      <h1 style="font-size: 1.8rem; font-weight: 800; margin-top: 4px;">Painel Master do Ministério</h1>
+    </div>
+
+    <!-- FORMULÁRIO DE CADASTRO GERAL -->
+    <div class="section-title">➕ Cadastrar Novo Membro / Coordenador / Supervisor</div>
+    <div class="card-form">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Nome Completo</label>
+          <input type="text" id="cadNome" placeholder="Ex: Pr. Carlos Silva">
+        </div>
+        <div class="form-group">
+          <label>Cargo / Categoria</label>
+          <select id="cadCategoria">
+            <option value="Coordenador">Coordenador(a)</option>
+            <option value="Supervisor">Supervisor(a)</option>
+            <option value="Líder">Líder de Rede</option>
+            <option value="Base da Rede">Base da Rede</option>
+            <option value="Liderado">Liderado</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Ministério</label>
+          <select id="cadMinisterio">
+            <option value="TOPO">TOPO (Geral)</option>
+            <option value="ELAS">ELAS</option>
+            <option value="ELES">ELES</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Supervisão (Se aplicável)</label>
+          <input type="text" id="cadSupervisao" placeholder="Ex: Supervisão Sul">
+        </div>
+        <div class="form-group">
+          <label>Rede (Se aplicável)</label>
+          <input type="text" id="cadRede" placeholder="Ex: Rede Alpha">
+        </div>
+        <div class="form-group">
+          <label>WhatsApp</label>
+          <input type="text" id="cadWhatsapp" placeholder="Apenas números com DDD">
+        </div>
+        <div class="form-group">
+          <label>E-mail de Acesso</label>
+          <input type="email" id="cadEmail" placeholder="email@exemplo.com">
+        </div>
+        <div class="form-group">
+          <label>Data de Nascimento</label>
+          <input type="date" id="cadNascimento">
+        </div>
+      </div>
+      <button class="btn" style="width: 100%; margin-top: 10px;" onclick="cadastrarMembroAdmin()">💾 Cadastrar no Sistema</button>
+    </div>
+
+    <!-- LISTAGEM GERAL DE MEMBROS E LIDERANÇAS -->
+    <div class="section-title">📋 Todos os Cadastros do Sistema (<span id="totalCadastros">0</span>)</div>
+    <div id="listaGeralCadastros">
+      <div class="loading-box">Carregando cadastros...</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyB7FJXs9wiRFYIs2ugZoWrw7jTXPR5weGk",
+    authDomain: "app-redes-iftejipio.firebaseapp.com",
+    projectId: "app-redes-iftejipio",
+    storageBucket: "app-redes-iftejipio.firebasestorage.app",
+    messagingSenderId: "954529090793",
+    appId: "1:954529090793:web:6702d102b6e5b178b6b478",
+    measurementId: "G-2MJ96WMYQ5"
+  };
+  if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  // Senha padrão mestre (Você pode alterar para a senha que desejar)
+  const SENHA_MESTRE = "topo2026";
+
+  function verificarSenhaAdmin() {
+    const digitada = document.getElementById('senhaAdminInput').value;
+    if (digitada === SENHA_MESTRE) {
+      sessionStorage.setItem('topo_admin_logado', 'true');
+      document.getElementById('loginAdminScreen').style.display = 'none';
+      document.getElementById('conteudoAdminMaster').style.display = 'block';
+      carregarTodosMembros();
+    } else {
+      alert("❌ Senha incorreta!");
+    }
+  }
+
+  // Verifica se já estava logado na sessão
+  document.addEventListener("DOMContentLoaded", () => {
+    if (sessionStorage.getItem('topo_admin_logado') === 'true') {
+      document.getElementById('loginAdminScreen').style.display = 'none';
+      document.getElementById('conteudoAdminMaster').style.display = 'block';
+      carregarTodosMembros();
+    }
+  });
+
+  function logoutAdmin() {
+    sessionStorage.removeItem('topo_admin_logado');
+    location.reload();
+  }
+
+  async function cadastrarMembroAdmin() {
+    const nome = document.getElementById('cadNome').value.trim();
+    const categoria = document.getElementById('cadCategoria').value;
+    const ministerio = document.getElementById('cadMinisterio').value;
+    const supervisao = document.getElementById('cadSupervisao').value.trim();
+    const rede = document.getElementById('cadRede').value.trim();
+    const whatsapp = document.getElementById('cadWhatsapp').value.trim();
+    const email = document.getElementById('cadEmail').value.trim().toLowerCase();
+    const nascimento = document.getElementById('cadNascimento').value;
+
+    if (!nome) return alert("Por favor, informe o nome completo.");
+
+    try {
+      await db.collection('membros').add({
+        nome,
+        categoria,
+        ministerio,
+        supervisao: supervisao || 'Geral',
+        rede: rede || 'Geral',
+        whatsapp,
+        email,
+        nascimento,
+        status: 'ATIVO',
+        criadoEm: firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+      alert(`✅ ${categoria} cadastrado(a) com sucesso!`);
+      
+      // Limpar campos
+      document.getElementById('cadNome').value = '';
+      document.getElementById('cadWhatsapp').value = '';
+      document.getElementById('cadEmail').value = '';
+      document.getElementById('cadNascimento').value = '';
+      document.getElementById('cadSupervisao').value = '';
+      document.getElementById('cadRede').value = '';
+
+      await carregarTodosMembros();
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao cadastrar.");
+    }
+  }
+
+  async function carregarTodosMembros() {
+    const container = document.getElementById('listaGeralCadastros');
+    container.innerHTML = '<div class="loading-box">Carregando...</div>';
+
+    try {
+      const snap = await db.collection('membros').get();
+      let membros = [];
+      snap.forEach(doc => {
+        const d = doc.data();
+        if (d.status !== 'INATIVO') {
+          membros.push({ id: doc.id, ...d });
+        }
+      });
+
+      document.getElementById('totalCadastros').innerText = membros.length;
+      container.innerHTML = '';
+
+      if (membros.length === 0) {
+        container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.9rem;">Nenhum membro cadastrado.</div>';
+        return;
+      }
+
+      // Ordenar por categoria (Coordenador primeiro, depois Supervisor, Líder, etc.)
+      const ordemPeso = { 'Coordenador': 1, 'Supervisor': 2, 'Líder': 3, 'Base da Rede': 4, 'Liderado': 5 };
+      membros.sort((a, b) => (ordemPeso[a.categoria] || 9) - (ordemPeso[b.categoria] || 9));
+
+      membros.forEach(m => {
+        let tagClass = 'tag-comum';
+        if (m.categoria === 'Coordenador') tagClass = 'tag-coordenador';
+        else if (m.categoria === 'Supervisor') tagClass = 'tag-supervisor';
+        else if (m.categoria === 'Líder') tagClass = 'tag-lider';
+
+        container.innerHTML += `
+          <div class="membro-admin-card">
+            <div class="membro-main">
+              <strong>${m.nome}</strong>
+              <small>Ministério: ${m.ministerio || 'TOPO'} | Sup: ${m.supervisao || '-'} | Rede: ${m.rede || '-'}</small>
+              <div><span class="tag ${tagClass}">${m.categoria || 'Liderado'}</span></div>
+            </div>
+            <div>
+              <button class="btn btn-danger" style="padding: 6px 12px; font-size: 0.8rem;" onclick="inativarMembroAdmin('${m.id}', '${m.nome}')">Excluir</button>
+            </div>
+          </div>
+        `;
+      });
+
+    } catch (err) {
+      console.error(err);
+      container.innerHTML = '<div style="color: var(--danger);">Erro ao carregar lista.</div>';
+    }
+  }
+
+  async function inativarMembroAdmin(id, nome) {
+    if (!confirm(`Deseja realmente remover ${nome} do sistema?`)) return;
+    try {
+      await db.collection('membros').doc(id).update({ status: 'INATIVO' });
+      alert(`✅ ${nome} removido com sucesso.`);
+      await carregarTodosMembros();
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao remover.");
+    }
+  }
+</script>
+
+</body>
+</html>
