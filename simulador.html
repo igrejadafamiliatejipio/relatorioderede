@@ -70,7 +70,7 @@
     <div class="form-group" id="grupoEntidade" style="display: none;">
       <label id="labelEntidade">3. Selecione a Pessoa</label>
       <select id="selectEntidade">
-        <option value="">Carregando...</option>
+        <option value="">Primeiro selecione o perfil...</option>
       </select>
     </div>
 
@@ -96,18 +96,23 @@
 
   document.addEventListener("DOMContentLoaded", async () => {
     try {
-      // Carrega todos os membros ativos de uma vez para agilizar o simulador
-      const snapshot = await db.collection('membros').where('status', '!=', 'INATIVO').get();
+      // Busca todos os membros sem filtros restritivos para evitar perder registros sem o campo status
+      const snapshot = await db.collection('membros').get();
       dadosMembros = [];
       snapshot.forEach(doc => {
-        dadosMembros.push({ id: doc.id, ...doc.data() });
+        const d = doc.data();
+        // Ignora apenas se explicitamente inativo
+        if (d.status !== 'INATIVO') {
+          dadosMembros.push({ id: doc.id, ...d });
+        }
       });
     } catch (err) {
       console.error("Erro ao carregar dados do Firebase:", err);
+      alert("Erro ao carregar dados do banco.");
     }
   });
 
-  async function atualizarOpcoes() {
+  function atualizarOpcoes() {
     const ministerio = document.getElementById('selectMinisterio').value;
     const perfil = document.getElementById('selectPerfil').value;
     const grupoEntidade = document.getElementById('grupoEntidade');
@@ -128,22 +133,35 @@
 
     if (perfil === 'Supervisor') {
       labelEntidade.innerText = '3. Selecione o(a) Supervisor(a)';
-      filtrados = dadosMembros.filter(m => (m.ministerio || 'TOPO') === ministerio && m.categoria === 'Supervisor');
+      filtrados = dadosMembros.filter(m => {
+        const min = m.ministerio || 'TOPO';
+        const cat = m.categoria ? m.categoria.trim() : '';
+        return min === ministerio && cat === 'Supervisor';
+      });
     } else if (perfil === 'Lider') {
       labelEntidade.innerText = '3. Selecione o(a) Líder e sua Rede';
-      filtrados = dadosMembros.filter(m => (m.ministerio || 'TOPO') === ministerio && m.categoria === 'Líder');
+      filtrados = dadosMembros.filter(m => {
+        const min = m.ministerio || 'TOPO';
+        const cat = m.categoria ? m.categoria.trim() : '';
+        return min === ministerio && (cat === 'Líder' || cat === 'Lider');
+      });
+    }
+
+    if (filtrados.length === 0) {
+      selectEntidade.innerHTML = '<option value="">Nenhum registro encontrado para este filtro</option>';
+      return;
     }
 
     selectEntidade.innerHTML = '<option value="">Selecione...</option>';
-    filtrados.sort((a, b) => a.nome.localeCompare(b.nome)).forEach(m => {
+    filtrados.sort((a, b) => (a.nome || '').localeCompare(b.nome || '')).forEach(m => {
       const opt = document.createElement('option');
       opt.value = JSON.stringify({ nome: m.nome, rede: m.rede, supervisao: m.supervisao });
-      opt.textContent = perfil === 'Líder' ? `${m.nome} (Rede: ${m.rede})` : m.nome;
+      opt.textContent = perfil === 'Lider' ? `${m.nome} (Rede: ${m.rede || 'Geral'})` : m.nome;
       selectEntidade.appendChild(opt);
     });
   }
 
-  function entrarComo(e) {
+    function entrarComo(e) {
     e.preventDefault();
     const ministerio = document.getElementById('selectMinisterio').value;
     const perfil = document.getElementById('selectPerfil').value;
@@ -158,7 +176,7 @@
     } 
     else if (perfil === 'Supervisor') {
       const dadosStr = document.getElementById('selectEntidade').value;
-      if (!dadosStr) return alert("Selecione um supervisor.");
+      if (!dadosStr) return alert("Por favor, selecione um supervisor na lista.");
       const dados = JSON.parse(dadosStr);
 
       sessionStorage.setItem('topo_sup_nome', dados.nome);
@@ -167,7 +185,7 @@
     } 
     else if (perfil === 'Lider') {
       const dadosStr = document.getElementById('selectEntidade').value;
-      if (!dadosStr) return alert("Selecione um líder.");
+      if (!dadosStr) return alert("Por favor, selecione um líder na lista.");
       const dados = JSON.parse(dadosStr);
 
       sessionStorage.setItem('topo_rede', dados.rede || 'Rede Geral');
