@@ -337,7 +337,6 @@
     }
   }
 
-  // Funções auxiliares solicitadas para os relatórios
   function formatarNomeSobrenome(nomeCompleto) {
     if (!nomeCompleto) return '';
     const partes = nomeCompleto.trim().split(' ');
@@ -383,6 +382,8 @@
     const dataHoje = new Date();
     const mesAtual = dataHoje.getMonth() + 1;
     const diaAtual = dataHoje.getDate();
+    const liderLogadoNome = sessionStorage.getItem('topo_lider');
+    const isSupervisorLogado = sessionStorage.getItem('topo_sup_nome');
 
     if (total === 0) {
       containerMembros.innerHTML = `<div style="color: var(--text-muted); font-size: 0.9rem;">Nenhum membro cadastrado nesta rede ainda.</div>`;
@@ -396,6 +397,9 @@
         const batizado = m.batizado || 'Não';
         const categoria = m.categoria || 'Liderado';
         const isLider = categoria === 'Líder';
+
+        // Verifica se este membro é o próprio líder logado (caso não seja supervisor)
+        const ehProprioLiderLogado = (!isSupervisorLogado && liderLogadoNome && liderLogadoNome.toLowerCase() === nome.toLowerCase());
 
         let faltasSeguidas = 0;
         for (let r of [...relatoriosRede].reverse()) {
@@ -424,6 +428,20 @@
           ? `<a href="https://api.whatsapp.com/send?phone=55${whats.replace(/\D/g,'')}&text=${encodeURIComponent('Olá ' + nome + ', tudo bem? Passando para saber como você está e dizer que oro por sua vida!')}" target="_blank" class="btn-whats-mini">💬 WhatsApp</a>` 
           : `<span style="font-size: 0.8rem; color: var(--text-muted);">Sem WhatsApp</span>`;
 
+        // Se for o próprio líder logado, oculta os botões de editar dados próprios por aqui e de exclusão
+        let botoesAcao = `
+          ${linkWhatsMembro}
+          <button class="btn-edit" onclick="abrirModalEdicao('${m.id}')">✏️ Editar</button>
+          <button class="btn-delete" onclick="inativarMembro('${m.id}', '${nome}')">Remover</button>
+        `;
+
+        if (ehProprioLiderLogado) {
+          botoesAcao = `
+            ${linkWhatsMembro}
+            <span style="font-size: 0.75rem; color: var(--text-muted); font-style: italic;">(Gerencie no "Meu Perfil")</span>
+          `;
+        }
+
         div.innerHTML = `
           <div class="membro-main">
             <strong style="${isLider ? 'color: var(--success); font-size: 1.05rem;' : ''}">${isLider ? '⭐ ' : ''}${nome}</strong>
@@ -431,9 +449,7 @@
             <div class="tags">${tagsHTML}</div>
           </div>
           <div class="actions-group">
-            ${linkWhatsMembro}
-            <button class="btn-edit" onclick="abrirModalEdicao('${m.id}')">✏️ Editar</button>
-            <button class="btn-delete" onclick="inativarMembro('${m.id}', '${nome}')">Remover</button>
+            ${botoesAcao}
           </div>
         `;
         containerMembros.appendChild(div);
@@ -701,6 +717,15 @@
     const membro = membrosLocais.find(m => m.id === docId);
     if (!membro) return;
 
+    const liderLogadoNome = sessionStorage.getItem('topo_lider');
+    const isSupervisorLogado = sessionStorage.getItem('topo_sup_nome');
+
+    // Dupla proteção: impede o líder de editar o próprio cadastro por aqui
+    if (!isSupervisorLogado && liderLogadoNome && liderLogadoNome.toLowerCase() === membro.nome.toLowerCase()) {
+      alert("⚠️ Você não pode editar suas próprias informações por esta tela. Utilize a opção 'Meu Perfil' no menu principal.");
+      return;
+    }
+
     document.getElementById('editDocId').value = docId;
     document.getElementById('editNome').value = membro.nome;
     document.getElementById('editNascimento').value = membro.nascimento || '';
@@ -744,20 +769,7 @@
   }
 
   async function inativarMembro(docId, nome) {
-    if (!confirm(`Tem certeza que deseja remover ${nome}?`)) return;
+    const liderLogadoNome = sessionStorage.getItem('topo_lider');
+    const isSupervisorLogado = sessionStorage.getItem('topo_sup_nome');
 
-    document.getElementById('loading').style.display = 'block';
-    try {
-      await db.collection('membros').doc(docId).update({ status: "INATIVO" });
-      alert(`✅ ${nome} removido(a).`);
-      await carregarDadosDashboard();
-    } catch (err) {
-      alert("Erro ao remover membro.");
-      console.error(err);
-      document.getElementById('loading').style.display = 'none';
-    }
-  }
-</script>
-
-</body>
-</html>
+    if (!isSupervisorLogado && liderLogadoNome && liderLogadoNome.toLowerCase() === nome.toLowerCase
