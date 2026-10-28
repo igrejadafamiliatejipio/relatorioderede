@@ -45,7 +45,7 @@
     <div class="form-group"><label>Sexo</label><select id="cadSexo"><option value="Masculino">Masculino</option><option value="Feminino">Feminino</option></select></div>
     <div class="form-group"><label>Batizado?</label><select id="cadBatizado"><option value="Sim">Sim</option><option value="Não">Não</option></select></div>
     <div class="form-group"><label>Categoria</label><select id="cadCategoria"><option value="Liderado">Liderado</option><option value="Base da Rede">Base da Rede</option><option value="Líder">Líder</option></select></div>
-    <div class="form-group"><label>Rede de Destino</label><select id="cadRedeSelect"></select></div>
+    <div class="form-group"><label>Rede de Destino</label><select id="cadRedeSelect"><option value="">Carregando redes...</option></select></div>
     <button class="btn" onclick="salvarNovoMembro()">Cadastrar Membro</button>
   </div>
   <div id="loading" class="loading-box">Salvando membro no Firebase...</div>
@@ -65,29 +65,54 @@
   const db = firebase.firestore();
 
   let supervisaoNome = '';
-  let redesSup = [];
   let ministerioAtivo = 'TOPO';
 
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('DOMContentLoaded', async () => {
     ministerioAtivo = sessionStorage.getItem('topo_ministerio') || 'TOPO';
     document.getElementById('badgeMinisterio').innerText = `Ministério ${ministerioAtivo}`;
 
+    // Pega o nome do supervisor logado direto da sessão
     supervisaoNome = sessionStorage.getItem('topo_sup_nome');
-    const redesStr = sessionStorage.getItem('topo_sup_redes');
-    if (!supervisaoNome || !redesStr) {
-      window.location.href = "supervisor.html";
+    if (!supervisaoNome) {
+      alert("Sessão expirada ou supervisor não identificado. Faça o login novamente.");
+      window.location.href = "index.html";
       return;
     }
-    redesSup = JSON.parse(redesStr);
-    const selectRede = document.getElementById('cadRedeSelect');
-    selectRede.innerHTML = '';
-    redesSup.forEach(r => {
-      const opt = document.createElement('option');
-      opt.value = r.nome;
-      opt.textContent = r.nome;
-      selectRede.appendChild(opt);
-    });
+
+    await carregarRedesDoSupervisor();
   });
+
+  async function carregarRedesDoSupervisor() {
+    const selectRede = document.getElementById('cadRedeSelect');
+    selectRede.innerHTML = '<option value="">Carregando...</option>';
+
+    try {
+      // Busca no Firestore as redes gerenciadas por este supervisor
+      const snapshot = await db.collection('perfis_redes')
+        .where('supervisao', '==', supervisaoNome)
+        .get();
+
+      selectRede.innerHTML = '';
+
+      if (snapshot.empty) {
+        selectRede.innerHTML = '<option value="">Nenhuma rede encontrada para esta supervisão</option>';
+        return;
+      }
+
+      selectRede.innerHTML = '<option value="">Selecione a rede...</option>';
+      snapshot.forEach(doc => {
+        const redeNome = doc.id; // O ID do documento em perfis_redes é o nome limpo da rede
+        const opt = document.createElement('option');
+        opt.value = redeNome;
+        opt.textContent = redeNome;
+        selectRede.appendChild(opt);
+      });
+
+    } catch (err) {
+      console.error("Erro ao carregar redes:", err);
+      selectRede.innerHTML = '<option value="">Erro ao carregar redes</option>';
+    }
+  }
 
   async function salvarNovoMembro() {
     const nome = document.getElementById('cadNome').value.trim();
@@ -106,16 +131,16 @@
 
     try {
       await db.collection('membros').add({
-        ministerio: ministerioAtivo, // Salva o ministério atual
+        ministerio: ministerioAtivo,
         nome, 
         whatsapp, 
-        email, // Salva o e-mail em minúsculas
+        email, 
         nascimento, 
         sexo, 
         batizado, 
         categoria, 
         rede,
-        supervisao: supervisaoNome,
+        supervisao: supervisaoNome, // Salva o nome real do supervisor logado
         status: "ATIVO"
       });
       alert("✅ Membro cadastrado com sucesso!");
