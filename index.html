@@ -3,237 +3,164 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gestão de REDES - Igreja da Família Tejipió</title>
+  <title>Login - Ministério TOPO</title>
   <style>
     :root {
-      --bg: #0D0F12;
-      --card-bg: #161B22;
-      --card-border: #30363D;
-      --text: #F0F6FC;
-      --text-muted: #8B949E;
-      --accent-topo: #6E56CF;
-      --accent-elas: #EC4899;
-      --accent-eles: #388BFD;
+      --bg: #0D0F12; --card-bg: #161B22; --card-border: #30363D;
+      --input-bg: #0D1117; --text: #F0F6FC; --text-muted: #8B949E;
+      --primary: #6E56CF; --primary-hover: #5B45B0; --danger: #E5534B;
     }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    }
-
-    body {
-      background-color: var(--bg);
-      color: var(--text);
-      padding: 32px 16px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-    }
-
-    .container {
-      max-width: 920px;
-      width: 100%;
-      text-align: center;
-    }
-
-    .badge-topo {
-      display: inline-block;
-      background: rgba(110, 86, 207, 0.15);
-      color: #A58BFF;
-      border: 1px solid rgba(110, 86, 207, 0.4);
-      padding: 6px 16px;
-      border-radius: 20px;
-      font-size: 0.78rem;
-      font-weight: 700;
-      letter-spacing: 1.5px;
-      margin-bottom: 12px;
-    }
-
-    h1 {
-      font-size: 2.2rem;
-      font-weight: 800;
-      color: var(--text);
-      margin-bottom: 8px;
-      letter-spacing: -0.5px;
-    }
-
-    .subtitle {
-      color: var(--text-muted);
-      font-size: 0.95rem;
-      margin-bottom: 36px;
-      line-height: 1.5;
-    }
-
-    .menu-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
-    }
-
-    .card-menu {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 16px;
-      padding: 28px 20px;
-      text-decoration: none;
-      color: var(--text);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: space-between;
-      min-height: 260px;
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-      position: relative;
-      overflow: hidden;
-      cursor: pointer;
-    }
-
-    .card-menu::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 4px;
-      background: var(--card-border);
-      transition: background 0.25s ease;
-    }
-
-    .card-menu.topo::before { background: var(--accent-topo); }
-    .card-menu.elas::before { background: var(--accent-elas); }
-    .card-menu.eles::before { background: var(--accent-eles); }
-
-    .card-menu:hover {
-      transform: translateY(-4px);
-      border-color: #484F58;
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
-    }
-
-    .card-icon {
-      font-size: 2.5rem;
-      width: 64px;
-      height: 64px;
-      background: #0D1117;
-      border: 1px solid var(--card-border);
-      border-radius: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 16px;
-    }
-
-    .card-body h3 {
-      font-size: 1.2rem;
-      font-weight: 700;
-      margin-bottom: 8px;
-      color: var(--text);
-    }
-
-    .card-body p {
-      font-size: 0.83rem;
-      color: var(--text-muted);
-      line-height: 1.4;
-    }
-
-    .card-footer {
-      font-size: 0.85rem;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      margin-top: 20px;
-    }
-
-    .card-menu.topo .card-footer { color: #A58BFF; }
-    .card-menu.elas .card-footer { color: #F472B6; }
-    .card-menu.eles .card-footer { color: #60A5FA; }
-
-    @media (max-width: 800px) {
-      .menu-grid {
-        grid-template-columns: 1fr;
-        gap: 16px;
-      }
-      .card-menu {
-        min-height: auto;
-        flex-direction: row;
-        align-items: center;
-        text-align: left;
-        padding: 20px;
-      }
-      .card-menu::before {
-        width: 4px;
-        height: 100%;
-        top: 0;
-        left: 0;
-      }
-      .card-icon {
-        margin-bottom: 0;
-        margin-right: 16px;
-        flex-shrink: 0;
-        width: 52px;
-        height: 52px;
-        font-size: 2rem;
-      }
-      .card-body { flex: 1; }
-      .card-footer { margin-top: 0; }
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); padding: 24px 12px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+    .container { max-width: 420px; width: 100%; background: var(--card-bg); padding: 32px; border-radius: 16px; border: 1px solid var(--card-border); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); text-align: center; }
+    .header { margin-bottom: 24px; }
+    .header h1 { font-size: 1.5rem; font-weight: 700; margin-top: 6px; }
+    .badge-topo { display: inline-block; background: var(--primary); color: #FFF; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 8px; text-transform: uppercase; }
+    .form-group { margin-bottom: 16px; text-align: left; }
+    label { display: block; font-weight: 500; font-size: 0.82rem; margin-bottom: 6px; color: var(--text-muted); text-transform: uppercase; }
+    input { width: 100%; padding: 12px 14px; background-color: var(--input-bg); border: 1px solid var(--card-border); border-radius: 8px; font-size: 0.95rem; color: var(--text); outline: none; }
+    input:focus { border-color: var(--primary); }
+    .btn { background-color: var(--primary); color: white; border: none; padding: 14px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 1rem; width: 100%; margin-top: 10px; transition: 0.2s; }
+    .btn:hover { background-color: var(--primary-hover); }
+    .error-msg { background: rgba(229, 83, 75, 0.15); color: var(--danger); border: 1px solid rgba(229, 83, 75, 0.3); padding: 10px; border-radius: 8px; font-size: 0.85rem; margin-bottom: 16px; display: none; text-align: left; }
+    .links-container { margin-top: 20px; display: flex; flex-direction: column; gap: 8px; }
+    .link-ajuda { font-size: 0.82rem; color: var(--text-muted); text-decoration: none; cursor: pointer; }
+    .link-ajuda:hover { color: var(--primary); text-decoration: underline; }
   </style>
+
+  <!-- Firebase SDKs (App, Auth e Firestore) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
 <div class="container">
-  <span class="badge-topo">IGREJA DA FAMÍLIA TEJIPIÓ</span>
-  <h1>Gestão de REDES</h1>
-  <p class="subtitle">Selecione o ministério desejado para acessar as áreas de gestão</p>
+  <div class="header">
+    <span class="badge-topo">MINISTÉRIO TOPO</span>
+    <h1>🔐 Acesso ao Sistema</h1>
+    <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 6px;">Digite seu e-mail e senha para entrar.</p>
+  </div>
 
-  <div class="menu-grid">
-    
-    <!-- 1. Ministério TOPO -->
-    <div class="card-menu topo" onclick="selecionarMinisterio('TOPO')">
-      <div class="card-icon">🏔️</div>
-      <div class="card-body">
-        <h3>Ministério TOPO</h3>
-        <p>Redes, supervisões e liderança do ministério principal</p>
-      </div>
-      <div class="card-footer">
-        Acessar <span>➔</span>
-      </div>
+  <div id="errorBox" class="error-msg"></div>
+
+  <form onsubmit="realizarLogin(event)">
+    <div class="form-group">
+      <label>E-mail</label>
+      <input type="email" id="inputEmail" placeholder="seu.email@exemplo.com" required>
     </div>
-
-    <!-- 2. Ministério Elas -->
-    <div class="card-menu elas" onclick="selecionarMinisterio('ELAS')">
-      <div class="card-icon">🌸</div>
-      <div class="card-body">
-        <h3>Ministério Elas</h3>
-        <p>Redes, supervisões e liderança voltada ao público feminino</p>
-      </div>
-      <div class="card-footer">
-        Acessar <span>➔</span>
-      </div>
+    <div class="form-group">
+      <label>Senha</label>
+      <input type="password" id="inputSenha" placeholder="••••••••" required>
     </div>
+    <button type="submit" class="btn" id="btnLogin">Entrar</button>
+  </form>
 
-    <!-- 3. Ministério Eles -->
-    <div class="card-menu eles" onclick="selecionarMinisterio('ELES')">
-      <div class="card-icon">🛡️</div>
-      <div class="card-body">
-        <h3>Ministério Eles</h3>
-        <p>Redes, supervisões e liderança voltada ao público masculino</p>
-      </div>
-      <div class="card-footer">
-        Acessar <span>➔</span>
-      </div>
-    </div>
-
+  <div class="links-container">
+    <a class="link-ajuda" onclick="esqueciSenha()">Esqueceu sua senha ou é seu primeiro acesso? Clique aqui</a>
+    <a href="atualizar_email.html" class="link-ajuda">Ainda não cadastrou seu e-mail? Clique aqui</a>
   </div>
 </div>
 
 <script>
-  function selecionarMinisterio(ministerio) {
-    sessionStorage.setItem('topo_ministerio', ministerio);
-    window.location.href = "niveis.html";
+  const firebaseConfig = {
+    apiKey: "AIzaSyB7FJXs9wiRFYIs2ugZoWrw7jTXPR5weGk",
+    authDomain: "app-redes-iftejipio.firebaseapp.com",
+    projectId: "app-redes-iftejipio",
+    storageBucket: "app-redes-iftejipio.firebasestorage.app",
+    messagingSenderId: "954529090793",
+    appId: "1:954529090793:web:6702d102b6e5b178b6b478",
+    measurementId: "G-2MJ96WMYQ5"
+  };
+
+  if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+
+  // Defina aqui o seu e-mail de Administrador Mestre
+  const EMAIL_MASTER = "seu-email-master@exemplo.com"; 
+
+  async function realizarLogin(e) {
+    e.preventDefault();
+    const email = document.getElementById('inputEmail').value.trim().toLowerCase();
+    const senha = document.getElementById('inputSenha').value;
+    const errorBox = document.getElementById('errorBox');
+    const btn = document.getElementById('btnLogin');
+
+    errorBox.style.display = 'none';
+    btn.disabled = true;
+    btn.innerText = "Verificando...";
+
+    try {
+      // 1. Autentica no Firebase Auth
+      const userCredential = await auth.signInWithEmailAndPassword(email, senha);
+      const userEmail = userCredential.user.email;
+
+      sessionStorage.clear();
+
+      // 2. Verifica se é o Admin Mestre
+      if (userEmail === EMAIL_MASTER) {
+        sessionStorage.setItem('topo_ministerio', 'TOPO');
+        sessionStorage.setItem('topo_coord_logado', 'true');
+        sessionStorage.setItem('topo_coord_nome', 'Administrador Master');
+        window.location.href = 'coordenador_menu.html';
+        return;
+      }
+
+      // 3. Procura o e-mail na coleção de membros para descobrir quem é
+      const snapshot = await db.collection('membros').where('email', '==', userEmail).get();
+
+      if (snapshot.empty) {
+        throw new Error("Este e-mail está autenticado, mas não está vinculado a nenhum membro ou líder ativo no sistema. Procure a coordenação.");
+      }
+
+      const membroDoc = snapshot.docs[0].data();
+      const ministerio = membroDoc.ministerio || 'TOPO';
+      const categoria = membroDoc.categoria ? membroDoc.categoria.trim() : '';
+
+      sessionStorage.setItem('topo_ministerio', ministerio);
+
+      // 4. Direciona de acordo com a categoria do membro
+      if (categoria === 'Supervisor') {
+        sessionStorage.setItem('topo_sup_nome', membroDoc.nome);
+        sessionStorage.setItem('topo_sup_responsavel', 'Supervisor(a)');
+        window.location.href = 'supervisor_menu.html';
+      } 
+      else if (categoria === 'Líder' || categoria === 'Lider') {
+        sessionStorage.setItem('topo_rede', membroDoc.rede || 'Rede Geral');
+        sessionStorage.setItem('topo_supervisao', membroDoc.supervisao || membroDoc.nome);
+        sessionStorage.setItem('topo_lider', membroDoc.nome);
+        window.location.href = 'painel.html';
+      } 
+      else {
+        throw new Error("Sua conta não possui permissão de Supervisor ou Líder.");
+      }
+
+    } catch (err) {
+      console.error(err);
+      errorBox.style.display = 'block';
+      errorBox.innerText = err.code === 'auth/invalid-credential' 
+        ? "E-mail ou senha incorretos." 
+        : (err.message || "Erro ao realizar login.");
+      btn.disabled = false;
+      btn.innerText = "Entrar";
+    }
+  }
+
+  async function esqueciSenha() {
+    const email = document.getElementById('inputEmail').value.trim().toLowerCase();
+    if (!email) {
+      alert("Por favor, digite o seu e-mail no campo acima primeiro e depois clique em 'Esqueceu sua senha'.");
+      return;
+    }
+
+    try {
+      await auth.sendPasswordResetEmail(email);
+      alert("✅ E-mail de redefinição enviado! Verifique sua caixa de entrada e spam para criar ou redefinir sua senha.");
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao enviar e-mail de recuperação. Verifique se o e-mail foi digitado corretamente.");
+    }
   }
 </script>
 
