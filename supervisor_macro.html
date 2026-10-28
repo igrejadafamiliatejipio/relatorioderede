@@ -192,30 +192,36 @@
   document.addEventListener('DOMContentLoaded', async () => {
     supervisorNome = sessionStorage.getItem('topo_sup_nome');
     const resp = sessionStorage.getItem('topo_sup_responsavel');
-    const redesStr = sessionStorage.getItem('topo_sup_redes');
 
-    if (!supervisorNome || !redesStr) {
-      window.location.href = "supervisor.html";
+    if (!supervisorNome) {
+      alert("Sessão expirada. Faça login novamente.");
+      window.location.href = "index.html"; // CORRIGIDO: Redireciona para o login unificado
       return;
     }
 
-    supervisorRedesOficiais = JSON.parse(redesStr);
-    document.getElementById('labelSupervisorLogado').innerText = `${supervisorNome} - ${resp}`;
+    document.getElementById('labelSupervisorLogado').innerText = `${supervisorNome} - ${resp || 'Supervisor(a)'}`;
 
     await carregarDadosMacro();
   });
 
   async function carregarDadosMacro() {
     try {
+      // Busca redes oficiais e informais diretamente do Firestore associadas a este supervisor
       const snapPerfis = await db.collection('perfis_redes')
         .where('supervisao', '==', supervisorNome)
-        .where('status', '==', 'informal')
         .get();
 
+      supervisorRedesOficiais = [];
       redesInformaisCache = [];
+
       snapPerfis.forEach(doc => {
         const d = doc.data();
-        redesInformaisCache.push({ nome: d.rede, lider: "A definir", informal: true });
+        const nomeRede = doc.id;
+        if (d.status === 'informal') {
+          redesInformaisCache.push({ nome: nomeRede, lider: "A definir", informal: true });
+        } else {
+          supervisorRedesOficiais.push({ nome: nomeRede, lider: d.lider || "A definir", informal: false });
+        }
       });
 
       supervisorRedesTodas = [...supervisorRedesOficiais, ...redesInformaisCache];
@@ -269,7 +275,7 @@
         qtdInformais++;
         statusHtml = `<span class="tag tag-informal">🌱 Rede Informal</span>`;
       } else {
-        totalRedesOficiais++; // Conta todas as redes oficiais cadastradas
+        totalRedesOficiais++;
 
         if (qtdTotal === 12) {
           statusHtml = `<span class="tag tag-green">Ideal (12)</span>`;
@@ -480,72 +486,4 @@
       opt.value = m.id;
       opt.textContent = `${m.nome} (${m.categoria || 'Liderado'})`;
       if (m.categoria === 'Líder') opt.selected = true;
-      select.appendChild(opt);
-    });
-    document.getElementById('modalMudarLider').style.display = 'flex';
-  }
-
-  function fecharModalLider() { document.getElementById('modalMudarLider').style.display = 'none'; }
-
-  async function salvarNovoLider() {
-    const nomeRede = document.getElementById('liderRedeNome').value;
-    const novoLiderId = document.getElementById('selectNovoLider').value;
-    if (!novoLiderId) return alert("Selecione um membro.");
-    document.getElementById('loading').style.display = 'block';
-    fecharModalLider();
-
-    try {
-      const batch = db.batch();
-      membrosCache.forEach(m => {
-        if (m.rede === nomeRede) {
-          const ref = db.collection('membros').doc(m.id);
-          if (m.id === novoLiderId) batch.update(ref, { categoria: 'Líder' });
-          else if (m.categoria === 'Líder') batch.update(ref, { categoria: 'Base da Rede' });
-        }
-      });
-      await batch.commit();
-      alert("✅ Líder atualizado com sucesso!");
-      await carregarDadosMacro();
-    } catch (err) {
-      alert("Erro ao alterar líder.");
-      console.error(err);
-      document.getElementById('loading').style.display = 'none';
-    }
-  }
-
-  function abrirModalTransferir(membroId, membroNome) {
-    document.getElementById('transMembroId').value = membroId;
-    document.getElementById('transMembroNome').value = membroNome;
-    const select = document.getElementById('selectRedeDestino');
-    select.innerHTML = '';
-    supervisorRedesTodas.forEach(r => {
-      const opt = document.createElement('option');
-      opt.value = r.nome;
-      opt.textContent = r.nome + (r.informal ? ' (Informal)' : '');
-      select.appendChild(opt);
-    });
-    document.getElementById('modalTransferir').style.display = 'flex';
-  }
-
-  function fecharModalTransferir() { document.getElementById('modalTransferir').style.display = 'none'; }
-
-  async function executarTransferencia() {
-    const membroId = document.getElementById('transMembroId').value;
-    const novaRede = document.getElementById('selectRedeDestino').value;
-    if (!membroId || !novaRede) return;
-    document.getElementById('loading').style.display = 'block';
-    fecharModalTransferir();
-
-    try {
-      await db.collection('membros').doc(membroId).update({ rede: novaRede });
-      alert("✅ Membro transferido com sucesso!");
-      await carregarDadosMacro();
-    } catch (err) {
-      alert("Erro ao transferir membro.");
-      console.error(err);
-      document.getElementById('loading').style.display = 'none';
-    }
-  }
-</script>
-</body>
-</html>
+      select.
