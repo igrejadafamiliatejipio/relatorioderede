@@ -3,102 +3,178 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Simulador de Perfis - Gestão de Redes</title>
+  <title>Simulador Dinâmico de Perfis - Gestão de Redes</title>
   <style>
     :root {
       --bg: #0D0F12;
       --card-bg: #161B22;
       --card-border: #30363D;
+      --input-bg: #0D1117;
       --text: #F0F6FC;
       --text-muted: #8B949E;
       --primary: #6E56CF;
       --primary-hover: #5B45B0;
-      --success: #23D160;
-      --warning: #E3B341;
-      --info: #388BFD;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
     body { background-color: var(--bg); color: var(--text); padding: 24px 12px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-    .container { max-width: 550px; width: 100%; background: var(--card-bg); padding: 32px; border-radius: 16px; border: 1px solid var(--card-border); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); text-align: center; }
+    .container { max-width: 520px; width: 100%; background: var(--card-bg); padding: 32px; border-radius: 16px; border: 1px solid var(--card-border); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); }
     
-    .header { margin-bottom: 28px; }
-    .header h1 { font-size: 1.6rem; font-weight: 700; margin-top: 6px; }
+    .header { text-align: center; margin-bottom: 24px; }
+    .header h1 { font-size: 1.5rem; font-weight: 700; margin-top: 6px; }
     .badge-topo { display: inline-block; background: var(--primary); color: #FFF; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 8px; text-transform: uppercase; }
 
-    .btn-perfil { background: var(--input-bg, #0D1117); color: var(--text); border: 1px solid var(--card-border); padding: 16px 20px; border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 1rem; width: 100%; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; transition: 0.2s; text-align: left; }
-    .btn-perfil:hover { border-color: var(--primary); transform: translateY(-2px); background: #1f242c; }
-    
-    .btn-perfil.admin { border-left: 4px solid var(--success); }
-    .btn-perfil.sup { border-left: 4px solid var(--info); }
-    .btn-perfil.lider { border-left: 4px solid var(--warning); }
+    .form-group { margin-bottom: 16px; text-align: left; }
+    label { display: block; font-weight: 500; font-size: 0.82rem; margin-bottom: 6px; color: var(--text-muted); text-transform: uppercase; }
+    select { width: 100%; padding: 12px 14px; background-color: var(--input-bg); border: 1px solid var(--card-border); border-radius: 8px; font-size: 0.95rem; color: var(--text); outline: none; }
+    select:focus { border-color: var(--primary); }
+    select option { background-color: var(--card-bg); color: var(--text); }
 
-    .btn-perfil span small { display: block; font-size: 0.78rem; color: var(--text-muted); font-weight: normal; margin-top: 2px; }
+    .btn { background-color: var(--primary); color: white; border: none; padding: 14px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 1rem; width: 100%; margin-top: 10px; transition: 0.2s; }
+    .btn:hover { background-color: var(--primary-hover); }
   </style>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
 <div class="container">
   <div class="header">
-    <span class="badge-topo">PAINEL DE TESTES / DESENVOLVIMENTO</span>
-    <h1>🧭 Simulador de Perfis</h1>
-    <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 6px;">Escolha qual perfil você deseja simular agora:</p>
+    <span class="badge-topo">MODO DE TESTE / SIMULADOR</span>
+    <h1>🧭 Simulador Dinâmico</h1>
+    <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 6px;">Selecione o perfil real diretamente do banco de dados.</p>
   </div>
 
-  <div>
-    <!-- Coordenador / Admin -->
-    <button class="btn-perfil admin" onclick="simularCoordenador()">
-      <span>
-        👑 Coordenador / Master
-        <small>Acesso total aos cadastros cruzados e menu da coordenação</small>
-      </span>
-      <span>→</span>
-    </button>
+  <form onsubmit="entrarComo(event)">
+    <div class="form-group">
+      <label>1. Ministério</label>
+      <select id="selectMinisterio" onchange="atualizarOpcoes()" required>
+        <option value="TOPO">Ministério TOPO</option>
+        <option value="ELAS">Ministério Elas</option>
+        <option value="ELES">Ministério Eles</option>
+      </select>
+    </div>
 
-    <!-- Supervisor -->
-    <button class="btn-perfil sup" onclick="simularSupervisor()">
-      <span>
-        🛡️ Supervisor(a)
-        <small>Acessar painel de redes, cadastros e perfil próprio</small>
-      </span>
-      <span>→</span>
-    </button>
+    <div class="form-group">
+      <label>2. Tipo de Perfil</label>
+      <select id="selectPerfil" onchange="atualizarOpcoes()" required>
+        <option value="">Selecione...</option>
+        <option value="Coordenador">Coordenador (Acesso Total)</option>
+        <option value="Supervisor">Supervisor(a)</option>
+        <option value="Lider">Líder de Rede</option>
+      </select>
+    </div>
 
-    <!-- Líder de Rede -->
-    <button class="btn-perfil lider" onclick="simularLider()">
-      <span>
-        ⭐ Líder de Rede
-        <small>Acessar o painel da Rede Alfa (Visualizar membros e relatórios)</small>
-      </span>
-      <span>→</span>
-    </button>
-  </div>
+    <div class="form-group" id="grupoEntidade" style="display: none;">
+      <label id="labelEntidade">3. Selecione a Pessoa</label>
+      <select id="selectEntidade">
+        <option value="">Carregando...</option>
+      </select>
+    </div>
+
+    <button type="submit" class="btn" id="btnEntrar">Acessar Sistema</button>
+  </form>
 </div>
 
 <script>
-  function simularCoordenador() {
-    sessionStorage.clear();
-    sessionStorage.setItem('topo_ministerio', 'TOPO');
-    sessionStorage.setItem('topo_coord_logado', 'true');
-    sessionStorage.setItem('topo_coord_nome', 'Administrador Teste');
-    window.location.href = 'coordenador_menu.html';
+  const firebaseConfig = {
+    apiKey: "AIzaSyB7FJXs9wiRFYIs2ugZoWrw7jTXPR5weGk",
+    authDomain: "app-redes-iftejipio.firebaseapp.com",
+    projectId: "app-redes-iftejipio",
+    storageBucket: "app-redes-iftejipio.firebasestorage.app",
+    messagingSenderId: "954529090793",
+    appId: "1:954529090793:web:6702d102b6e5b178b6b478",
+    measurementId: "G-2MJ96WMYQ5"
+  };
+
+  if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  let dadosMembros = [];
+
+  document.addEventListener("DOMContentLoaded", async () => {
+    try {
+      // Carrega todos os membros ativos de uma vez para agilizar o simulador
+      const snapshot = await db.collection('membros').where('status', '!=', 'INATIVO').get();
+      dadosMembros = [];
+      snapshot.forEach(doc => {
+        dadosMembros.push({ id: doc.id, ...doc.data() });
+      });
+    } catch (err) {
+      console.error("Erro ao carregar dados do Firebase:", err);
+    }
+  });
+
+  async function atualizarOpcoes() {
+    const ministerio = document.getElementById('selectMinisterio').value;
+    const perfil = document.getElementById('selectPerfil').value;
+    const grupoEntidade = document.getElementById('grupoEntidade');
+    const selectEntidade = document.getElementById('selectEntidade');
+    const labelEntidade = document.getElementById('labelEntidade');
+
+    if (perfil === 'Coordenador' || !perfil) {
+      grupoEntidade.style.display = 'none';
+      selectEntidade.required = false;
+      return;
+    }
+
+    grupoEntidade.style.display = 'block';
+    selectEntidade.required = true;
+    selectEntidade.innerHTML = '<option value="">Carregando...</option>';
+
+    let filtrados = [];
+
+    if (perfil === 'Supervisor') {
+      labelEntidade.innerText = '3. Selecione o(a) Supervisor(a)';
+      filtrados = dadosMembros.filter(m => (m.ministerio || 'TOPO') === ministerio && m.categoria === 'Supervisor');
+    } else if (perfil === 'Lider') {
+      labelEntidade.innerText = '3. Selecione o(a) Líder e sua Rede';
+      filtrados = dadosMembros.filter(m => (m.ministerio || 'TOPO') === ministerio && m.categoria === 'Líder');
+    }
+
+    selectEntidade.innerHTML = '<option value="">Selecione...</option>';
+    filtrados.sort((a, b) => a.nome.localeCompare(b.nome)).forEach(m => {
+      const opt = document.createElement('option');
+      opt.value = JSON.stringify({ nome: m.nome, rede: m.rede, supervisao: m.supervisao });
+      opt.textContent = perfil === 'Líder' ? `${m.nome} (Rede: ${m.rede})` : m.nome;
+      selectEntidade.appendChild(opt);
+    });
   }
 
-  function simularSupervisor() {
-    sessionStorage.clear();
-    sessionStorage.setItem('topo_ministerio', 'TOPO');
-    sessionStorage.setItem('topo_sup_nome', 'Pr. João');
-    sessionStorage.setItem('topo_sup_responsavel', 'Supervisor Teste');
-    window.location.href = 'supervisor_menu.html';
-  }
+  function entrarComo(e) {
+    e.preventDefault();
+    const ministerio = document.getElementById('selectMinisterio').value;
+    const perfil = document.getElementById('selectPerfil').value;
 
-  function simularLider() {
     sessionStorage.clear();
-    sessionStorage.setItem('topo_ministerio', 'TOPO');
-    sessionStorage.setItem('topo_rede', 'Rede Alfa');
-    sessionStorage.setItem('topo_supervisao', 'Pr. João');
-    sessionStorage.setItem('topo_lider', 'Maria Silva');
-    window.location.href = 'painel.html';
+    sessionStorage.setItem('topo_ministerio', ministerio);
+
+    if (perfil === 'Coordenador') {
+      sessionStorage.setItem('topo_coord_logado', 'true');
+      sessionStorage.setItem('topo_coord_nome', 'Administrador Master');
+      window.location.href = 'coordenador_menu.html';
+    } 
+    else if (perfil === 'Supervisor') {
+      const dadosStr = document.getElementById('selectEntidade').value;
+      if (!dadosStr) return alert("Selecione um supervisor.");
+      const dados = JSON.parse(dadosStr);
+
+      sessionStorage.setItem('topo_sup_nome', dados.nome);
+      sessionStorage.setItem('topo_sup_responsavel', 'Supervisor(a) do Ministério');
+      window.location.href = 'supervisor_menu.html';
+    } 
+    else if (perfil === 'Lider') {
+      const dadosStr = document.getElementById('selectEntidade').value;
+      if (!dadosStr) return alert("Selecione um líder.");
+      const dados = JSON.parse(dadosStr);
+
+      sessionStorage.setItem('topo_rede', dados.rede || 'Rede Geral');
+      sessionStorage.setItem('topo_supervisao', dados.supervisao || 'Supervisão Geral');
+      sessionStorage.setItem('topo_lider', dados.nome);
+      window.location.href = 'painel.html';
+    }
   }
 </script>
 
