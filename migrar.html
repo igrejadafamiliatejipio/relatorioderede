@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Corrigir Nomes de Supervisores</title>
+  <title>Corrigir Nomes dos Supervisores</title>
   <style>
     body { background: #0D0F12; color: #F0F6FC; font-family: sans-serif; text-align: center; padding-top: 50px; }
     button { background: #6E56CF; color: white; border: none; padding: 15px 25px; font-size: 16px; border-radius: 8px; cursor: pointer; font-weight: bold; }
@@ -13,10 +13,10 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
-  <h1>🔄 Corrigir Vínculos de Supervisores</h1>
-  <p>Este script substitui os nomes antigos de supervisão (ex: "Supervisão Monte Sião") pelo nome real do supervisor correspondente.</p>
+  <h1>🔄 Atualizar Nomes dos Supervisores</h1>
+  <p>Este script substitui os nomes antigos (ex: "Supervisão Monte Sião") pelo nome real da pessoa no banco de dados.</p>
   <br>
-  <button onclick="executarCorrecao()">Executar Correção no Banco</button>
+  <button onclick="executarCorrecao()">Executar Atualização</button>
   <br><br>
   <div id="log">Aguardando execução...</div>
 
@@ -40,8 +40,8 @@
       console.log(msg);
     }
 
-    // Mapeamento exato de qual supervisão antiga pertence a qual nome de supervisor real
-    const mapaSupervisores = {
+    // Mapeamento do nome antigo para o nome real do supervisor
+    const mapaNomes = {
       "Supervisão Monte Hor": "Luís Felipe",
       "Supervisão Monte Tabor": "Danylo Brissantt",
       "Supervisão Monte Nebo": "Emanuel Henrique",
@@ -55,44 +55,33 @@
     };
 
     async function executarCorrecao() {
-      if (!confirm("Deseja aplicar a correção dos nomes dos supervisores em todo o banco?")) return;
+      if (!confirm("Deseja atualizar os nomes dos supervisores no banco?")) return;
       
-      document.getElementById('log').innerHTML = "Iniciando correção...<br>";
+      document.getElementById('log').innerHTML = "Iniciando atualização...<br>";
 
       try {
-        // 1. Atualizar coleção 'membros'
-        log("--- Atualizando coleção 'membros' ---");
-        const snapMembros = await db.collection('membros').get();
-        let countMembros = 0;
+        const snapshot = await db.collection('membros')
+          .where('categoria', '==', 'Supervisor')
+          .get();
 
-        for (const doc of snapMembros.docs) {
+        let atualizados = 0;
+
+        for (const doc of snapshot.docs) {
           const dados = doc.data();
-          if (dados.supervisao && mapaSupervisores[dados.supervisao]) {
-            const nomeReal = mapaSupervisores[dados.supervisao];
-            await doc.ref.update({ supervisao: nomeReal });
-            log(`Membro ${dados.nome}: Supervisão "${dados.supervisao}" ➔ "${nomeReal}"`);
-            countMembros++;
+          const nomeAtual = dados.nome;
+
+          // Se o nome atual estiver no mapa de nomes antigos, atualiza para o nome real
+          if (mapaNomes[nomeAtual]) {
+            const novoNome = mapaNomes[nomeAtual];
+            await doc.ref.update({ nome: novoNome });
+            log(`Supervisor atualizado: "${nomeAtual}" ➔ "${novoNome}"`);
+            atualizados++;
+          } else {
+            log(`Supervisor já está correto ou não mapeado: "${nomeAtual}"`);
           }
         }
-        log(`Total de membros atualizados: ${countMembros}`);
 
-        // 2. Atualizar coleção 'perfis_redes'
-        log("--- Atualizando coleção 'perfis_redes' ---");
-        const snapPerfis = await db.collection('perfis_redes').get();
-        let countPerfis = 0;
-
-        for (const doc of snapPerfis.docs) {
-          const dados = doc.data();
-          if (dados.supervisao && mapaSupervisores[dados.supervisao]) {
-            const nomeReal = mapaSupervisores[dados.supervisao];
-            await doc.ref.update({ supervisao: nomeReal });
-            log(`Rede ${doc.id}: Supervisão "${dados.supervisao}" ➔ "${nomeReal}"`);
-            countPerfis++;
-          }
-        }
-        log(`Total de perfis de redes atualizados: ${countPerfis}`);
-
-        log("<br><strong>✅ Correção concluída com sucesso! Os nomes reais dos supervisores agora substituíram os nomes antigos.</strong>");
+        log(`<br><strong>✅ Processo concluído! Total de supervisores atualizados: ${atualizados}</strong>`);
 
       } catch (err) {
         console.error(err);
