@@ -184,7 +184,6 @@
         }
       });
 
-      // Ordena para o líder aparecer no topo da chamada com destaque
       membrosRedeAtual.sort((a, b) => (a.categoria === 'Líder' ? -1 : (b.categoria === 'Líder' ? 1 : a.nome.localeCompare(b.nome))));
 
       renderizarChamada();
@@ -236,12 +235,45 @@
     }
   }
 
-  // Função auxiliar para converter arquivo de imagem em Base64
-  function converterArquivoParaBase64(file) {
+  // Função otimizada que comprime a imagem antes de converter para Base64 (evita estouro de limite no Firebase)
+  function comprimirEConverterImagem(file) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = error => reject(error);
+      reader.onload = function (event) {
+        const img = new Image();
+        img.onload = function () {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+
+          // Redimensiona mantendo a proporção para um limite máximo de 800px
+          const MAX_WIDTH = 800;
+          const MAX_HEIGHT = 800;
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height *= MAX_WIDTH / width;
+              width = MAX_WIDTH;
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width *= MAX_HEIGHT / height;
+              height = MAX_HEIGHT;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+
+          // Converte para JPEG com 70% de qualidade (gera um arquivo bem leve)
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+          resolve(dataUrl);
+        };
+        img.onerror = (err) => reject(err);
+        img.src = event.target.result;
+      };
+      reader.onerror = (error) => reject(error);
       reader.readAsDataURL(file);
     });
   }
@@ -271,9 +303,9 @@
     const fileInput = document.getElementById('inputFotoRede');
     if (fileInput.files && fileInput.files[0]) {
       try {
-        fotoBase64 = await converterArquivoParaBase64(fileInput.files[0]);
+        fotoBase64 = await comprimirEConverterImagem(fileInput.files[0]);
       } catch (err) {
-        console.error("Erro ao converter foto:", err);
+        console.error("Erro ao comprimir foto:", err);
       }
     }
 
