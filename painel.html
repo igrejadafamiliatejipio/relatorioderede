@@ -64,6 +64,7 @@
     .tag { font-size: 0.72rem; padding: 3px 8px; border-radius: 12px; font-weight: 600; }
     .tag-base { background: rgba(110, 86, 207, 0.2); color: #A58BFF; border: 1px solid rgba(110, 86, 207, 0.4); }
     .tag-liderado { background: rgba(139, 148, 158, 0.2); color: var(--text-muted); border: 1px solid rgba(139, 148, 158, 0.3); }
+    .tag-green { background: rgba(35, 209, 96, 0.2); color: var(--success); border: 1px solid rgba(35, 209, 96, 0.4); }
     .tag-warning { background: rgba(227, 179, 65, 0.2); color: var(--warning); border: 1px solid rgba(227, 179, 65, 0.4); }
     .tag-danger { background: rgba(229, 83, 75, 0.2); color: var(--danger); border: 1px solid rgba(229, 83, 75, 0.4); }
     .tag-niver { background: rgba(35, 209, 96, 0.2); color: var(--success); border: 1px solid rgba(35, 209, 96, 0.4); }
@@ -92,7 +93,7 @@
     input:focus, select:focus, textarea:focus { border-color: var(--primary); }
     select option { background-color: var(--card-bg); color: var(--text); }
 
-    /* Estilos modernizados para os relatórios */
+    /* Relatórios */
     .relatorio-item { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 18px; margin-bottom: 16px; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; gap: 12px; }
     .relatorio-item:hover { border-color: var(--primary); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(110, 86, 207, 0.15); }
     
@@ -262,15 +263,17 @@
     const supervisao = sessionStorage.getItem('topo_supervisao');
     const rede = sessionStorage.getItem('topo_rede');
     const liderSessao = sessionStorage.getItem('topo_lider');
+    const supervisorLogado = sessionStorage.getItem('topo_sup_nome');
+    const coordenadorLogado = sessionStorage.getItem('topo_coord_logado');
 
     if (!rede) {
       alert("Nenhuma rede selecionada. Faça o login novamente.");
-      window.location.href = "lider.html";
+      window.location.href = "index.html";
       return;
     }
 
-    // Se quem está logado for Líder de Rede comum (e não Supervisor), remove a opção de categorizar como Líder
-    if (liderSessao && !liderSessao.includes('Supervisor') && !sessionStorage.getItem('topo_sup_nome')) {
+    // Se quem está logado for Líder de Rede comum (e não Supervisor/Coordenador), remove a opção de categorizar como Líder
+    if (liderSessao && !liderSessao.includes('Supervisor') && !supervisorLogado && !coordenadorLogado) {
       const optLider = document.getElementById('optLiderOption');
       if (optLider) optLider.remove();
     }
@@ -283,8 +286,12 @@
   });
 
   function voltarPagina() {
+    const isCoordenador = sessionStorage.getItem('topo_coord_logado');
     const isSupervisor = sessionStorage.getItem('topo_sup_nome');
-    if (isSupervisor) {
+    
+    if (isCoordenador) {
+      window.location.href = "coordenador_selecionar_rede.html";
+    } else if (isSupervisor) {
       window.location.href = "supervisor_selecionar_rede.html";
     } else {
       window.location.href = "lider.html";
@@ -384,6 +391,7 @@
     const diaAtual = dataHoje.getDate();
     const liderLogadoNome = sessionStorage.getItem('topo_lider');
     const isSupervisorLogado = sessionStorage.getItem('topo_sup_nome');
+    const isCoordenadorLogado = sessionStorage.getItem('topo_coord_logado');
 
     if (total === 0) {
       containerMembros.innerHTML = `<div style="color: var(--text-muted); font-size: 0.9rem;">Nenhum membro cadastrado nesta rede ainda.</div>`;
@@ -398,8 +406,7 @@
         const categoria = m.categoria || 'Liderado';
         const isLider = categoria === 'Líder';
 
-        // Verifica se este membro é o próprio líder logado (caso não seja supervisor)
-        const ehProprioLiderLogado = (!isSupervisorLogado && liderLogadoNome && liderLogadoNome.toLowerCase() === nome.toLowerCase());
+        const ehProprioLiderLogado = (!isSupervisorLogado && !isCoordenadorLogado && liderLogadoNome && liderLogadoNome.toLowerCase() === nome.toLowerCase());
 
         let faltasSeguidas = 0;
         for (let r of [...relatoriosRede].reverse()) {
@@ -428,7 +435,6 @@
           ? `<a href="https://api.whatsapp.com/send?phone=55${whats.replace(/\D/g,'')}&text=${encodeURIComponent('Olá ' + nome + ', tudo bem? Passando para saber como você está e dizer que oro por sua vida!')}" target="_blank" class="btn-whats-mini">💬 WhatsApp</a>` 
           : `<span style="font-size: 0.8rem; color: var(--text-muted);">Sem WhatsApp</span>`;
 
-        // Se for o próprio líder logado, oculta os botões de editar dados próprios por aqui e de exclusão
         let botoesAcao = `
           ${linkWhatsMembro}
           <button class="btn-edit" onclick="abrirModalEdicao('${m.id}')">✏️ Editar</button>
@@ -719,9 +725,9 @@
 
     const liderLogadoNome = sessionStorage.getItem('topo_lider');
     const isSupervisorLogado = sessionStorage.getItem('topo_sup_nome');
+    const isCoordenadorLogado = sessionStorage.getItem('topo_coord_logado');
 
-    // Dupla proteção: impede o líder de editar o próprio cadastro por aqui
-    if (!isSupervisorLogado && liderLogadoNome && liderLogadoNome.toLowerCase() === membro.nome.toLowerCase()) {
+    if (!isSupervisorLogado && !isCoordenadorLogado && liderLogadoNome && liderLogadoNome.toLowerCase() === membro.nome.toLowerCase()) {
       alert("⚠️ Você não pode editar suas próprias informações por esta tela. Utilize a opção 'Meu Perfil' no menu principal.");
       return;
     }
@@ -771,5 +777,27 @@
   async function inativarMembro(docId, nome) {
     const liderLogadoNome = sessionStorage.getItem('topo_lider');
     const isSupervisorLogado = sessionStorage.getItem('topo_sup_nome');
+    const isCoordenadorLogado = sessionStorage.getItem('topo_coord_logado');
 
-    if (!isSupervisorLogado && liderLogadoNome && liderLogadoNome.toLowerCase() === nome.toLowerCase
+    if (!isSupervisorLogado && !isCoordenadorLogado && liderLogadoNome && liderLogadoNome.toLowerCase() === nome.toLowerCase()) {
+      alert("⚠️ Você não pode remover seu próprio cadastro.");
+      return;
+    }
+
+    if (!confirm(`Deseja realmente remover ${nome} da rede?`)) return;
+
+    document.getElementById('loading').style.display = 'block';
+    try {
+      await db.collection('membros').doc(docId).update({ status: 'INATIVO' });
+      alert(`✅ ${nome} removido(a) com sucesso.`);
+      await carregarDadosDashboard();
+    } catch (err) {
+      alert("Erro ao remover membro.");
+      console.error(err);
+      document.getElementById('loading').style.display = 'none';
+    }
+  }
+</script>
+
+</body>
+</html>
