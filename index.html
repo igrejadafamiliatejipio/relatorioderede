@@ -99,7 +99,6 @@
   const auth = firebase.auth();
   const db = firebase.firestore();
 
-  // Defina aqui o seu e-mail de Administrador Mestre
   const EMAIL_MASTER = "seu-email-master@exemplo.com"; 
 
   function mostrarMensagem(texto, tipo = 'erro') {
@@ -135,14 +134,14 @@
       return;
     }
 
-    // 2. Busca flexível na coleção membros pelo e-mail
+    // 2. Busca na coleção membros pelo e-mail
     const snapshot = await db.collection('membros').get();
     let membroDoc = null;
 
     snapshot.forEach(doc => {
       const data = doc.data();
       const emailBanco = data.email ? data.email.trim().toLowerCase() : '';
-      if (emailBanco === userEmail.toLowerCase()) {
+      if (emailBanco === userEmail.toLowerCase() && data.status !== 'INATIVO') {
         membroDoc = data;
       }
     });
@@ -156,8 +155,13 @@
 
     sessionStorage.setItem('topo_ministerio', ministerio);
 
-    // 3. Regra estrita: Só permite acesso se for Supervisor, Líder ou Coordenador
-    if (categoria === 'Supervisor') {
+    // 3. Redirecionamento por cargo
+    if (categoria === 'Coordenador') {
+      sessionStorage.setItem('topo_coord_nome', membroDoc.nome);
+      sessionStorage.setItem('topo_coord_logado', 'true');
+      window.location.href = 'coordenador_menu.html'; // Crie esta tela em breve para o painel dele
+    }
+    else if (categoria === 'Supervisor') {
       sessionStorage.setItem('topo_sup_nome', membroDoc.nome);
       sessionStorage.setItem('topo_sup_responsavel', 'Supervisor(a)');
       window.location.href = 'supervisor_menu.html';
@@ -198,7 +202,7 @@
     }
   }
 
-  // Fluxo inteligente para o Primeiro Acesso (Cria a conta no Auth se o e-mail estiver liberado no Firestore)
+  // Fluxo inteligente para o Primeiro Acesso
   async function ativarPrimeiroAcesso(e) {
     e.preventDefault();
     const emailInput = document.getElementById('inputPrimeiroEmail').value.trim().toLowerCase();
@@ -210,7 +214,6 @@
     btn.innerText = "Verificando cadastro...";
 
     try {
-      // 1. Busca flexível em toda a coleção para verificar se o e-mail pertence a um líder ou supervisor
       const snapshot = await db.collection('membros').get();
       let membroEncontrado = false;
 
@@ -219,18 +222,17 @@
         const emailBanco = data.email ? data.email.trim().toLowerCase() : '';
         const cat = data.categoria ? data.categoria.trim() : '';
 
-        if (emailBanco === emailInput) {
-          if (cat === 'Supervisor' || cat === 'Líder' || cat === 'Lider') {
+        if (emailBanco === emailInput && data.status !== 'INATIVO') {
+          if (cat === 'Coordenador' || cat === 'Supervisor' || cat === 'Líder' || cat === 'Lider') {
             membroEncontrado = true;
           }
         }
       });
 
       if (!membroEncontrado && emailInput !== EMAIL_MASTER) {
-        throw new Error("Este e-mail não foi encontrado na base de dados ou não pertence a um Líder/Supervisor cadastrado. Certifique-se de ter cadastrado seu e-mail previamente na tela de atualização.");
+        throw new Error("Este e-mail não foi encontrado na base de dados ou não pertence a uma liderança cadastrada.");
       }
 
-      // 2. Cria a credencial no Firebase Auth para o primeiro acesso
       btn.innerText = "Criando senha...";
       const userCredential = await auth.createUserWithEmailAndPassword(emailInput, senha);
       
