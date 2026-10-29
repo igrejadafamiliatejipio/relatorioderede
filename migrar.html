@@ -2,92 +2,81 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Corrigir Nomes dos Supervisores</title>
+  <title>Limpeza de Dados - Ministério TOPO</title>
   <style>
-    body { background: #0D0F12; color: #F0F6FC; font-family: sans-serif; text-align: center; padding-top: 50px; }
-    button { background: #6E56CF; color: white; border: none; padding: 15px 25px; font-size: 16px; border-radius: 8px; cursor: pointer; font-weight: bold; }
-    button:hover { background: #5B45B0; }
-    #log { margin-top: 20px; text-align: left; display: inline-block; max-width: 600px; background: #161B22; padding: 15px; border-radius: 8px; border: 1px solid #30363D; font-family: monospace; font-size: 0.85rem; }
+    body { background: #0D0F12; color: #F0F6FC; font-family: sans-serif; padding: 40px; text-align: center; }
+    button { background: #E5534B; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 1rem; cursor: pointer; font-weight: bold; }
+    button:hover { background: #c93b33; }
+    #status { margin-top: 20px; font-size: 1.1rem; color: #23D160; }
   </style>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
-  <h1>🔄 Atualizar Nomes dos Supervisores</h1>
-  <p>Este script substitui os nomes antigos (ex: "Supervisão Monte Sião") pelo nome real da pessoa no banco de dados.</p>
+  <h1>🧹 Limpeza de Supervisões "Geral"</h1>
+  <p>Clique no botão abaixo para remover o valor "Geral" das supervisões e redes no banco de dados.</p>
   <br>
-  <button onclick="executarCorrecao()">Executar Atualização</button>
-  <br><br>
-  <div id="log">Aguardando execução...</div>
+  <button onclick="limparDados()">Executar Limpeza</button>
+  <div id="status"></div>
 
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyB7FJXs9wiRFYIs2ugZoWrw7jTXPR5weGk",
-      authDomain: "app-redes-iftejipio.firebaseapp.com",
-      projectId: "app-redes-iftejipio",
-      storageBucket: "app-redes-iftejipio.firebasestorage.app",
-      messagingSenderId: "954529090793",
-      appId: "1:954529090793:web:6702d102b6e5b178b6b478",
-      measurementId: "G-2MJ96WMYQ5"
-    };
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyB7FJXs9wiRFYIs2ugZoWrw7jTXPR5weGk",
+    authDomain: "app-redes-iftejipio.firebaseapp.com",
+    projectId: "app-redes-iftejipio",
+    storageBucket: "app-redes-iftejipio.firebasestorage.app",
+    messagingSenderId: "954529090793",
+    appId: "1:954529090793:web:6702d102b6e5b178b6b478",
+    measurementId: "G-2MJ96WMYQ5"
+  };
+  if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
 
-    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+  async function limparDados() {
+    const statusDiv = document.getElementById('status');
+    statusDiv.innerText = "Limpando banco de dados...";
 
-    function log(msg) {
-      const d = document.getElementById('log');
-      d.innerHTML += msg + "<br>";
-      console.log(msg);
-    }
-
-    // Mapeamento do nome antigo para o nome real do supervisor
-    const mapaNomes = {
-      "Supervisão Monte Hor": "Luís Felipe",
-      "Supervisão Monte Tabor": "Danylo Brissantt",
-      "Supervisão Monte Nebo": "Emanuel Henrique",
-      "Supervisão Monte Horebe": "Andryo Henrique",
-      "Supervisão Monte Carmelo": "Diana Guerra",
-      "Supervisão Monte Moriá": "Larissa Neves",
-      "Supervisão Monte Sinai": "Sara Gomes",
-      "Supervisão Monte Sião": "Clara Dione",
-      "Supervisão Monte das Oliveiras": "Letícia Sampaio",
-      "Supervisão Monte Seir": "Karol Nogueira"
-    };
-
-    async function executarCorrecao() {
-      if (!confirm("Deseja atualizar os nomes dos supervisores no banco?")) return;
+    try {
+      let count = 0;
+      const snap = await db.collection('membros').get();
       
-      document.getElementById('log').innerHTML = "Iniciando atualização...<br>";
+      const batch = db.batch();
+      snap.forEach(doc => {
+        const d = doc.data();
+        let atualizar = false;
+        let dadosUpdate = {};
 
-      try {
-        const snapshot = await db.collection('membros')
-          .where('categoria', '==', 'Supervisor')
-          .get();
-
-        let atualizados = 0;
-
-        for (const doc of snapshot.docs) {
-          const dados = doc.data();
-          const nomeAtual = dados.nome;
-
-          // Se o nome atual estiver no mapa de nomes antigos, atualiza para o nome real
-          if (mapaNomes[nomeAtual]) {
-            const novoNome = mapaNomes[nomeAtual];
-            await doc.ref.update({ nome: novoNome });
-            log(`Supervisor atualizado: "${nomeAtual}" ➔ "${novoNome}"`);
-            atualizados++;
-          } else {
-            log(`Supervisor já está correto ou não mapeado: "${nomeAtual}"`);
-          }
+        // Se a supervisão for 'Geral' ou 'GERAL', limpa ou ajusta
+        if (d.supervisao && d.supervisao.trim().toLowerCase() === 'geral') {
+          dadosUpdate.supervisao = ""; // ou você pode deixar vazio
+          atualizar = true;
+        }
+        
+        // Se a rede for 'Geral' ou 'GERAL'
+        if (d.rede && d.rede.trim().toLowerCase() === 'geral') {
+          dadosUpdate.rede = "";
+          atualizar = true;
         }
 
-        log(`<br><strong>✅ Processo concluído! Total de supervisores atualizados: ${atualizados}</strong>`);
+        if (atualizar) {
+          batch.update(doc.ref, dadosUpdate);
+          count++;
+        }
+      });
 
-      } catch (err) {
-        console.error(err);
-        log(`<br><strong>❌ Erro:</strong> ${err.message}`);
+      if (count > 0) {
+        await batch.commit();
+        statusDiv.innerText = `✅ Sucesso! ${count} registros corrigidos (o 'Geral' foi removido).`;
+      } else {
+        statusDiv.innerText = "✅ Nenhum registro com 'Geral' foi encontrado para limpar.";
       }
+
+    } catch (err) {
+      console.error(err);
+      statusDiv.style.color = "#E5534B";
+      statusDiv.innerText = "❌ Erro ao limpar dados: " + err.message;
     }
-  </script>
+  }
+</script>
 </body>
 </html>
