@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Limpeza de Dados - Ministério TOPO</title>
+  <title>Limpeza Completa - Ministério TOPO</title>
   <style>
     body { background: #0D0F12; color: #F0F6FC; font-family: sans-serif; padding: 40px; text-align: center; }
     button { background: #E5534B; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 1rem; cursor: pointer; font-weight: bold; }
@@ -13,10 +13,10 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
-  <h1>🧹 Limpeza de Supervisões "Geral"</h1>
-  <p>Clique no botão abaixo para remover o valor "Geral" das supervisões e redes no banco de dados.</p>
+  <h1>🧹 Limpeza de Termos "Geral"</h1>
+  <p>Clique no botão abaixo para remover qualquer texto contendo "Geral" do banco de dados.</p>
   <br>
-  <button onclick="limparDados()">Executar Limpeza</button>
+  <button onclick="limparGeral()">Executar Limpeza Completa</button>
   <div id="status"></div>
 
 <script>
@@ -32,29 +32,27 @@
   if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
 
-  async function limparDados() {
+  async function limparGeral() {
     const statusDiv = document.getElementById('status');
-    statusDiv.innerText = "Limpando banco de dados...";
+    statusDiv.innerText = "Varrendo banco de dados...";
 
     try {
       let count = 0;
       const snap = await db.collection('membros').get();
-      
       const batch = db.batch();
+
       snap.forEach(doc => {
         const d = doc.data();
         let atualizar = false;
         let dadosUpdate = {};
 
-        // Se a supervisão for 'Geral' ou 'GERAL', limpa ou ajusta
-        if (d.supervisao && d.supervisao.trim().toLowerCase() === 'geral') {
-          dadosUpdate.supervisao = ""; // ou você pode deixar vazio
+        // Se contiver a palavra 'geral' (em qualquer formato), limpa o campo
+        if (d.supervisao && d.supervisao.toLowerCase().includes('geral')) {
+          dadosUpdate.supervisao = ""; 
           atualizar = true;
         }
-        
-        // Se a rede for 'Geral' ou 'GERAL'
-        if (d.rede && d.rede.trim().toLowerCase() === 'geral') {
-          dadosUpdate.rede = "";
+        if (d.rede && d.rede.toLowerCase().includes('geral')) {
+          dadosUpdate.rede = ""; 
           atualizar = true;
         }
 
@@ -66,15 +64,14 @@
 
       if (count > 0) {
         await batch.commit();
-        statusDiv.innerText = `✅ Sucesso! ${count} registros corrigidos (o 'Geral' foi removido).`;
+        statusDiv.innerText = `✅ Sucesso! ${count} registros limpos e corrigidos.`;
       } else {
-        statusDiv.innerText = "✅ Nenhum registro com 'Geral' foi encontrado para limpar.";
+        statusDiv.innerText = "✅ Nenhum termo 'Geral' encontrado nas coleções de membros.";
       }
-
     } catch (err) {
       console.error(err);
       statusDiv.style.color = "#E5534B";
-      statusDiv.innerText = "❌ Erro ao limpar dados: " + err.message;
+      statusDiv.innerText = "❌ Erro ao limpar: " + err.message;
     }
   }
 </script>
