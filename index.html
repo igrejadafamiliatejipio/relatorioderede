@@ -121,7 +121,7 @@
     }
   }
 
-  // Validação estrita de permissão baseada no banco de dados
+  // Validação flexível e robusta de permissão baseada no banco de dados
   async function validarPermissaoRedirecionar(userEmail) {
     sessionStorage.clear();
 
@@ -151,22 +151,24 @@
     }
 
     const ministerio = membroDoc.ministerio || 'TOPO';
-    const categoria = membroDoc.categoria ? membroDoc.categoria.trim() : '';
+    // Normaliza a categoria removendo acentos e convertendo para minúsculas para evitar erros de digitação
+    const categoriaRaw = membroDoc.categoria ? membroDoc.categoria.trim().toLowerCase() : '';
+    const categoriaLimpa = categoriaRaw.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
     sessionStorage.setItem('topo_ministerio', ministerio);
 
-    // 3. Redirecionamento por cargo
-    if (categoria === 'Coordenador') {
+    // 3. Redirecionamento por cargo (tolerante a acentos e maiúsculas/minúsculas)
+    if (categoriaLimpa === 'coordenador') {
       sessionStorage.setItem('topo_coord_nome', membroDoc.nome);
       sessionStorage.setItem('topo_coord_logado', 'true');
-      window.location.href = 'coordenador_menu.html'; // Crie esta tela em breve para o painel dele
+      window.location.href = 'coordenador_menu.html';
     }
-    else if (categoria === 'Supervisor') {
+    else if (categoriaLimpa === 'supervisor') {
       sessionStorage.setItem('topo_sup_nome', membroDoc.nome);
       sessionStorage.setItem('topo_sup_responsavel', 'Supervisor(a)');
       window.location.href = 'supervisor_menu.html';
     } 
-    else if (categoria === 'Líder' || categoria === 'Lider') {
+    else if (categoriaLimpa === 'lider') {
       sessionStorage.setItem('topo_rede', membroDoc.rede || 'Rede Geral');
       sessionStorage.setItem('topo_supervisao', membroDoc.supervisao || membroDoc.nome);
       sessionStorage.setItem('topo_lider', membroDoc.nome);
@@ -220,10 +222,11 @@
       snapshot.forEach(doc => {
         const data = doc.data();
         const emailBanco = data.email ? data.email.trim().toLowerCase() : '';
-        const cat = data.categoria ? data.categoria.trim() : '';
+        const catRaw = data.categoria ? data.categoria.trim().toLowerCase() : '';
+        const catLimpa = catRaw.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
         if (emailBanco === emailInput && data.status !== 'INATIVO') {
-          if (cat === 'Coordenador' || cat === 'Supervisor' || cat === 'Líder' || cat === 'Lider') {
+          if (catLimpa === 'coordenador' || catLimpa === 'supervisor' || catLimpa === 'lider') {
             membroEncontrado = true;
           }
         }
