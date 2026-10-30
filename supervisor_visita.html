@@ -235,7 +235,6 @@
 
   let ministerioAtivo = 'TOPO';
   let nomeSupervisor = '';
-  // Pesos definidos: Acolhimento (2.0), Edificação (1.5), Consolidação (1.5), Liderança (2.5), Organização (1.0), Relatórios (1.5) -> Total = 10.0
   const pesos = { 1: 2.0, 2: 1.5, 3: 1.5, 4: 2.5, 5: 1.0, 6: 1.5 };
   let notasCriterios = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
 
@@ -250,7 +249,6 @@
     nomeSupervisor = sessionStorage.getItem('topo_sup_nome') || sessionStorage.getItem('topo_coord_nome') || 'Supervisor(a)';
     document.getElementById('badgeMinisterio').innerText = `COORDENAÇÃO / SUPERVISÃO - ${ministerioAtivo}`;
 
-    // Data de hoje padrão
     document.getElementById('inputDataVisita').valueAsDate = new Date();
 
     await carregarRedesDoSupervisor();
@@ -261,9 +259,15 @@
     selectRede.innerHTML = '<option value="">Selecione a rede...</option>';
 
     try {
-      const snap = await db.collection('membros')
-        .where('ministerio', '==', ministerioAtivo)
-        .get();
+      const isCoordenador = sessionStorage.getItem('topo_coord_logado');
+      let query = db.collection('membros').where('ministerio', '==', ministerioAtivo);
+
+      // Se for supervisor (e não coordenador), filtra apenas pelas redes da sua supervisão
+      if (!isCoordenador && nomeSupervisor) {
+        query = query.where('supervisao', '==', nomeSupervisor);
+      }
+
+      const snap = await query.get();
 
       let redesSet = new Set();
       snap.forEach(doc => {
@@ -274,6 +278,11 @@
       });
 
       const redesArr = Array.from(redesSet).sort();
+      if (redesArr.length === 0) {
+        selectRede.innerHTML = '<option value="">Nenhuma rede encontrada sob sua supervisão</option>';
+        return;
+      }
+
       redesArr.forEach(r => {
         selectRede.innerHTML += `<option value="${r}">${r}</option>`;
       });
@@ -287,9 +296,7 @@
     notasCriterios[criterio] = nota;
     document.getElementById(`badge_${criterio}`).innerText = `${nota}/5`;
 
-    const container = document.getElementById(`estrelas_1`); // apenas referência
     const estrelas = document.querySelectorAll(`#estrelas_${criterio} .estrela`);
-    
     estrelas.forEach((est, idx) => {
       if (idx < nota) {
         est.classList.add('selecionada');
@@ -345,7 +352,6 @@
   async function salvarVisita(e) {
     e.preventDefault();
 
-    // Valida se todas as 6 estrelas foram marcadas
     for (let i = 1; i <= 6; i++) {
       if (notasCriterios[i] === 0) {
         alert(`Por favor, atribua uma nota de estrelas para o critério ${i}.`);
