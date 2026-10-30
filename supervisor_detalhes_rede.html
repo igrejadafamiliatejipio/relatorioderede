@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detalhes da Rede - Supervisor</title>
+  <style>
+    :root {
+      --bg: #0D0F12;
+      --card-bg: #161B22;
+      --card-border: #30363D;
+      --input-bg: #0D1117;
+      --text: #F0F6FC;
+      --text-muted: #8B949E;
+      --primary: #6E56CF;
+      --primary-hover: #5B45B0;
+      --success: #23D160;
+      --warning: #E3B341;
+      --danger: #E5534B;
+      --info: #388BFD;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); padding: 24px 12px; display: flex; justify-content: center; min-height: 100vh; }
+    .container { max-width: 850px; width: 100%; background: var(--card-bg); padding: 32px; border-radius: 16px; border: 1px solid var(--card-border); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); }
+
+    .top-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .btn-voltar { background: #21262D; color: var(--text); border: 1px solid var(--card-border); padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; text-decoration: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-voltar:hover { background: #30363D; }
+
+    .header { text-align: center; margin-bottom: 24px; }
+    .badge-topo { display: inline-block; background: var(--primary); color: #FFF; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 8px; text-transform: uppercase; }
+    .header h1 { font-size: 1.8rem; font-weight: 800; margin-top: 4px; }
+
+    /* Grid de Resumo e Saúde */
+    .resumo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 24px; }
+    .resumo-card { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 16px; text-align: center; }
+    .resumo-card h3 { font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; }
+    .resumo-card .valor { font-size: 1.6rem; font-weight: 800; color: var(--text); }
+
+    .health-card { padding: 16px; border-radius: 12px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; border: 1px solid transparent; }
+    .health-card.green { background: rgba(35, 209, 96, 0.1); border-color: rgba(35, 209, 96, 0.3); color: var(--success); }
+    .health-card.yellow { background: rgba(227, 179, 65, 0.1); border-color: rgba(227, 179, 65, 0.3); color: var(--warning); }
+    .health-card.blue { background: rgba(56, 139, 253, 0.1); border-color: rgba(56, 139, 253, 0.3); color: var(--info); }
+    .health-info h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 2px; }
+    .health-info p { font-size: 0.85rem; opacity: 0.9; }
+
+    /* Líder em Evidência */
+    .lider-evidencia { background: linear-gradient(135deg, rgba(110, 86, 207, 0.15) 0%, var(--input-bg) 100%); border: 1px solid var(--primary); border-radius: 12px; padding: 18px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+    .lider-evidencia-info h4 { font-size: 0.78rem; text-transform: uppercase; color: #A58BFF; margin-bottom: 4px; font-weight: 700; }
+    .lider-evidencia-info strong { font-size: 1.2rem; color: #FFF; display: block; margin-bottom: 2px; }
+    .lider-evidencia-info small { color: var(--text-muted); font-size: 0.82rem; }
+
+    /* Sanfona de Membros */
+    .sanfona-box { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 12px; margin-bottom: 24px; overflow: hidden; }
+    .sanfona-header { padding: 16px; font-size: 1.05rem; font-weight: 700; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: rgba(255,255,255,0.02); transition: 0.2s; }
+    .sanfona-header:hover { background: rgba(255,255,255,0.05); }
+    .sanfona-conteudo { display: none; padding: 16px; border-top: 1px solid var(--card-border); }
+
+    .membro-card { background: var(--card-bg); border: 1px solid var(--card-border); padding: 12px 14px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+    .membro-card:last-child { margin-bottom: 0; }
+    .membro-main strong { font-size: 0.95rem; color: var(--text); display: block; }
+    .membro-main small { color: var(--text-muted); font-size: 0.78rem; }
+
+    .tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+    .tag { font-size: 0.68rem; padding: 2px 6px; border-radius: 10px; font-weight: 600; }
+    .tag-base { background: rgba(110, 86, 207, 0.2); color: #A58BFF; border: 1px solid rgba(110, 86, 207, 0.4); }
+    .tag-liderado { background: rgba(139, 148, 158, 0.2); color: var(--text-muted); border: 1px solid rgba(139, 148, 158, 0.3); }
+    .tag-warning { background: rgba(227, 179, 65, 0.2); color: var(--warning); border: 1px solid rgba(227, 179, 65, 0.4); }
+    .tag-danger { background: rgba(229, 83, 75, 0.2); color: var(--danger); border: 1px solid rgba(229, 83, 75, 0.4); }
+
+    .btn-whats-mini { background: #23D160; color: #000; border: none; padding: 5px 8px; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 0.75rem; text-decoration: none; display: inline-flex; align-items: center; gap: 3px; }
+    .btn-whats-mini:hover { background: #1EBE55; }
+
+    /* Seção de Gráfico e Visitas */
+    .section-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; }
+    .grafico-container { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 18px; margin-bottom: 24px; }
+    
+    .visita-card { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 16px; margin-bottom: 14px; }
+    .visita-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid var(--card-border); padding-bottom: 8px; }
+    .criterio-resumo { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px; }
+    .criterio-resumo strong { color: var(--text); }
+
+    .relatorio-lider-card { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 16px; margin-bottom: 14px; }
+    
+    .btn-carregar-mais { background: #21262D; color: var(--text); border: 1px solid var(--card-border); padding: 10px; border-radius: 8px; cursor: pointer; font-weight: 600; width: 100%; text-align: center; margin-top: 10px; }
+    .btn-carregar-mais:hover { background: #30363D; }
+
+    .loading-box { text-align: center; padding: 40px; color: var(--text-muted); }
+
+    @media (max-width: 600px) {
+      .resumo-grid { grid-template-columns: 1fr; }
+      .lider-evidencia { flex-direction: column; align-items: flex-start; gap: 10px; }
+    }
+  </style>
+
+  <!-- Firebase SDK Compat -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<div class="container">
+  <div class="top-nav">
+    <button class="btn-voltar" onclick="window.location.href='supervisor_macro.html'">← Voltar ao Painel Macro</button>
+  </div>
+
+  <div class="header">
+    <span class="badge-topo" id="badgeMinisterio">PAINEL DE DETALHES DA REDE</span>
+    <h1 id="tituloRedeNome">Carregando Rede...</h1>
+  </div>
+
+  <div id="conteudoDetalhes" style="display: none;">
+    
+    <!-- RESUMO E SAÚDE -->
+    <div class="resumo-grid">
+      <div class="resumo-card">
+        <h3>Total de Membros</h3>
+        <div class="valor" id="txtTotalMembros">0</div>
+      </div>
+      <div class="resumo-card">
+        <h3>Membros na Base</h3>
+        <div class="valor" id="txtTotalBase">0</div>
+      </div>
+      <div class="resumo-card">
+        <h3>Média Visitas</h3>
+        <div class="valor" id="txtMediaNotas">-.-</div>
+      </div>
+    </div>
+
+    <div id="cardSaudeRede" class="health-card green">
+      <div class="health-info">
+        <h3 id="titSaude">Rede Equilibrada</h3>
+        <p id="descSaude">Tamanho ideal atingido.</p>
+      </div>
+    </div>
+
+    <!-- LÍDER EM DESTAQUE -->
+    <div class="lider-evidencia" id="cardLiderDestaque">
+      <div class="lider-evidencia-info">
+        <h4>⭐ Líder da Rede</h4>
+        <strong id="liderNome">Não definido</strong>
+        <small id="liderDetalhes">📱 - | ✉️ -</small>
+      </div>
+      <div id="liderWhatsBtn"></div>
+    </div>
+
+    <!-- SANFONA COM OS LIDERADOS -->
+    <div class="sanfona-box">
+      <div class="sanfona-header" onclick="toggleSanfona()">
+        <span>👥 Lista de Membros e Liderados (<span id="totalMembrosSanfona">0</span>)</span>
+        <span id="setaSanfona">▼</span>
+      </div>
+      <div class="sanfona-conteudo" id="conteudoSanfona">
+        <div id="listaLideradosSanfona"></div>
+      </div>
+    </div>
+
+    <!-- GRÁFICO DE EVOLUÇÃO DAS NOTAS -->
+    <div style="margin-bottom: 32px;">
+      <div class="section-title">📈 Evolução das Notas de Visita (Supervisor)</div>
+      <div class="grafico-container">
+        <canvas id="graficoEvolucao" style="max-height: 250px;"></canvas>
+      </div>
+    </div>
+
+    <!-- RELATÓRIOS DE VISITA DO SUPERVISOR -->
+    <div style="margin-bottom: 32px;">
+      <div class="section-title">⭐ Histórico de Visitas do Supervisor</div>
+      <div id="listaVisitasSupervisor"></div>
+    </div>
+
+    <!-- RELATÓRIOS DO LÍDER -->
+    <div style="margin-bottom: 16px;">
+      <div class="section-title">📜 Últimos Relatórios Enviados pelo Líder</div>
+      <div id="listaRelatoriosLider"></div>
+      <button class="btn-carregar-mais" id="btnCarregarMais" onclick="carregarMaisRelatoriosLider()" style="display: none;">Carregar mais 3 relatórios</button>
+    </div>
+
+  </div>
+
+  <div id="loading" class="loading-box">Carregando detalhes da rede...</div>
+</div>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyB7FJXs9wiRFYIs2ugZoWrw7jTXPR5weGk",
+    authDomain: "app-redes-iftejipio.firebaseapp.com",
+    projectId: "app-redes-iftejipio",
+    storageBucket: "app-redes-iftejipio.firebasestorage.app",
+    messagingSenderId: "954529090793",
+    appId: "1:954529090793:web:6702d102b6e5b178b6b478",
+    measurementId: "G-2MJ96WMYQ5"
+  };
+  if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  let nomeRedeAtiva = '';
+  let ministerioAtivo = 'TOPO';
+  let relatoriosLiderCache = [];
+  let limiteRelatoriosExibidos = 3;
+  let chartInstance = null;
+
+  document.addEventListener("DOMContentLoaded", async () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    nomeRedeAtiva = urlParams.get('rede');
+
+    if (!nomeRedeAtiva) {
+      alert("Nenhuma rede especificada.");
+      window.location.href = "supervisor_macro.html";
+      return;
+    }
+
+    ministerioAtivo = sessionStorage.getItem('topo_ministerio') || 'TOPO';
+    document.getElementById('badgeMinisterio').innerText = `DETALHES DA REDE - ${ministerioAtivo}`;
+    document.getElementById('tituloRedeNome').innerText = nomeRedeAtiva;
+
+    await carregarDadosCompletosRede();
+  });
+
+  async function carregarDadosCompletosRede() {
+    try {
+      // 1. Carregar Membros da Rede
+      const snapMembros = await db.collection('membros')
+        .where('rede', '==', nomeRedeAtiva)
+        .get();
+
+      let membros = [];
+      let liderObj = null;
+      let totalBase = 0;
+
+      snapMembros.forEach(doc => {
+        const d = doc.data();
+        if (d.status !== 'INATIVO') {
+          membros.push({ id: doc.id, ...d });
+          if (d.categoria === 'Líder') liderObj = d;
+          if (d.categoria === 'Base da Rede') totalBase++;
+        }
+      });
+
+      // Ordenar membros alfabeticamente
+      membros.sort((a, b) => a.nome.localeCompare(b.nome));
+
+      // Atualizar Resumos e Saúde
+      const totalMembros = membros.length;
+      document.getElementById('txtTotalMembros').innerText = totalMembros;
+      document.getElementById('txtTotalBase').innerText = totalBase;
+      document.getElementById('totalMembrosSanfona').innerText = totalMembros;
+
+      const cardSaude = document.getElementById('cardSaudeRede');
+      const titSaude = document.getElementById('titSaude');
+      const descSaude = document.getElementById('descSaude');
+
+      if (totalMembros === 12) {
+        cardSaude.className = "health-card green";
+        titSaude.innerText = "Rede Equilibrada";
+        descSaude.innerText = "Tamanho ideal atingido (12 membros ativas).";
+      } else if (totalMembros < 12) {
+        cardSaude.className = "health-card yellow";
+        titSaude.innerText = "⚠️ Alerta de Crescimento";
+        descSaude.innerText = `Necessário +${12 - totalMembros} membros para atingir a meta de 12.`;
+      } else {
+        cardSaude.className = "health-card blue";
+        titSaude.innerText = "🚀 Alerta de Multiplicação";
+        descSaude.innerText = `A rede ultrapassou 12 membros (${totalMembros}) e está pronta para multiplicar!`;
+      }
+
+      // Renderizar Líder em Evidência
+      if (liderObj) {
+        document.getElementById('liderNome').innerText = liderObj.nome;
+        document.getElementById('liderDetalhes').innerText = `📱 ${liderObj.whatsapp || 'Sem WhatsApp'} | ✉️ ${liderObj.email || 'Sem e-mail'} | Batizado: ${liderObj.batizado || 'Não'}`;
+        if (liderObj.whatsapp) {
+          document.getElementById('liderWhatsBtn').innerHTML = `
+            <a href="https://api.whatsapp.com/send?phone=55${liderObj.whatsapp.replace(/\D/g,'')}&text=${encodeURIComponent('Olá pastor/líder ' + liderObj.nome + ', passando para alinhar sobre a rede!')}" target="_blank" class="btn-whats-mini">💬 WhatsApp</a>
+          `;
+        }
+      } else {
+        document.getElementById('liderNome').innerText = "Não definido";
+        document.getElementById('liderDetalhes').innerText = "Nenhum líder atribuído a esta rede.";
+      }
+
+      // Renderizar Sanfona com Liderados
+      const containerSanfona = document.getElementById('listaLideradosSanfona');
+      containerSanfona.innerHTML = '';
+      if (membros.length === 0) {
+        containerSanfona.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem;">Nenhum membro cadastrado.</div>';
+      } else {
+        membros.forEach(m => {
+          const isLider = m.categoria === 'Líder';
+          const tagCat = isLider ? '<span class="tag tag-base">⭐ Líder</span>' : (m.categoria === 'Base da Rede' ? '<span class="tag tag-base">Base da Rede</span>' : '<span class="tag tag-liderado">Liderado</span>');
+          
+          const div = document.createElement('div');
+          div.className = 'membro-card';
+          div.innerHTML = `
+            <div class="membro-main">
+              <strong>${m.nome}</strong>
+              <small>📱 ${m.whatsapp || 'Sem WhatsApp'} | Batizado: ${m.batizado || 'Não'}</small>
+              <div class="tags">${tagCat}</div>
+            </div>
+            <div>
+              ${m.whatsapp ? `<a href="https://api.whatsapp.com/send?phone=55${m.whatsapp.replace(/\D/g,'')}" target="_blank" class="btn-whats-mini">💬 WhatsApp</a>` : ''}
+            </div>
+          `;
+          containerSanfona.appendChild(div);
+        });
+      }
+
+      // 2. Carregar Visitas do Supervisor
+      const snapVisitas = await db.collection('visitas_supervisao')
+        .where('rede', '==', nomeRedeAtiva)
+        .get();
+
+      let visitas = [];
+      snapVisitas.forEach(doc => {
+        visitas.push({ id: doc.id, ...doc.data() });
+      });
+      visitas.sort((a, b) => a.dataVisita.localeCompare(b.dataVisita));
+
+      // Calcular média geral das notas
+      if (visitas.length > 0) {
+        let somaNotas = visitas.reduce((acc, v) => acc + (v.notaFinal || 0), 0);
+        document.getElementById('txtMediaNotas').innerText = (somaNotas / visitas.length).toFixed(1);
+      } else {
+        document.getElementById('txtMediaNotas').innerText = "0.0";
+      }
+
+      // Renderizar Gráfico de Evolução
+      renderizarGraficoEvolucao(visitas);
+
+      // Renderizar Histórico de Visitas do Supervisor
+      const containerVisitas = document.getElementById('listaVisitasSupervisor');
+      containerVisitas.innerHTML = '';
+      if (visitas.length === 0) {
+        containerVisitas.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem;">Nenhuma visita registrada pelo supervisor ainda.</div>';
+      } else {
+        [...visitas].reverse().forEach(v => {
+          const partes = v.dataVisita.split('-');
+          const dataF = partes.length === 3 ? `${partes[2]}/${partes[1]}/${partes[0]}` : v.dataVisita;
+
+          const card = document.createElement('div');
+          card.className = 'visita-card';
+          card.innerHTML = `
+            <div class="visita-header">
+              <strong>📅 Data: ${dataF} | Supervisor: ${v.supervisor || '-'}</strong>
+              <span style="font-weight: 800; color: var(--warning); font-size: 1.1rem;">⭐ ${v.notaFinal || '-'} / 5.0</span>
+            </div>
+            <div class="criterio-resumo"><strong>🌟 Acolhimento (${v.criterios?.acolhimento?.nota || '-'}/5):</strong> ${v.criterios?.acolhimento?.comentario || '-'}</div>
+            <div class="criterio-resumo"><strong>📖 Edificação (${v.criterios?.edificacao?.nota || '-'}/5):</strong> ${v.criterios?.edificacao?.comentario || '-'}</div>
+            <div class="criterio-resumo"><strong>👥 Consolidação (${v.criterios?.consolidacao?.nota || '-'}/5):</strong> ${v.criterios?.consolidacao?.comentario || '-'}</div>
+            <div class="criterio-resumo"><strong>🌱 Liderança (${v.criterios?.lideranca?.nota || '-'}/5):</strong> ${v.criterios?.lideranca?.comentario || '-'}</div>
+            <div class="criterio-resumo"><strong>⏰ Organização (${v.criterios?.organizacao?.nota || '-'}/5):</strong> ${v.criterios?.organizacao?.comentario || '-'}</div>
+            <div class="criterio-resumo"><strong>📱 Relatórios (${v.criterios?.relatorios?.nota || '-'}/5):</strong> ${v.criterios?.relatorios?.comentario || '-'}</div>
+            ${v.observacoesGerais ? `<div style="margin-top:8px; font-size:0.85rem; color: #A58BFF;"><strong>Obs Gerais:</strong> ${v.observacoesGerais}</div>` : ''}
+          `;
+          containerVisitas.appendChild(card);
+        });
+      }
+
+      // 3. Carregar Relatórios Semanais do Líder
+      const snapRelLider = await db.collection('relatorios')
+        .where('rede', '==', nomeRedeAtiva)
+        .get();
+
+      relatoriosLiderCache = [];
+      snapRelLider.forEach(doc => {
+        relatoriosLiderCache.push({ id: doc.id, ...doc.data() });
+      });
+      relatoriosLiderCache.sort((a, b) => (b.dataEncontro || '').localeCompare(a.dataEncontro || ''));
+
+      renderizarRelatoriosLider();
+
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('conteudoDetalhes').style.display = 'block';
+
+    } catch (err) {
+      console.error(err);
+      document.getElementById('loading').innerHTML = `<div style="color:var(--danger)">Erro ao carregar os detalhes da rede.</div>`;
+    }
+  }
+
+  function toggleSanfona() {
+    const conteudo = document.getElementById('conteudoSanfona');
+    const seta = document.getElementById('setaSanfona');
+    if (conteudo.style.display === 'block') {
+      conteudo.style.display = 'none';
+      seta.innerText = '▼';
+    } else {
+      conteudo.style.display = 'block';
+      seta.innerText = '▲';
+    }
+  }
+
+  function renderizarGraficoEvolucao(visitas) {
+    const ctx = document.getElementById('graficoEvolucao').getContext('2d');
+    
+    if (chartInstance) {
+      chartInstance.destroy();
+    }
+
+    const labels = visitas.map(v => {
+      const partes = v.dataVisita.split('-');
+      return partes.length === 3 ? `${partes[2]}/${partes[1]}` : v.dataVisita;
+    });
+    const dadosNotas = visitas.map(v => v.notaFinal || 0);
+
+    chartInstance = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Nota Final da Visita',
+          data: dadosNotas,
+          borderColor: '#6E56CF',
+          backgroundColor: 'rgba(110, 86, 207, 0.1)',
+          borderWidth: 3,
+          fill: true,
+          tension: 0.3,
+          pointRadius: 5,
+          pointBackgroundColor: '#6E56CF'
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          y: {
+            min: 0,
+            max: 5,
+            ticks: { color: '#8B949E' },
+            grid: { color: '#30363D' }
+          },
+          x: {
+            ticks: { color: '#8B949E' },
+            grid: { color: '#30363D' }
+          }
+        }
+      }
+    });
+  }
+
+  function renderizarRelatoriosLider() {
+    const container = document.getElementById('listaRelatoriosLider');
+    const btnMais = document.getElementById('btnCarregarMais');
+    container.innerHTML = '';
+
+    const relatoriosParaExibir = relatoriosLiderCache.slice(0, limiteRelatoriosExibidos);
+
+    if (relatoriosParaExibir.length === 0) {
+      container.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem;">Nenhum relatório enviado pelo líder.</div>';
+      btnMais.style.display = 'none';
+      return;
+    }
+
+    relatoriosParaExibir.forEach(r => {
+      const div = document.createElement('div');
+      div.className = 'relatorio-lider-card';
+      div.innerHTML = `
+        <div style="font-size:0.8rem; color:var(--primary); font-weight:700; text-transform:uppercase; margin-bottom:4px;">📅 ${r.dataEncontro || 'Data não inf.'} às ${r.horario || ''}</div>
+        <div style="font-size:1rem; font-weight:700; margin-bottom:4px;">📌 Tema: ${r.tema || 'Sem Tema'}</div>
+        <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:6px;">📍 Local: ${r.local || 'Não informado'}</div>
+        <div style="font-size:0.85rem;"><strong>Presentes:</strong> ${r.presentes || 'Nenhum'}</div>
+        <div style="font-size:0.85rem;"><strong>Faltantes:</strong> ${r.faltantes || 'Nenhum'}</div>
+      `;
+      container.appendChild(div);
+    });
+
+    if (relatoriosLiderCache.length > limiteRelatoriosExibidos) {
+      btnMais.style.display = 'block';
+    } else {
+      btnMais.style.display = 'none';
+    }
+  }
+
+  function carregarMaisRelatoriosLider() {
+    limiteRelatoriosExibidos += 3;
+    renderizarRelatoriosLider();
+  }
+</script>
+
+</body>
+</html>
