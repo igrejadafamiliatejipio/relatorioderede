@@ -40,6 +40,9 @@
     .btn-action { background: rgba(56, 139, 253, 0.15); color: var(--info); border: 1px solid rgba(56, 139, 253, 0.3); padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer; }
     .btn-action:hover { background: var(--info); color: #FFF; }
     
+    .btn-detalhes-rede { background: rgba(110, 86, 207, 0.2); color: #A58BFF; border: 1px solid rgba(110, 86, 207, 0.4); padding: 4px 10px; border-radius: 6px; font-size: 0.78rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; text-decoration: none; }
+    .btn-detalhes-rede:hover { background: var(--primary); color: #FFF; }
+
     .btn-lider-discreto { background: transparent; border: none; color: var(--text-muted); font-size: 0.75rem; cursor: pointer; text-decoration: underline; padding: 2px 4px; }
     .btn-lider-discreto:hover { color: var(--primary); }
     .btn-promover { background: rgba(35, 209, 96, 0.15); color: var(--success); border: 1px solid rgba(35, 209, 96, 0.3); padding: 3px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 600; cursor: pointer; }
@@ -206,7 +209,6 @@
 
   async function carregarDadosMacro() {
     try {
-      // 1. Busca redes do supervisor
       const snapPerfis = await db.collection('perfis_redes')
         .where('supervisao', '==', supervisorNome)
         .get();
@@ -226,7 +228,6 @@
 
       supervisorRedesTodas = [...supervisorRedesOficiais, ...redesInformaisCache];
 
-      // 2. Busca membros da supervisão
       const snapMembros = await db.collection('membros').where('supervisao', '==', supervisorNome).get();
       membrosCache = [];
       snapMembros.forEach(doc => {
@@ -234,7 +235,6 @@
         if (d.status !== 'INATIVO') membrosCache.push({ id: doc.id, ...d });
       });
 
-      // 3. Busca relatórios com proteção para evitar consulta vazia no `in`
       relatoriosCache = [];
       const nomesRedes = supervisorRedesTodas.map(r => r.nome);
       
@@ -253,7 +253,6 @@
       alert("Erro ao carregar dados do painel macro. Verifique o console.");
       console.error(err);
     } finally {
-      // Garante que o loading sempre vai sumir, mesmo se der erro
       document.getElementById('loading').style.display = 'none';
       document.getElementById('painelMacro').style.display = 'block';
     }
@@ -282,7 +281,6 @@
         statusHtml = `<span class="tag tag-informal">🌱 Rede Informal</span>`;
       } else {
         totalRedesOficiais++;
-
         if (qtdTotal === 12) {
           statusHtml = `<span class="tag tag-green">Ideal (12)</span>`;
         } else if (qtdTotal > 12) {
@@ -374,7 +372,7 @@
       tabelaNiver.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Nenhum aniversariante neste mês.</td></tr>`;
     }
 
-    // Árvore de Redes
+    // Árvore de Redes com Botão de Detalhes
     const treeContainer = document.getElementById('treeContainerRedes');
     treeContainer.innerHTML = '';
 
@@ -418,12 +416,19 @@
         });
       }
 
-      let botoesGestao = `<button class="btn-lider-discreto" onclick="event.stopPropagation(); abrirModalMudarLider('${r.nome}')">Alterar líder</button>`;
+      let botoesGestao = `
+        <div style="display: flex; gap: 8px; align-items: center;" onclick="event.stopPropagation()">
+          <a href="supervisor_detalhes_rede.html?rede=${encodeURIComponent(r.nome)}" class="btn-detalhes-rede">🔍 Detalhes</a>
+          <button class="btn-lider-discreto" onclick="abrirModalMudarLider('${r.nome}')">Alterar líder</button>
+        </div>
+      `;
+
       if (r.informal) {
         botoesGestao = `
           <div style="display: flex; gap: 6px; align-items: center;" onclick="event.stopPropagation()">
-            <button class="btn-promover" onclick="promoverRede('${r.nome}')">✅ Promover Oficial</button>
-            <button class="btn-excluir-rede" onclick="excluirRedeInformal('${r.nome}')">🗑️ Excluir</button>
+            <a href="supervisor_detalhes_rede.html?rede=${encodeURIComponent(r.nome)}" class="btn-detalhes-rede">🔍 Detalhes</a>
+            <button class="btn-promover" onclick="promoverRede('${r.nome}')">✅ Oficial</button>
+            <button class="btn-excluir-rede" onclick="excluirRedeInformal('${r.nome}')">🗑️</button>
           </div>
         `;
       }
