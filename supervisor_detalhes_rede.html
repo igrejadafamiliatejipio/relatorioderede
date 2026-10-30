@@ -82,7 +82,6 @@
     .criterio-resumo { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px; }
     .criterio-resumo strong { color: var(--text); }
 
-    /* Relatório do Líder (Estilo Painel) */
     .relatorio-item { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 16px; margin-bottom: 14px; cursor: pointer; transition: 0.2s; display: flex; gap: 14px; align-items: flex-start; }
     .relatorio-item:hover { border-color: var(--primary); transform: translateY(-2px); }
     .relatorio-foto { width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 1px solid var(--card-border); flex-shrink: 0; background: #000; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: var(--text-muted); }
@@ -91,7 +90,6 @@
     .relatorio-tema { font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 2px; }
     .relatorio-local { font-size: 0.8rem; color: var(--text-muted); }
 
-    /* Modais */
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 999; display: none; }
     .modal-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 24px; max-width: 520px; width: 100%; max-height: 85vh; overflow-y: auto; text-align: left; }
     .modal-header { font-size: 1.1rem; font-weight: 700; margin-bottom: 16px; color: var(--text); display: flex; justify-content: space-between; align-items: center; }
@@ -249,12 +247,13 @@
   <div class="modal-card">
     <div class="modal-header"><span>🔄 Transferir Membro</span> <button onclick="fecharModalTransferir()" style="background:none; border:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer;">✕</button></div>
     <input type="hidden" id="transMembroId">
+    <input type="hidden" id="transMembroSexo">
     <div class="form-group">
       <label>Membro</label>
       <input type="text" id="transMembroNome" readonly style="opacity: 0.7;">
     </div>
     <div class="form-group">
-      <label>Rede de Destino</label>
+      <label>Rede de Destino (Mesmo Sexo)</label>
       <select id="selectRedeDestino"></select>
     </div>
     <div class="modal-footer">
@@ -333,7 +332,7 @@
           membrosCache.push({ id: doc.id, ...d });
           if (d.categoria === 'Líder') {
             liderObj = { id: doc.id, ...d };
-            totalBase++; // Líder conta na base
+            totalBase++;
           }
           if (d.categoria === 'Base da Rede') {
             totalBase++;
@@ -348,7 +347,6 @@
       document.getElementById('txtTotalBase').innerText = totalBase;
       document.getElementById('totalMembrosSanfona').innerText = totalMembros;
 
-      // Saúde da Rede
       const cardSaude = document.getElementById('cardSaudeRede');
       const titSaude = document.getElementById('titSaude');
       const descSaude = document.getElementById('descSaude');
@@ -367,12 +365,11 @@
         descSaude.innerText = `A rede ultrapassou 12 membros (${totalMembros}) e está pronta para multiplicar!`;
       }
 
-      // Líder em Evidência
       const acoesLider = document.getElementById('liderAcoesDestaque');
       acoesLider.innerHTML = '';
       if (liderObj) {
         document.getElementById('liderNome').innerText = liderObj.nome;
-        document.getElementById('liderDetalhes').innerText = `📱 ${liderObj.whatsapp || 'Sem WhatsApp'} | ✉️ ${liderObj.email || 'Sem e-mail'} | Batizado: ${liderObj.batizado || 'Não'}`;
+        document.getElementById('liderDetalhes').innerText = `📱 ${liderObj.whatsapp || 'Sem WhatsApp'} | ✉️ ${liderObj.email || 'Sem e-mail'} | Batizado: ${liderObj.batizado || 'Não'} | Sexo: ${liderObj.sexo || 'Não inf.'}`;
         
         if (liderObj.whatsapp) {
           acoesLider.innerHTML += `<a href="https://api.whatsapp.com/send?phone=55${liderObj.whatsapp.replace(/\D/g,'')}&text=${encodeURIComponent('Olá pastor/líder ' + liderObj.nome + ', passando para alinhar sobre a rede!')}" target="_blank" class="btn-whats-mini">💬 WhatsApp</a>`;
@@ -383,7 +380,6 @@
         document.getElementById('liderDetalhes').innerText = "Nenhum líder atribuído a esta rede.";
       }
 
-      // Sanfona com Membros
       const containerSanfona = document.getElementById('listaLideradosSanfona');
       containerSanfona.innerHTML = '';
       if (membrosCache.length === 0) {
@@ -392,7 +388,6 @@
         membrosCache.forEach(m => {
           const isLider = m.categoria === 'Líder';
           const tagCat = isLider ? '<span class="tag tag-base">⭐ Líder</span>' : (m.categoria === 'Base da Rede' ? '<span class="tag tag-base">Base da Rede</span>' : '<span class="tag tag-liderado">Liderado</span>');
-          
           const linkWhats = m.whatsapp ? `<a href="https://api.whatsapp.com/send?phone=55${m.whatsapp.replace(/\D/g,'')}" target="_blank" class="btn-whats-mini">💬 WhatsApp</a>` : '';
 
           const div = document.createElement('div');
@@ -400,13 +395,13 @@
           div.innerHTML = `
             <div class="membro-main">
               <strong>${isLider ? '👑 ' : ''}${m.nome}</strong>
-              <small>📱 ${m.whatsapp || 'Sem'} | Batizado: ${m.batizado || 'Não'}</small>
+              <small>📱 ${m.whatsapp || 'Sem'} | Sexo: ${m.sexo || 'Não inf.'} | Batizado: ${m.batizado || 'Não'}</small>
               <div class="tags">${tagCat}</div>
             </div>
             <div class="actions-group">
               ${linkWhats}
               <button class="btn-edit" onclick="abrirModalEdicao('${m.id}')">✏️ Editar</button>
-              <button class="btn-transfer" onclick="abrirModalTransferir('${m.id}', '${m.nome}')">🔄 Transferir</button>
+              <button class="btn-transfer" onclick="abrirModalTransferir('${m.id}', '${m.nome}', '${m.sexo || ''}')">🔄 Transferir</button>
               <button class="btn-delete" onclick="removerMembro('${m.id}', '${m.nome}')">Remover</button>
             </div>
           `;
@@ -414,7 +409,6 @@
         });
       }
 
-      // Visitas do Supervisor
       const snapVisitas = await db.collection('visitas_supervisao')
         .where('rede', '==', nomeRedeAtiva)
         .get();
@@ -462,7 +456,6 @@
         });
       }
 
-      // Relatórios do Líder
       const snapRelLider = await db.collection('relatorios')
         .where('rede', '==', nomeRedeAtiva)
         .get();
@@ -581,17 +574,17 @@
     const r = relatoriosLiderCache.find(x => x.id === relId);
     if (!r) return;
 
-    const fotoDetalhe = r.fotoRede ? `<img src="${r.fotoRede}" style="width:100%; max-height:200px; object-fit:cover; border-radius:8px; margin-bottom:12px;" alt="Foto">` : '';
+    const fotoDetalhe = r.fotoRede ? `<img src="${r.fotoRede}" style="width:100%; max-height:220px; object-fit:cover; border-radius:8px; margin-bottom:14px;" alt="Foto da Rede">` : '<div style="background:var(--input-bg); padding:20px; text-align:center; border-radius:8px; margin-bottom:14px; color:var(--text-muted);">Sem foto cadastrada neste relatório</div>';
     
     document.getElementById('conteudoDetalhesRelatorio').innerHTML = `
       ${fotoDetalhe}
-      <div style="margin-bottom:10px;"><strong style="color:var(--primary)">Data/Horário:</strong> ${r.dataEncontro || '-'} às ${r.horario || '-'}</div>
-      <div style="margin-bottom:10px;"><strong style="color:var(--primary)">Tema:</strong> ${r.tema || '-'}</div>
-      <div style="margin-bottom:10px;"><strong style="color:var(--primary)">Local:</strong> ${r.local || '-'}</div>
-      <div style="margin-bottom:10px;"><strong style="color:var(--success)">Presentes:</strong> ${r.presentes || 'Nenhum'}</div>
-      <div style="margin-bottom:10px;"><strong style="color:var(--danger)">Faltantes:</strong> ${r.faltantes || 'Nenhum'}</div>
-      <div style="margin-bottom:10px;"><strong style="color:var(--primary)">Visitantes:</strong> ${r.visitantes || 'Nenhum'}</div>
-      <div style="margin-bottom:10px;"><strong style="color:var(--primary)">Resumo da Palavra:</strong> ${r.resumoPalavra || '-'}</div>
+      <div style="margin-bottom:8px;"><strong style="color:var(--primary)">Data/Horário:</strong> ${r.dataEncontro || '-'} às ${r.horario || '-'}</div>
+      <div style="margin-bottom:8px;"><strong style="color:var(--primary)">Tema:</strong> ${r.tema || '-'}</div>
+      <div style="margin-bottom:8px;"><strong style="color:var(--primary)">Local:</strong> ${r.local || '-'}</div>
+      <div style="margin-bottom:8px;"><strong style="color:var(--success)">Presentes:</strong> ${r.presentes || 'Nenhum'}</div>
+      <div style="margin-bottom:8px;"><strong style="color:var(--danger)">Faltantes:</strong> ${r.faltantes || 'Nenhum'}</div>
+      <div style="margin-bottom:8px;"><strong style="color:var(--primary)">Visitantes:</strong> ${r.visitantes || 'Nenhum'}</div>
+      <div style="margin-bottom:8px;"><strong style="color:var(--primary)">Resumo da Palavra:</strong> ${r.resumoPalavra || '-'}</div>
     `;
 
     document.getElementById('modalRelatorioDetalhes').style.display = 'flex';
@@ -601,7 +594,6 @@
     document.getElementById('modalRelatorioDetalhes').style.display = 'none';
   }
 
-  // --- EDIÇÃO DE MEMBRO ---
   function abrirModalEdicao(docId) {
     const m = membrosCache.find(x => x.id === docId);
     if (!m) return;
@@ -648,7 +640,6 @@
     }
   }
 
-  // --- REMOÇÃO DE MEMBRO ---
   async function removerMembro(membroId, nome) {
     if (!confirm(`Deseja realmente remover ${nome} desta rede?`)) return;
     document.getElementById('loading').style.display = 'block';
@@ -663,33 +654,50 @@
     }
   }
 
-  // --- TRANSFERÊNCIA DE MEMBRO ---
-  async function abrirModalTransferir(membroId, membroNome) {
+  // --- TRANSFERÊNCIA DE MEMBRO (FILTRADA POR MINISTÉRIO E SEXO) ---
+  async function abrirModalTransferir(membroId, membroNome, membroSexo) {
     document.getElementById('transMembroId').value = membroId;
     document.getElementById('transMembroNome').value = membroNome;
+    document.getElementById('transMembroSexo').value = membroSexo;
     
     const select = document.getElementById('selectRedeDestino');
-    select.innerHTML = '<option value="">Carregando redes...</option>';
+    select.innerHTML = '<option value="">Carregando redes compatíveis...</option>';
     document.getElementById('modalTransferir').style.display = 'flex';
 
     try {
-      const snap = await db.collection('membros')
-        .where('supervisao', '==', supervisorNome)
+      // 1. Buscar todos os membros do mesmo ministério para identificar redes e o sexo dos líderes
+      const snapMinisterio = await db.collection('membros')
+        .where('ministerio', '==', ministerioAtivo)
         .get();
 
-      let redesSet = new Set();
-      snap.forEach(doc => {
+      let redesComLiderSexo = {}; // Ex: { "Rede Alfa": "Masculino" }
+
+      snapMinisterio.forEach(doc => {
         const d = doc.data();
         if (d.rede && d.rede.trim() !== '' && d.rede !== nomeRedeAtiva) {
-          redesSet.add(d.rede.trim());
+          if (d.categoria === 'Líder') {
+            redesComLiderSexo[d.rede.trim()] = d.sexo || '';
+          } else if (!redesComLiderSexo[d.rede.trim()]) {
+            redesComLiderSexo[d.rede.trim()] = ''; // Caso ainda não tenha líder definido
+          }
         }
       });
 
       select.innerHTML = '';
-      const redesArr = Array.from(redesSet).sort();
-      redesArr.forEach(r => {
-        select.innerHTML += `<option value="${r}">${r}</option>`;
-      });
+      let redesDisponiveis = 0;
+
+      for (const [redeNome, sexoLider] > Object.entries(redesComLiderSexo)) {
+        // Regra: A rede de destino deve ter líder do mesmo sexo do membro transferido (ou sem líder definido ainda)
+        if (!membroSexo || sexoLider === '' || sexoLider === membroSexo) {
+          select.innerHTML += `<option value="${redeNome}">${redeNome} ${sexoLider ? '(' + sexoLider + ')' : ''}</option>`;
+          redesDisponiveis++;
+        }
+      }
+
+      if (redesDisponiveis === 0) {
+        select.innerHTML = '<option value="">Nenhuma rede compatível do mesmo sexo encontrada no ministério</option>';
+      }
+
     } catch (err) {
       console.error(err);
       select.innerHTML = '<option value="">Erro ao carregar redes de destino</option>';
