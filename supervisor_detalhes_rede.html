@@ -665,20 +665,21 @@
     document.getElementById('modalTransferir').style.display = 'flex';
 
     try {
-      // 1. Buscar todos os membros do mesmo ministério para identificar redes e o sexo dos líderes
       const snapMinisterio = await db.collection('membros')
         .where('ministerio', '==', ministerioAtivo)
         .get();
 
-      let redesComLiderSexo = {}; // Ex: { "Rede Alfa": "Masculino" }
+      let redesComLiderSexo = {};
 
       snapMinisterio.forEach(doc => {
         const d = doc.data();
         if (d.rede && d.rede.trim() !== '' && d.rede !== nomeRedeAtiva) {
+          const rNome = d.rede.trim();
+          if (!redesComLiderSexo[rNome]) {
+            redesComLiderSexo[rNome] = '';
+          }
           if (d.categoria === 'Líder') {
-            redesComLiderSexo[d.rede.trim()] = d.sexo || '';
-          } else if (!redesComLiderSexo[d.rede.trim()]) {
-            redesComLiderSexo[d.rede.trim()] = ''; // Caso ainda não tenha líder definido
+            redesComLiderSexo[rNome] = d.sexo || '';
           }
         }
       });
@@ -686,8 +687,7 @@
       select.innerHTML = '';
       let redesDisponiveis = 0;
 
-      for (const [redeNome, sexoLider] > Object.entries(redesComLiderSexo)) {
-        // Regra: A rede de destino deve ter líder do mesmo sexo do membro transferido (ou sem líder definido ainda)
+      for (const [redeNome, sexoLider] of Object.entries(redesComLiderSexo)) {
         if (!membroSexo || sexoLider === '' || sexoLider === membroSexo) {
           select.innerHTML += `<option value="${redeNome}">${redeNome} ${sexoLider ? '(' + sexoLider + ')' : ''}</option>`;
           redesDisponiveis++;
