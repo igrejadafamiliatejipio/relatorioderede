@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Relatório de Visita - Supervisor</title>
+  <style>
+    :root {
+      --bg: #0D0F12;
+      --card-bg: #161B22;
+      --card-border: #30363D;
+      --input-bg: #0D1117;
+      --text: #F0F6FC;
+      --text-muted: #8B949E;
+      --primary: #6E56CF;
+      --primary-hover: #5B45B0;
+      --success: #23D160;
+      --warning: #E3B341;
+      --danger: #E5534B;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); padding: 24px 12px; display: flex; justify-content: center; min-height: 100vh; }
+    .container { max-width: 750px; width: 100%; background: var(--card-bg); padding: 32px; border-radius: 16px; border: 1px solid var(--card-border); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); }
+
+    .top-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .btn-voltar { background: #21262D; color: var(--text); border: 1px solid var(--card-border); padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; text-decoration: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-voltar:hover { background: #30363D; }
+
+    .header { text-align: center; margin-bottom: 28px; }
+    .badge-topo { display: inline-block; background: var(--primary); color: #FFF; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 8px; text-transform: uppercase; }
+    .header h1 { font-size: 1.6rem; font-weight: 700; margin-top: 4px; }
+
+    .form-group { margin-bottom: 20px; text-align: left; }
+    .row { display: flex; gap: 14px; }
+    .row .form-group { flex: 1; }
+
+    label { display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 6px; color: var(--text); text-transform: uppercase; }
+    input, select, textarea { width: 100%; padding: 12px 14px; background-color: var(--input-bg); border: 1px solid var(--card-border); border-radius: 8px; font-size: 0.95rem; color: var(--text); outline: none; }
+    input:focus, select:focus, textarea:focus { border-color: var(--primary); }
+    textarea { resize: vertical; min-height: 80px; }
+
+    /* Estilo dos blocos de avaliação por estrelas */
+    .criterio-card { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 18px; margin-bottom: 20px; }
+    .criterio-titulo { font-size: 1.05rem; font-weight: 700; color: var(--text); margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; }
+    .criterio-peso { font-size: 0.75rem; background: rgba(110, 86, 207, 0.2); color: #A58BFF; padding: 2px 8px; border-radius: 10px; border: 1px solid rgba(110, 86, 207, 0.4); }
+    .criterio-desc { font-size: 0.82rem; color: var(--text-muted); line-height: 1.4; margin-bottom: 14px; }
+
+    /* Seletor de Estrelas */
+    .estrelas-container { display: flex; gap: 8px; margin-bottom: 12px; }
+    .estrela { font-size: 1.8rem; cursor: pointer; color: #30363D; transition: 0.2s; user-select: none; }
+    .estrela.selecionada { color: #E3B341; text-shadow: 0 0 10px rgba(227, 179, 65, 0.4); }
+
+    .nota-badge { font-weight: 700; font-size: 0.85rem; color: var(--warning); margin-left: 8px; }
+
+    /* Placar final */
+    .placar-card { background: linear-gradient(135deg, rgba(110, 86, 207, 0.15) 0%, var(--input-bg) 100%); border: 1px solid var(--primary); border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 24px; }
+    .placar-card h3 { font-size: 0.9rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
+    .placar-nota { font-size: 2.2rem; font-weight: 800; color: var(--text); }
+    .placar-status { font-size: 0.85rem; font-weight: 600; margin-top: 4px; }
+
+    .btn { background-color: var(--primary); color: white; border: none; padding: 14px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 1rem; width: 100%; transition: 0.2s; }
+    .btn:hover { background-color: var(--primary-hover); }
+
+    @media (max-width: 600px) { .row { flex-direction: column; gap: 0; } }
+  </style>
+
+  <!-- Firebase SDK Compat -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+<div class="container">
+  <div class="top-nav">
+    <button class="btn-voltar" onclick="window.location.href='supervisor_menu.html'">← Voltar ao Menu</button>
+  </div>
+
+  <div class="header">
+    <span class="badge-topo" id="badgeMinisterio">MINISTÉRIO</span>
+    <h1>📋 Relatório de Visita do Supervisor</h1>
+    <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;">Avalie o desenvolvimento e a saúde da rede visitada.</p>
+  </div>
+
+  <form id="formVisita" onsubmit="salvarVisita(event)">
+    <div class="row">
+      <div class="form-group">
+        <label>Selecione a Rede Visitada</label>
+        <select id="selectRede" required>
+          <option value="">Carregando redes...</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Data da Visita</label>
+        <input type="date" id="inputDataVisita" required>
+      </div>
+    </div>
+
+    <!-- PLACAR EM TEMPO REAL -->
+    <div class="placar-card">
+      <h3>Nota Final Ponderada da Visita</h3>
+      <div class="placar-nota" id="displayNotaFinal">-.- <span style="font-size: 1.2rem; color: var(--text-muted);">/ 5.0</span></div>
+      <div class="placar-status" id="displayStatusNota" style="color: var(--text-muted);">Preencha os critérios abaixo</div>
+    </div>
+
+    <!-- CRITÉRIO 1 -->
+    <div class="criterio-card">
+      <div class="criterio-titulo">
+        <span>🌟 1. Acolhimento e Relacionamento</span>
+        <span class="criterio-peso">Peso: 2.0</span>
+      </div>
+      <div class="criterio-desc">Avalia o clima da rede, se as pessoas se sentem amadas, integradas e à vontade. Como os novos membros e visitantes são recebidos e acolhidos no grupo.</div>
+      <div class="estrelas-container" id="estrelas_1" data-criterio="1">
+        <span class="estrela" onclick="atribuirEstrela(1, 1)">★</span>
+        <span class="estrela" onclick="atribuirEstrela(1, 2)">★</span>
+        <span class="estrela" onclick="atribuirEstrela(1, 3)">★</span>
+        <span class="estrela" onclick="atribuirEstrela(1, 4)">★</span>
+        <span class="estrela" onclick="atribuirEstrela(1, 5)">★</span>
+        <span class="nota-badge" id="badge_1">0/5</span>
+      </div>
+      <input type="text" id="comentario_1" placeholder="Comentário do supervisor (Motivo da nota)..." required>
+    </div>
+
+    <!-- CRITÉRIO 2 -->
+    <div class="criterio-card">
+      <div class="criterio-titulo">
+        <span>📖 2. Edificação e Clareza da Palavra</span>
+        <span class="criterio-peso">Peso: 1.5</span>
+      </div>
+      <div class="criterio-desc">Avalia como a mensagem foi ministrada pelo líder, se houve clareza, profundidade bíblica e aplicação prática para o dia a dia dos membros.</div>
+      <div class="estrelas-container" id="estrelas_2" data-criterio="2">
+        <span class="estrela" onclick="atribuirEstrela(2, 1)">★</span>
+        <span class="estrela" onclick="atribuirEstrela(2, 2)">★</span>
+        <span class="estrela" onclick="atribuirEstrela(2, 3)">★</span>
+        <span class="estrela" onclick="atribuirEstrela(2, 4)">★</span>
+        <span class="estrela" onclick="atribuirEstrela(2, 5)">★</span>
+        <span class="nota-badge" id="badge_2">0/5</span>
+      </div>
+      <input type="text" id="comentario_2" placeholder="Comentário do supervisor (Motivo da nota)..." required>
+    </div>
+
+    <!-- CRITÉRIO 3 -->
+    <div class="criterio-card">
+      <div class="criterio-titulo">
+        <span>👥 3. Consolidação e Cuidado com os Novos</span>
+        <span class="criterio-peso">Peso: 1.5</span>
+      </div>
+      <div class="criterio-desc">Avalia o acompanhamento prático daqueles que chegaram há pouco tempo, atenção aos novos convertidos e integração na igreja.</div>
+      <div class="estrelas-container" id="estrelas_3" data-criterio="3">
+        <span class="estrela" onclick="atribuirEstrela(3, 1)">★</span>
+        <span class="estrela" onclick="atribuirEstrela(3, 2)">★</span>
+        <span class="estrela" onclick="atribuirEstrela(3, 3)">★</span>
+        <span class="estrela" onclick="atribuirEstrela(3, 4)">★</span>
+        <span class="estrela" onclick="atribuirEstrela(3, 5)">★</span>
+        <span class="nota-badge" id="badge_3">0/5</span>
+      </div>
+      <input type="text" id="comentario_3" placeholder="Comentário do supervisor (Motivo da nota)..." required>
+    </div>
+
+    <!-- CRITÉRIO 4 -->
+    <div class="criterio-card">
+      <div class="criterio-titulo">
+        <span>🌱 4. Foco em Liderança e Multiplicação</span>
+        <span class="criterio-peso">Peso: 2.5</span>
+      </div>
+      <div class="criterio-desc">Avalia se o líder está preparando novos líderes (base), delegando funções e mantendo a visão de que a rede vai se multiplicar.</div>
+      <div class="estrelas-container" id="estrelas_4" data-criterio="4">
+        <span class="estrela" onclick="atribuirEstrela(4, 1)">★</span>
+        <span class="estrela" onclick="atribuirEstrela(4, 2)">★</span>
+        <span class="estrela" onclick="atribuirEstrela(4, 3)">★</span>
+        <span class="estrela" onclick="atribuirEstrela(4, 4)">★</span>
+        <span class="estrela" onclick="atribuirEstrela(4, 5)">★</span>
+        <span class="nota-badge" id="badge_4">0/5</span>
+      </div>
+      <input type="text" id="comentario_4" placeholder="Comentário do supervisor (Motivo da nota)..." required>
+    </div>
+
+    <!-- CRITÉRIO 5 -->
+    <div class="criterio-card">
+      <div class="criterio-titulo">
+        <span>⏰ 5. Organização, Pontualidade e Dinâmica</span>
+        <span class="criterio-peso">Peso: 1.0</span>
+      </div>
+      <div class="criterio-desc">Avalia se a reunião começou no horário, se houve bom aproveitamento do tempo (equilíbrio entre louvor, palavra, comunhão) e local adequado.</div>
+      <div class="estrelas-container" id="estrelas_5" data-criterio="5">
+        <span class="estrela" onclick="atribuirEstrela(5, 1)">★</span>
+        <span class="estrela" onclick="atribuirEstrela(5, 2)">★</span>
+        <span class="estrela" onclick="atribuirEstrela(5, 3)">★</span>
+        <span class="estrela" onclick="atribuirEstrela(5, 4)">★</span>
+        <span class="estrela" onclick="atribuirEstrela(5, 5)">★</span>
+        <span class="nota-badge" id="badge_5">0/5</span>
+      </div>
+      <input type="text" id="comentario_5" placeholder="Comentário do supervisor (Motivo da nota)..." required>
+    </div>
+
+    <!-- CRITÉRIO 6 -->
+    <div class="criterio-card">
+      <div class="criterio-titulo">
+        <span>📱 6. Fidelidade nos Relatórios e Comunicação</span>
+        <span class="criterio-peso">Peso: 1.5</span>
+      </div>
+      <div class="criterio-desc">Avalia o alinhamento do líder, envio pontual dos relatórios semanais pelo sistema e transparência nos desafios da rede.</div>
+      <div class="estrelas-container" id="estrelas_6" data-criterio="6">
+        <span class="estrela" onclick="atribuirEstrela(6, 1)">★</span>
+        <span class="estrela" onclick="atribuirEstrela(6, 2)">★</span>
+        <span class="estrela" onclick="atribuirEstrela(6, 3)">★</span>
+        <span class="estrela" onclick="atribuirEstrela(6, 4)">★</span>
+        <span class="estrela" onclick="atribuirEstrela(6, 5)">★</span>
+        <span class="nota-badge" id="badge_6">0/5</span>
+      </div>
+      <input type="text" id="comentario_6" placeholder="Comentário do supervisor (Motivo da nota)..." required>
+    </div>
+
+    <div class="form-group">
+      <label>Observações Gerais / Alvos de Oração para a Rede</label>
+      <textarea id="inputObservacoes" placeholder="Considerações finais, combinados feitos com o líder..."></textarea>
+    </div>
+
+    <button type="submit" class="btn" id="btnSalvar">Salvar Relatório de Visita</button>
+  </form>
+</div>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyB7FJXs9wiRFYIs2ugZoWrw7jTXPR5weGk",
+    authDomain: "app-redes-iftejipio.firebaseapp.com",
+    projectId: "app-redes-iftejipio",
+    storageBucket: "app-redes-iftejipio.firebasestorage.app",
+    messagingSenderId: "954529090793",
+    appId: "1:954529090793:web:6702d102b6e5b178b6b478",
+    measurementId: "G-2MJ96WMYQ5"
+  };
+  if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  let ministerioAtivo = 'TOPO';
+  let nomeSupervisor = '';
+  // Pesos definidos: Acolhimento (2.0), Edificação (1.5), Consolidação (1.5), Liderança (2.5), Organização (1.0), Relatórios (1.5) -> Total = 10.0
+  const pesos = { 1: 2.0, 2: 1.5, 3: 1.5, 4: 2.5, 5: 1.0, 6: 1.5 };
+  let notasCriterios = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
+
+  document.addEventListener("DOMContentLoaded", async () => {
+    const logado = sessionStorage.getItem('topo_sup_logado') || sessionStorage.getItem('topo_sup_nome') || sessionStorage.getItem('topo_coord_logado');
+    if (!logado) {
+      window.location.href = "index.html";
+      return;
+    }
+
+    ministerioAtivo = sessionStorage.getItem('topo_ministerio') || 'TOPO';
+    nomeSupervisor = sessionStorage.getItem('topo_sup_nome') || sessionStorage.getItem('topo_coord_nome') || 'Supervisor(a)';
+    document.getElementById('badgeMinisterio').innerText = `COORDENAÇÃO / SUPERVISÃO - ${ministerioAtivo}`;
+
+    // Data de hoje padrão
+    document.getElementById('inputDataVisita').valueAsDate = new Date();
+
+    await carregarRedesDoSupervisor();
+  });
+
+  async function carregarRedesDoSupervisor() {
+    const selectRede = document.getElementById('selectRede');
+    selectRede.innerHTML = '<option value="">Selecione a rede...</option>';
+
+    try {
+      const snap = await db.collection('membros')
+        .where('ministerio', '==', ministerioAtivo)
+        .get();
+
+      let redesSet = new Set();
+      snap.forEach(doc => {
+        const d = doc.data();
+        if (d.rede && d.rede.trim() !== '' && !d.rede.toLowerCase().includes('geral')) {
+          redesSet.add(d.rede.trim());
+        }
+      });
+
+      const redesArr = Array.from(redesSet).sort();
+      redesArr.forEach(r => {
+        selectRede.innerHTML += `<option value="${r}">${r}</option>`;
+      });
+    } catch (err) {
+      console.error(err);
+      selectRede.innerHTML = '<option value="">Erro ao carregar redes</option>';
+    }
+  }
+
+  function atribuirEstrela(criterio, nota) {
+    notasCriterios[criterio] = nota;
+    document.getElementById(`badge_${criterio}`).innerText = `${nota}/5`;
+
+    const container = document.getElementById(`estrelas_1`); // apenas referência
+    const estrelas = document.querySelectorAll(`#estrelas_${criterio} .estrela`);
+    
+    estrelas.forEach((est, idx) => {
+      if (idx < nota) {
+        est.classList.add('selecionada');
+      } else {
+        est.classList.remove('selecionada');
+      }
+    });
+
+    calcularNotaFinalPonderada();
+  }
+
+  function calcularNotaFinalPonderada() {
+    let somaPonderada = 0;
+    let somaPesos = 0;
+    let preenchidos = 0;
+
+    for (let i = 1; i <= 6; i++) {
+      if (notasCriterios[i] > 0) {
+        somaPonderada += notasCriterios[i] * pesos[i];
+        somaPesos += pesos[i];
+        preenchidos++;
+      }
+    }
+
+    const displayNota = document.getElementById('displayNotaFinal');
+    const displayStatus = document.getElementById('displayStatusNota');
+
+    if (preenchidos === 0) {
+      displayNota.innerHTML = `-.- <span style="font-size: 1.2rem; color: var(--text-muted);">/ 5.0</span>`;
+      displayStatus.innerText = "Preencha os critérios abaixo";
+      displayStatus.style.color = "var(--text-muted)";
+      return;
+    }
+
+    const notaFinal = somaPonderada / somaPesos;
+    displayNota.innerHTML = `${notaFinal.toFixed(1)} <span style="font-size: 1.2rem; color: var(--text-muted);">/ 5.0</span>`;
+
+    if (notaFinal >= 4.5) {
+      displayStatus.innerText = "🌟 Rede Excelente / Referência";
+      displayStatus.style.color = "var(--success)";
+    } else if (notaFinal >= 3.5) {
+      displayStatus.innerText = "✅ Rede Saudável e Estável";
+      displayStatus.style.color = "#388BFD";
+    } else if (notaFinal >= 2.5) {
+      displayStatus.innerText = "⚠️ Rede em Desenvolvimento (Requer Atenção)";
+      displayStatus.style.color = "var(--warning)";
+    } else {
+      displayStatus.innerText = "⛔ Rede Crítica (Necessita Intervenção)";
+      displayStatus.style.color = "var(--danger)";
+    }
+  }
+
+  async function salvarVisita(e) {
+    e.preventDefault();
+
+    // Valida se todas as 6 estrelas foram marcadas
+    for (let i = 1; i <= 6; i++) {
+      if (notasCriterios[i] === 0) {
+        alert(`Por favor, atribua uma nota de estrelas para o critério ${i}.`);
+        return;
+      }
+    }
+
+    const btn = document.getElementById('btnSalvar');
+    btn.disabled = true;
+    btn.innerText = "Salvando relatório de visita...";
+
+    let somaPonderada = 0;
+    let somaPesos = 0;
+    for (let i = 1; i <= 6; i++) {
+      somaPonderada += notasCriterios[i] * pesos[i];
+      somaPesos += pesos[i];
+    }
+    const notaFinalCalculada = parseFloat((somaPonderada / somaPesos).toFixed(2));
+
+    const dadosVisita = {
+      ministerio: ministerioAtivo,
+      supervisor: nomeSupervisor,
+      rede: document.getElementById('selectRede').value,
+      dataVisita: document.getElementById('inputDataVisita').value,
+      notaFinal: notaFinalCalculada,
+      criterios: {
+        acolhimento: { nota: notasCriterios[1], comentario: document.getElementById('comentario_1').value.trim() },
+        edificacao: { nota: notasCriterios[2], comentario: document.getElementById('comentario_2').value.trim() },
+        consolidacao: { nota: notasCriterios[3], comentario: document.getElementById('comentario_3').value.trim() },
+        lideranca: { nota: notasCriterios[4], comentario: document.getElementById('comentario_4').value.trim() },
+        organizacao: { nota: notasCriterios[5], comentario: document.getElementById('comentario_5').value.trim() },
+        relatorios: { nota: notasCriterios[6], comentario: document.getElementById('comentario_6').value.trim() }
+      },
+      observacoesGerais: document.getElementById('inputObservacoes').value.trim(),
+      criadoEm: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    try {
+      await db.collection('visitas_supervisao').add(dadosVisita);
+      alert("✅ Relatório de Visita salvo com sucesso!");
+      window.location.href = "supervisor_menu.html";
+    } catch (err) {
+      console.error(err);
+      alert("❌ Erro ao salvar visita. Tente novamente.");
+      btn.disabled = false;
+      btn.innerText = "Salvar Relatório de Visita";
+    }
+  }
+</script>
+
+</body>
+</html>
