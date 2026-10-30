@@ -92,6 +92,7 @@
     input, select, textarea { width: 100%; padding: 10px 14px; background-color: var(--input-bg); border: 1px solid var(--card-border); border-radius: 8px; font-size: 0.95rem; color: var(--text); outline: none; }
     input:focus, select:focus, textarea:focus { border-color: var(--primary); }
     select option { background-color: var(--card-bg); color: var(--text); }
+    input[type="file"] { padding: 9px; cursor: pointer; }
 
     /* Relatórios */
     .relatorio-item { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 18px; margin-bottom: 16px; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; gap: 12px; }
@@ -272,7 +273,6 @@
       return;
     }
 
-    // Se quem está logado for Líder de Rede comum (e não Supervisor/Coordenador), remove a opção de categorizar como Líder
     if (liderSessao && !liderSessao.includes('Supervisor') && !supervisorLogado && !coordenadorLogado) {
       const optLider = document.getElementById('optLiderOption');
       if (optLider) optLider.remove();
@@ -641,10 +641,16 @@
     });
 
     const conteudo = document.getElementById('conteudoDetalhesRelatorio');
-    const fotoDetalhe = rel.fotoRede ? `<img src="${rel.fotoRede}" style="width:100%; max-height:220px; object-fit:cover; border-radius:8px; margin-bottom:12px;" alt="Foto da Rede">` : '';
+    const fotoPreview = rel.fotoRede ? `<img src="${rel.fotoRede}" id="previewFotoEdit" style="width:100%; max-height:180px; object-fit:cover; border-radius:8px; margin-bottom:8px;" alt="Foto Atual">` : `<p id="previewFotoEdit" style="font-size:0.85rem; color:var(--text-muted); margin-bottom:8px;">Nenhuma foto cadastrada neste relatório.</p>`;
 
     conteudo.innerHTML = `
-      ${fotoDetalhe}
+      <div class="relatorio-detalhe-bloco">
+        <label>Foto da Rede</label>
+        ${fotoPreview}
+        <input type="file" id="editInputFotoRede" accept="image/*" style="margin-top: 6px;">
+        <small style="color: var(--text-muted); font-size: 0.75rem; display: block; margin-top: 4px;">Selecione um arquivo apenas se desejar alterar a foto atual.</small>
+      </div>
+
       <div style="display:flex; gap:10px; margin-bottom:12px;">
         <div class="relatorio-detalhe-bloco" style="flex:1; margin-bottom:0;"><label>Data</label><input type="date" id="editRelData" value="${rel.dataEncontro || ''}"></div>
         <div class="relatorio-detalhe-bloco" style="flex:1; margin-bottom:0;"><label>Horário</label><input type="time" id="editRelHorario" value="${rel.horario || ''}"></div>
@@ -672,8 +678,46 @@
     else { box.style.display = 'none'; document.getElementById(`edit_just_${index}`).value = ''; }
   }
 
+  function comprimirEConverterImagem(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        const img = new Image();
+        img.onload = function () {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          const MAX_WIDTH = 800;
+          const MAX_HEIGHT = 800;
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height *= MAX_WIDTH / width;
+              width = MAX_WIDTH;
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width *= MAX_HEIGHT / height;
+              height = MAX_HEIGHT;
+            }
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+          resolve(dataUrl);
+        };
+        img.onerror = (err) => reject(err);
+        img.src = event.target.result;
+      };
+      reader.onerror = (error) => reject(error);
+      reader.readAsDataURL(file);
+    });
+  }
+
   async function salvarEdicaoRelatorio() {
     const docId = document.getElementById('detalheRelId').value;
+    const relAtual = relatoriosLocais.find(r => r.id === docId);
     let presentesArr = [];
     let faltantesArr = [];
 
@@ -689,6 +733,16 @@
       }
     });
 
+    let fotoBase64 = relAtual ? (relAtual.fotoRede || "") : "";
+    const fileInput = document.getElementById('editInputFotoRede');
+    if (fileInput && fileInput.files && fileInput.files[0]) {
+      try {
+        fotoBase64 = await comprimirEConverterImagem(fileInput.files[0]);
+      } catch (err) {
+        console.error("Erro ao comprimir nova foto na edição:", err);
+      }
+    }
+
     const atualizacao = {
       dataEncontro: document.getElementById('editRelData').value,
       horario: document.getElementById('editRelHorario').value,
@@ -698,7 +752,8 @@
       visitantes: document.getElementById('editRelVisitantes').value.trim(),
       faltantes: faltantesArr.join(', '),
       resumoPalavra: document.getElementById('editRelResumo').value.trim(),
-      atividades: document.getElementById('editRelAtividades').value.trim()
+      atividades: document.getElementById('editRelAtividades').value.trim(),
+      fotoRede: fotoBase64
     };
 
     fecharModalRelatorio();
