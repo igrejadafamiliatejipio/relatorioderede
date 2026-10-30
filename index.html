@@ -18,8 +18,14 @@
     .badge-topo { display: inline-block; background: var(--primary); color: #FFF; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 8px; text-transform: uppercase; }
     .form-group { margin-bottom: 16px; text-align: left; }
     label { display: block; font-weight: 500; font-size: 0.82rem; margin-bottom: 6px; color: var(--text-muted); text-transform: uppercase; }
-    input { width: 100%; padding: 12px 14px; background-color: var(--input-bg); border: 1px solid var(--card-border); border-radius: 8px; font-size: 0.95rem; color: var(--text); outline: none; }
+    
+    .input-wrapper { position: relative; display: flex; align-items: center; }
+    input { width: 100%; padding: 12px 42px 12px 14px; background-color: var(--input-bg); border: 1px solid var(--card-border); border-radius: 8px; font-size: 0.95rem; color: var(--text); outline: none; }
     input:focus { border-color: var(--primary); }
+    
+    .btn-toggle-senha { position: absolute; right: 12px; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.1rem; padding: 4px; }
+    .btn-toggle-senha:hover { color: var(--text); }
+
     .btn { background-color: var(--primary); color: white; border: none; padding: 14px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 1rem; width: 100%; margin-top: 10px; transition: 0.2s; }
     .btn:hover { background-color: var(--primary-hover); }
     .btn-secondary { background-color: #21262D; border: 1px solid var(--card-border); margin-top: 8px; }
@@ -56,7 +62,10 @@
     </div>
     <div class="form-group">
       <label>Senha</label>
-      <input type="password" id="inputSenha" placeholder="••••••••" required>
+      <div class="input-wrapper">
+        <input type="password" id="inputSenha" placeholder="••••••••" required>
+        <button type="button" class="btn-toggle-senha" onclick="toggleSenha('inputSenha', this)">👁️</button>
+      </div>
     </div>
     <button type="submit" class="btn" id="btnLogin">Entrar</button>
   </form>
@@ -72,7 +81,17 @@
     </div>
     <div class="form-group">
       <label>Criar Nova Senha</label>
-      <input type="password" id="inputPrimeiroSenha" placeholder="Mínimo de 6 caracteres" minlength="6" required>
+      <div class="input-wrapper">
+        <input type="password" id="inputPrimeiroSenha" placeholder="Mínimo de 6 caracteres" minlength="6" required>
+        <button type="button" class="btn-toggle-senha" onclick="toggleSenha('inputPrimeiroSenha', this)">👁️</button>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Confirmar Nova Senha</label>
+      <div class="input-wrapper">
+        <input type="password" id="inputPrimeiroSenhaConf" placeholder="Repita a senha criada" minlength="6" required>
+        <button type="button" class="btn-toggle-senha" onclick="toggleSenha('inputPrimeiroSenhaConf', this)">👁️</button>
+      </div>
     </div>
     <button type="submit" class="btn" id="btnPrimeiroAcesso">Cadastrar Senha e Entrar</button>
     <button type="button" class="btn btn-secondary" onclick="alternarTela('login')">Voltar ao Login</button>
@@ -121,11 +140,21 @@
     }
   }
 
-  // Validação flexível e robusta de permissão baseada no banco de dados
+  // Função para ver/ocultar senha (olhinho)
+  function toggleSenha(inputId, btnEl) {
+    const input = document.getElementById(inputId);
+    if (input.type === 'password') {
+      input.type = 'text';
+      btnEl.innerText = '🙈';
+    } else {
+      input.type = 'password';
+      btnEl.innerText = '👁️';
+    }
+  }
+
   async function validarPermissaoRedirecionar(userEmail) {
     sessionStorage.clear();
 
-    // 1. Verifica Administrador Master
     if (userEmail === EMAIL_MASTER) {
       sessionStorage.setItem('topo_ministerio', 'TOPO');
       sessionStorage.setItem('topo_coord_logado', 'true');
@@ -134,7 +163,6 @@
       return;
     }
 
-    // 2. Busca na coleção membros pelo e-mail
     const snapshot = await db.collection('membros').get();
     let membroDoc = null;
 
@@ -151,13 +179,11 @@
     }
 
     const ministerio = membroDoc.ministerio || 'TOPO';
-    // Normaliza a categoria removendo acentos e convertendo para minúsculas para evitar erros de digitação
     const categoriaRaw = membroDoc.categoria ? membroDoc.categoria.trim().toLowerCase() : '';
     const categoriaLimpa = categoriaRaw.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
     sessionStorage.setItem('topo_ministerio', ministerio);
 
-    // 3. Redirecionamento por cargo (tolerante a acentos e maiúsculas/minúsculas)
     if (categoriaLimpa === 'coordenador') {
       sessionStorage.setItem('topo_coord_nome', membroDoc.nome);
       sessionStorage.setItem('topo_coord_logado', 'true');
@@ -204,14 +230,21 @@
     }
   }
 
-  // Fluxo inteligente para o Primeiro Acesso
   async function ativarPrimeiroAcesso(e) {
     e.preventDefault();
     const emailInput = document.getElementById('inputPrimeiroEmail').value.trim().toLowerCase();
     const senha = document.getElementById('inputPrimeiroSenha').value;
+    const senhaConf = document.getElementById('inputPrimeiroSenhaConf').value;
     const btn = document.getElementById('btnPrimeiroAcesso');
 
     document.getElementById('msgBox').style.display = 'none';
+
+    // Validação se as senhas conferem
+    if (senha !== senhaConf) {
+      mostrarMensagem("As senhas digitadas não conferem. Por favor, verifique.", 'erro');
+      return;
+    }
+
     btn.disabled = true;
     btn.innerText = "Verificando cadastro...";
 
