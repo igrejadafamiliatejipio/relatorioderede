@@ -32,7 +32,6 @@
     .badge-topo { display: inline-block; background: var(--primary); color: #FFF; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 8px; text-transform: uppercase; }
     .header h1 { font-size: 1.8rem; font-weight: 800; margin-top: 4px; }
 
-    /* Grid de Resumo e Saúde */
     .resumo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 24px; }
     .resumo-card { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 16px; text-align: center; }
     .resumo-card h3 { font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; }
@@ -45,13 +44,11 @@
     .health-info h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 2px; }
     .health-info p { font-size: 0.85rem; opacity: 0.9; }
 
-    /* Líder em Evidência */
     .lider-evidencia { background: linear-gradient(135deg, rgba(110, 86, 207, 0.15) 0%, var(--input-bg) 100%); border: 1px solid var(--primary); border-radius: 12px; padding: 18px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; gap: 16px; }
     .lider-evidencia-info h4 { font-size: 0.78rem; text-transform: uppercase; color: #A58BFF; margin-bottom: 4px; font-weight: 700; }
     .lider-evidencia-info strong { font-size: 1.2rem; color: #FFF; display: block; margin-bottom: 2px; }
     .lider-evidencia-info small { color: var(--text-muted); font-size: 0.82rem; }
 
-    /* Sanfona de Membros */
     .sanfona-box { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 12px; margin-bottom: 24px; overflow: hidden; }
     .sanfona-header { padding: 16px; font-size: 1.05rem; font-weight: 700; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: rgba(255,255,255,0.02); transition: 0.2s; }
     .sanfona-header:hover { background: rgba(255,255,255,0.05); }
@@ -66,13 +63,17 @@
     .tag { font-size: 0.68rem; padding: 2px 6px; border-radius: 10px; font-weight: 600; }
     .tag-base { background: rgba(110, 86, 207, 0.2); color: #A58BFF; border: 1px solid rgba(110, 86, 207, 0.4); }
     .tag-liderado { background: rgba(139, 148, 158, 0.2); color: var(--text-muted); border: 1px solid rgba(139, 148, 158, 0.3); }
-    .tag-warning { background: rgba(227, 179, 65, 0.2); color: var(--warning); border: 1px solid rgba(227, 179, 65, 0.4); }
-    .tag-danger { background: rgba(229, 83, 75, 0.2); color: var(--danger); border: 1px solid rgba(229, 83, 75, 0.4); }
 
+    .actions-group { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
     .btn-whats-mini { background: #23D160; color: #000; border: none; padding: 5px 8px; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 0.75rem; text-decoration: none; display: inline-flex; align-items: center; gap: 3px; }
     .btn-whats-mini:hover { background: #1EBE55; }
+    .btn-edit { background: rgba(56, 139, 253, 0.15); color: var(--info); border: 1px solid rgba(56, 139, 253, 0.3); padding: 5px 8px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.75rem; }
+    .btn-edit:hover { background: var(--info); color: #FFF; }
+    .btn-transfer { background: rgba(227, 179, 65, 0.15); color: var(--warning); border: 1px solid rgba(227, 179, 65, 0.3); padding: 5px 8px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.75rem; }
+    .btn-transfer:hover { background: var(--warning); color: #000; }
+    .btn-delete { background: rgba(229, 83, 75, 0.15); color: var(--danger); border: 1px solid rgba(229, 83, 75, 0.3); padding: 5px 8px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.75rem; }
+    .btn-delete:hover { background: var(--danger); color: #FFF; }
 
-    /* Seção de Gráfico e Visitas */
     .section-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; }
     .grafico-container { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 18px; margin-bottom: 24px; }
     
@@ -81,8 +82,31 @@
     .criterio-resumo { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px; }
     .criterio-resumo strong { color: var(--text); }
 
-    .relatorio-lider-card { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 16px; margin-bottom: 14px; }
+    /* Relatório do Líder (Estilo Painel) */
+    .relatorio-item { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 16px; margin-bottom: 14px; cursor: pointer; transition: 0.2s; display: flex; gap: 14px; align-items: flex-start; }
+    .relatorio-item:hover { border-color: var(--primary); transform: translateY(-2px); }
+    .relatorio-foto { width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 1px solid var(--card-border); flex-shrink: 0; background: #000; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: var(--text-muted); }
+    .relatorio-meta { flex: 1; }
+    .relatorio-data-hora { font-size: 0.75rem; color: var(--primary); font-weight: 700; text-transform: uppercase; margin-bottom: 2px; }
+    .relatorio-tema { font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+    .relatorio-local { font-size: 0.8rem; color: var(--text-muted); }
+
+    /* Modais */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 999; display: none; }
+    .modal-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 24px; max-width: 520px; width: 100%; max-height: 85vh; overflow-y: auto; text-align: left; }
+    .modal-header { font-size: 1.1rem; font-weight: 700; margin-bottom: 16px; color: var(--text); display: flex; justify-content: space-between; align-items: center; }
+    .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+    .form-group { margin-bottom: 12px; }
+    label { display: block; font-weight: 500; font-size: 0.78rem; margin-bottom: 4px; color: var(--text-muted); text-transform: uppercase; }
+    input, select, textarea { width: 100%; padding: 10px 14px; background-color: var(--input-bg); border: 1px solid var(--card-border); border-radius: 8px; font-size: 0.95rem; color: var(--text); outline: none; }
+    input:focus, select:focus { border-color: var(--primary); }
+    select option { background-color: var(--card-bg); color: var(--text); }
     
+    .btn-salvar { background: var(--primary); color: white; border: none; padding: 10px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; width: auto; }
+    .btn-salvar:hover { background: var(--primary-hover); }
+    .btn-cancelar { background: #21262D; color: var(--text); border: 1px solid var(--card-border); padding: 10px 16px; border-radius: 8px; cursor: pointer; }
+    .btn-cancelar:hover { background: #30363D; }
+
     .btn-carregar-mais { background: #21262D; color: var(--text); border: 1px solid var(--card-border); padding: 10px; border-radius: 8px; cursor: pointer; font-weight: 600; width: 100%; text-align: center; margin-top: 10px; }
     .btn-carregar-mais:hover { background: #30363D; }
 
@@ -91,6 +115,8 @@
     @media (max-width: 600px) {
       .resumo-grid { grid-template-columns: 1fr; }
       .lider-evidencia { flex-direction: column; align-items: flex-start; gap: 10px; }
+      .relatorio-item { flex-direction: column; }
+      .relatorio-foto { width: 100%; height: 120px; }
     }
   </style>
 
@@ -121,7 +147,7 @@
         <div class="valor" id="txtTotalMembros">0</div>
       </div>
       <div class="resumo-card">
-        <h3>Membros na Base</h3>
+        <h3>Membros na Base (c/ Líder)</h3>
         <div class="valor" id="txtTotalBase">0</div>
       </div>
       <div class="resumo-card">
@@ -144,7 +170,7 @@
         <strong id="liderNome">Não definido</strong>
         <small id="liderDetalhes">📱 - | ✉️ -</small>
       </div>
-      <div id="liderWhatsBtn"></div>
+      <div class="actions-group" id="liderAcoesDestaque"></div>
     </div>
 
     <!-- SANFONA COM OS LIDERADOS -->
@@ -184,6 +210,74 @@
   <div id="loading" class="loading-box">Carregando detalhes da rede...</div>
 </div>
 
+<!-- Modal de Edição de Membro -->
+<div id="modalEdicao" class="modal-overlay">
+  <div class="modal-card">
+    <div class="modal-header"><span>✏️ Editar Membro</span> <button onclick="fecharModalEdicao()" style="background:none; border:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer;">✕</button></div>
+    <input type="hidden" id="editDocId">
+
+    <div class="form-group"><label>Nome Completo</label><input type="text" id="editNome"></div>
+    <div class="form-group"><label>Data de Nascimento</label><input type="date" id="editNascimento"></div>
+    <div class="form-group">
+      <label>Sexo</label>
+      <select id="editSexo"><option value="">Selecione...</option><option value="Masculino">Masculino</option><option value="Feminino">Feminino</option></select>
+    </div>
+    <div class="form-group"><label>WhatsApp</label><input type="text" id="editWhatsapp"></div>
+    <div class="form-group"><label>E-mail de Acesso</label><input type="email" id="editEmail"></div>
+    <div class="form-group">
+      <label>Batizado?</label>
+      <select id="editBatizado"><option value="Sim">Sim</option><option value="Não">Não</option></select>
+    </div>
+    <div class="form-group">
+      <label>Categoria</label>
+      <select id="editCategoria">
+        <option value="Liderado">Liderado</option>
+        <option value="Base da Rede">Base da Rede</option>
+        <option value="Líder">Líder</option>
+      </select>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancelar" onclick="fecharModalEdicao()">Cancelar</button>
+      <button class="btn-salvar" onclick="salvarEdicaoMembro()">Salvar Alterações</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Transferir Membro -->
+<div id="modalTransferir" class="modal-overlay">
+  <div class="modal-card">
+    <div class="modal-header"><span>🔄 Transferir Membro</span> <button onclick="fecharModalTransferir()" style="background:none; border:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer;">✕</button></div>
+    <input type="hidden" id="transMembroId">
+    <div class="form-group">
+      <label>Membro</label>
+      <input type="text" id="transMembroNome" readonly style="opacity: 0.7;">
+    </div>
+    <div class="form-group">
+      <label>Rede de Destino</label>
+      <select id="selectRedeDestino"></select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancelar" onclick="fecharModalTransferir()">Cancelar</button>
+      <button class="btn-salvar" onclick="executarTransferencia()">Confirmar Transferência</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Detalhes do Relatório do Líder -->
+<div id="modalRelatorioDetalhes" class="modal-overlay">
+  <div class="modal-card">
+    <div class="modal-header">
+      <span>📋 Detalhes do Relatório do Líder</span>
+      <button onclick="fecharModalRelatorio()" style="background:none; border:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer;">✕</button>
+    </div>
+    <div id="conteudoDetalhesRelatorio"></div>
+    <div class="modal-footer">
+      <button class="btn-cancelar" onclick="fecharModalRelatorio()">Fechar</button>
+    </div>
+  </div>
+</div>
+
 <script>
   const firebaseConfig = {
     apiKey: "AIzaSyB7FJXs9wiRFYIs2ugZoWrw7jTXPR5weGk",
@@ -199,6 +293,8 @@
 
   let nomeRedeAtiva = '';
   let ministerioAtivo = 'TOPO';
+  let supervisorNome = '';
+  let membrosCache = [];
   let relatoriosLiderCache = [];
   let limiteRelatoriosExibidos = 3;
   let chartInstance = null;
@@ -214,6 +310,7 @@
     }
 
     ministerioAtivo = sessionStorage.getItem('topo_ministerio') || 'TOPO';
+    supervisorNome = sessionStorage.getItem('topo_sup_nome') || sessionStorage.getItem('topo_coord_logado');
     document.getElementById('badgeMinisterio').innerText = `DETALHES DA REDE - ${ministerioAtivo}`;
     document.getElementById('tituloRedeNome').innerText = nomeRedeAtiva;
 
@@ -222,33 +319,36 @@
 
   async function carregarDadosCompletosRede() {
     try {
-      // 1. Carregar Membros da Rede
       const snapMembros = await db.collection('membros')
         .where('rede', '==', nomeRedeAtiva)
         .get();
 
-      let membros = [];
+      membrosCache = [];
       let liderObj = null;
       let totalBase = 0;
 
       snapMembros.forEach(doc => {
         const d = doc.data();
         if (d.status !== 'INATIVO') {
-          membros.push({ id: doc.id, ...d });
-          if (d.categoria === 'Líder') liderObj = d;
-          if (d.categoria === 'Base da Rede') totalBase++;
+          membrosCache.push({ id: doc.id, ...d });
+          if (d.categoria === 'Líder') {
+            liderObj = { id: doc.id, ...d };
+            totalBase++; // Líder conta na base
+          }
+          if (d.categoria === 'Base da Rede') {
+            totalBase++;
+          }
         }
       });
 
-      // Ordenar membros alfabeticamente
-      membros.sort((a, b) => a.nome.localeCompare(b.nome));
+      membrosCache.sort((a, b) => a.nome.localeCompare(b.nome));
 
-      // Atualizar Resumos e Saúde
-      const totalMembros = membros.length;
+      const totalMembros = membrosCache.length;
       document.getElementById('txtTotalMembros').innerText = totalMembros;
       document.getElementById('txtTotalBase').innerText = totalBase;
       document.getElementById('totalMembrosSanfona').innerText = totalMembros;
 
+      // Saúde da Rede
       const cardSaude = document.getElementById('cardSaudeRede');
       const titSaude = document.getElementById('titSaude');
       const descSaude = document.getElementById('descSaude');
@@ -267,47 +367,54 @@
         descSaude.innerText = `A rede ultrapassou 12 membros (${totalMembros}) e está pronta para multiplicar!`;
       }
 
-      // Renderizar Líder em Evidência
+      // Líder em Evidência
+      const acoesLider = document.getElementById('liderAcoesDestaque');
+      acoesLider.innerHTML = '';
       if (liderObj) {
         document.getElementById('liderNome').innerText = liderObj.nome;
         document.getElementById('liderDetalhes').innerText = `📱 ${liderObj.whatsapp || 'Sem WhatsApp'} | ✉️ ${liderObj.email || 'Sem e-mail'} | Batizado: ${liderObj.batizado || 'Não'}`;
+        
         if (liderObj.whatsapp) {
-          document.getElementById('liderWhatsBtn').innerHTML = `
-            <a href="https://api.whatsapp.com/send?phone=55${liderObj.whatsapp.replace(/\D/g,'')}&text=${encodeURIComponent('Olá pastor/líder ' + liderObj.nome + ', passando para alinhar sobre a rede!')}" target="_blank" class="btn-whats-mini">💬 WhatsApp</a>
-          `;
+          acoesLider.innerHTML += `<a href="https://api.whatsapp.com/send?phone=55${liderObj.whatsapp.replace(/\D/g,'')}&text=${encodeURIComponent('Olá pastor/líder ' + liderObj.nome + ', passando para alinhar sobre a rede!')}" target="_blank" class="btn-whats-mini">💬 WhatsApp</a>`;
         }
+        acoesLider.innerHTML += `<button class="btn-edit" onclick="abrirModalEdicao('${liderObj.id}')">✏️ Editar</button>`;
       } else {
         document.getElementById('liderNome').innerText = "Não definido";
         document.getElementById('liderDetalhes').innerText = "Nenhum líder atribuído a esta rede.";
       }
 
-      // Renderizar Sanfona com Liderados
+      // Sanfona com Membros
       const containerSanfona = document.getElementById('listaLideradosSanfona');
       containerSanfona.innerHTML = '';
-      if (membros.length === 0) {
+      if (membrosCache.length === 0) {
         containerSanfona.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem;">Nenhum membro cadastrado.</div>';
       } else {
-        membros.forEach(m => {
+        membrosCache.forEach(m => {
           const isLider = m.categoria === 'Líder';
           const tagCat = isLider ? '<span class="tag tag-base">⭐ Líder</span>' : (m.categoria === 'Base da Rede' ? '<span class="tag tag-base">Base da Rede</span>' : '<span class="tag tag-liderado">Liderado</span>');
           
+          const linkWhats = m.whatsapp ? `<a href="https://api.whatsapp.com/send?phone=55${m.whatsapp.replace(/\D/g,'')}" target="_blank" class="btn-whats-mini">💬 WhatsApp</a>` : '';
+
           const div = document.createElement('div');
           div.className = 'membro-card';
           div.innerHTML = `
             <div class="membro-main">
-              <strong>${m.nome}</strong>
-              <small>📱 ${m.whatsapp || 'Sem WhatsApp'} | Batizado: ${m.batizado || 'Não'}</small>
+              <strong>${isLider ? '👑 ' : ''}${m.nome}</strong>
+              <small>📱 ${m.whatsapp || 'Sem'} | Batizado: ${m.batizado || 'Não'}</small>
               <div class="tags">${tagCat}</div>
             </div>
-            <div>
-              ${m.whatsapp ? `<a href="https://api.whatsapp.com/send?phone=55${m.whatsapp.replace(/\D/g,'')}" target="_blank" class="btn-whats-mini">💬 WhatsApp</a>` : ''}
+            <div class="actions-group">
+              ${linkWhats}
+              <button class="btn-edit" onclick="abrirModalEdicao('${m.id}')">✏️ Editar</button>
+              <button class="btn-transfer" onclick="abrirModalTransferir('${m.id}', '${m.nome}')">🔄 Transferir</button>
+              <button class="btn-delete" onclick="removerMembro('${m.id}', '${m.nome}')">Remover</button>
             </div>
           `;
           containerSanfona.appendChild(div);
         });
       }
 
-      // 2. Carregar Visitas do Supervisor
+      // Visitas do Supervisor
       const snapVisitas = await db.collection('visitas_supervisao')
         .where('rede', '==', nomeRedeAtiva)
         .get();
@@ -318,7 +425,6 @@
       });
       visitas.sort((a, b) => a.dataVisita.localeCompare(b.dataVisita));
 
-      // Calcular média geral das notas
       if (visitas.length > 0) {
         let somaNotas = visitas.reduce((acc, v) => acc + (v.notaFinal || 0), 0);
         document.getElementById('txtMediaNotas').innerText = (somaNotas / visitas.length).toFixed(1);
@@ -326,10 +432,8 @@
         document.getElementById('txtMediaNotas').innerText = "0.0";
       }
 
-      // Renderizar Gráfico de Evolução
       renderizarGraficoEvolucao(visitas);
 
-      // Renderizar Histórico de Visitas do Supervisor
       const containerVisitas = document.getElementById('listaVisitasSupervisor');
       containerVisitas.innerHTML = '';
       if (visitas.length === 0) {
@@ -358,7 +462,7 @@
         });
       }
 
-      // 3. Carregar Relatórios Semanais do Líder
+      // Relatórios do Líder
       const snapRelLider = await db.collection('relatorios')
         .where('rede', '==', nomeRedeAtiva)
         .get();
@@ -394,10 +498,7 @@
 
   function renderizarGraficoEvolucao(visitas) {
     const ctx = document.getElementById('graficoEvolucao').getContext('2d');
-    
-    if (chartInstance) {
-      chartInstance.destroy();
-    }
+    if (chartInstance) chartInstance.destroy();
 
     const labels = visitas.map(v => {
       const partes = v.dataVisita.split('-');
@@ -423,20 +524,10 @@
       },
       options: {
         responsive: true,
-        plugins: {
-          legend: { display: false }
-        },
+        plugins: { legend: { display: false } },
         scales: {
-          y: {
-            min: 0,
-            max: 5,
-            ticks: { color: '#8B949E' },
-            grid: { color: '#30363D' }
-          },
-          x: {
-            ticks: { color: '#8B949E' },
-            grid: { color: '#30363D' }
-          }
+          y: { min: 0, max: 5, ticks: { color: '#8B949E' }, grid: { color: '#30363D' } },
+          x: { ticks: { color: '#8B949E' }, grid: { color: '#30363D' } }
         }
       }
     });
@@ -456,14 +547,20 @@
     }
 
     relatoriosParaExibir.forEach(r => {
+      const fotoHtml = r.fotoRede 
+        ? `<img src="${r.fotoRede}" class="relatorio-foto" alt="Foto">` 
+        : `<div class="relatorio-foto">📷</div>`;
+
       const div = document.createElement('div');
-      div.className = 'relatorio-lider-card';
+      div.className = 'relatorio-item';
+      div.setAttribute('onclick', `abrirDetalhesRelatorioLider('${r.id}')`);
       div.innerHTML = `
-        <div style="font-size:0.8rem; color:var(--primary); font-weight:700; text-transform:uppercase; margin-bottom:4px;">📅 ${r.dataEncontro || 'Data não inf.'} às ${r.horario || ''}</div>
-        <div style="font-size:1rem; font-weight:700; margin-bottom:4px;">📌 Tema: ${r.tema || 'Sem Tema'}</div>
-        <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:6px;">📍 Local: ${r.local || 'Não informado'}</div>
-        <div style="font-size:0.85rem;"><strong>Presentes:</strong> ${r.presentes || 'Nenhum'}</div>
-        <div style="font-size:0.85rem;"><strong>Faltantes:</strong> ${r.faltantes || 'Nenhum'}</div>
+        ${fotoHtml}
+        <div class="relatorio-meta">
+          <div class="relatorio-data-hora">📅 ${r.dataEncontro || 'Data não inf.'} às ${r.horario || ''}</div>
+          <div class="relatorio-tema">📌 Tema: ${r.tema || 'Sem Tema'}</div>
+          <div class="relatorio-local">📍 Local: ${r.local || 'Não informado'}</div>
+        </div>
       `;
       container.appendChild(div);
     });
@@ -478,6 +575,148 @@
   function carregarMaisRelatoriosLider() {
     limiteRelatoriosExibidos += 3;
     renderizarRelatoriosLider();
+  }
+
+  function abrirDetalhesRelatorioLider(relId) {
+    const r = relatoriosLiderCache.find(x => x.id === relId);
+    if (!r) return;
+
+    const fotoDetalhe = r.fotoRede ? `<img src="${r.fotoRede}" style="width:100%; max-height:200px; object-fit:cover; border-radius:8px; margin-bottom:12px;" alt="Foto">` : '';
+    
+    document.getElementById('conteudoDetalhesRelatorio').innerHTML = `
+      ${fotoDetalhe}
+      <div style="margin-bottom:10px;"><strong style="color:var(--primary)">Data/Horário:</strong> ${r.dataEncontro || '-'} às ${r.horario || '-'}</div>
+      <div style="margin-bottom:10px;"><strong style="color:var(--primary)">Tema:</strong> ${r.tema || '-'}</div>
+      <div style="margin-bottom:10px;"><strong style="color:var(--primary)">Local:</strong> ${r.local || '-'}</div>
+      <div style="margin-bottom:10px;"><strong style="color:var(--success)">Presentes:</strong> ${r.presentes || 'Nenhum'}</div>
+      <div style="margin-bottom:10px;"><strong style="color:var(--danger)">Faltantes:</strong> ${r.faltantes || 'Nenhum'}</div>
+      <div style="margin-bottom:10px;"><strong style="color:var(--primary)">Visitantes:</strong> ${r.visitantes || 'Nenhum'}</div>
+      <div style="margin-bottom:10px;"><strong style="color:var(--primary)">Resumo da Palavra:</strong> ${r.resumoPalavra || '-'}</div>
+    `;
+
+    document.getElementById('modalRelatorioDetalhes').style.display = 'flex';
+  }
+
+  function fecharModalRelatorio() {
+    document.getElementById('modalRelatorioDetalhes').style.display = 'none';
+  }
+
+  // --- EDIÇÃO DE MEMBRO ---
+  function abrirModalEdicao(docId) {
+    const m = membrosCache.find(x => x.id === docId);
+    if (!m) return;
+
+    document.getElementById('editDocId').value = docId;
+    document.getElementById('editNome').value = m.nome || '';
+    document.getElementById('editNascimento').value = m.nascimento || '';
+    document.getElementById('editSexo').value = m.sexo || '';
+    document.getElementById('editWhatsapp').value = m.whatsapp || '';
+    document.getElementById('editEmail').value = m.email || '';
+    document.getElementById('editBatizado').value = m.batizado || 'Não';
+    document.getElementById('editCategoria').value = m.categoria || 'Liderado';
+
+    document.getElementById('modalEdicao').style.display = 'flex';
+  }
+
+  function fecharModalEdicao() {
+    document.getElementById('modalEdicao').style.display = 'none';
+  }
+
+  async function salvarEdicaoMembro() {
+    const docId = document.getElementById('editDocId').value;
+    const nome = document.getElementById('editNome').value.trim();
+    const nascimento = document.getElementById('editNascimento').value;
+    const sexo = document.getElementById('editSexo').value;
+    const whatsapp = document.getElementById('editWhatsapp').value.trim();
+    const email = document.getElementById('editEmail').value.trim().toLowerCase();
+    const batizado = document.getElementById('editBatizado').value;
+    const categoria = document.getElementById('editCategoria').value;
+
+    if (!nome) return alert("Informe o nome.");
+
+    fecharModalEdicao();
+    document.getElementById('loading').style.display = 'block';
+
+    try {
+      await db.collection('membros').doc(docId).update({ nome, nascimento, sexo, whatsapp, email, batizado, categoria });
+      alert("✅ Membro atualizado com sucesso!");
+      await carregarDadosCompletosRede();
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao atualizar membro.");
+      document.getElementById('loading').style.display = 'none';
+    }
+  }
+
+  // --- REMOÇÃO DE MEMBRO ---
+  async function removerMembro(membroId, nome) {
+    if (!confirm(`Deseja realmente remover ${nome} desta rede?`)) return;
+    document.getElementById('loading').style.display = 'block';
+    try {
+      await db.collection('membros').doc(membroId).update({ status: 'INATIVO' });
+      alert(`✅ ${nome} removido(a) com sucesso.`);
+      await carregarDadosCompletosRede();
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao remover membro.");
+      document.getElementById('loading').style.display = 'none';
+    }
+  }
+
+  // --- TRANSFERÊNCIA DE MEMBRO ---
+  async function abrirModalTransferir(membroId, membroNome) {
+    document.getElementById('transMembroId').value = membroId;
+    document.getElementById('transMembroNome').value = membroNome;
+    
+    const select = document.getElementById('selectRedeDestino');
+    select.innerHTML = '<option value="">Carregando redes...</option>';
+    document.getElementById('modalTransferir').style.display = 'flex';
+
+    try {
+      const snap = await db.collection('membros')
+        .where('supervisao', '==', supervisorNome)
+        .get();
+
+      let redesSet = new Set();
+      snap.forEach(doc => {
+        const d = doc.data();
+        if (d.rede && d.rede.trim() !== '' && d.rede !== nomeRedeAtiva) {
+          redesSet.add(d.rede.trim());
+        }
+      });
+
+      select.innerHTML = '';
+      const redesArr = Array.from(redesSet).sort();
+      redesArr.forEach(r => {
+        select.innerHTML += `<option value="${r}">${r}</option>`;
+      });
+    } catch (err) {
+      console.error(err);
+      select.innerHTML = '<option value="">Erro ao carregar redes de destino</option>';
+    }
+  }
+
+  function fecharModalTransferir() {
+    document.getElementById('modalTransferir').style.display = 'none';
+  }
+
+  async function executarTransferencia() {
+    const membroId = document.getElementById('transMembroId').value;
+    const novaRede = document.getElementById('selectRedeDestino').value;
+    if (!membroId || !novaRede) return alert("Selecione a rede de destino.");
+
+    fecharModalTransferir();
+    document.getElementById('loading').style.display = 'block';
+
+    try {
+      await db.collection('membros').doc(membroId).update({ rede: novaRede });
+      alert("✅ Membro transferido com sucesso!");
+      await carregarDadosCompletosRede();
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao transferir membro.");
+      document.getElementById('loading').style.display = 'none';
+    }
   }
 </script>
 
