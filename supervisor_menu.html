@@ -90,6 +90,12 @@
       <h3>Perfil das Redes</h3>
       <p>Visualizar e editar endereços e dados cadastrais das redes.</p>
     </div>
+    <!-- NOVO BOTÃO DE RELATÓRIO DE VISITA -->
+    <div class="menu-card" onclick="irPara('supervisor_visita.html')">
+      <div class="icon">⭐</div>
+      <h3>Relatório de Visita</h3>
+      <p>Avaliar a saúde, pilares e pontuar as redes visitadas.</p>
+    </div>
     <div class="menu-card" onclick="abrirMeuPerfil()">
       <div class="icon">⚙️</div>
       <h3>Meu Perfil</h3>
@@ -144,7 +150,7 @@
     nomeSup = sessionStorage.getItem('topo_sup_nome');
     const respSup = sessionStorage.getItem('topo_sup_responsavel');
     if (!nomeSup) {
-      window.location.href = "index.html"; // CORRIGIDO: Redireciona para o login unificado
+      window.location.href = "index.html";
       return;
     }
     ministerioAtivo = sessionStorage.getItem('topo_ministerio') || 'TOPO';
@@ -153,7 +159,7 @@
   });
 
   function irPara(pagina) { window.location.href = pagina; }
-  function sair() { sessionStorage.clear(); window.location.href = "index.html"; } // CORRIGIDO: Redireciona para o login unificado
+  function sair() { sessionStorage.clear(); window.location.href = "index.html"; }
 
   async function abrirMeuPerfil() {
     const modal = document.getElementById('modalPerfil');
