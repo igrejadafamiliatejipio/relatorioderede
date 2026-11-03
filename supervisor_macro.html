@@ -377,6 +377,10 @@
     supervisorRedesTodas.forEach(r => {
       const membrosRede = membrosCache.filter(m => m.rede === r.nome);
       
+      // Identificar o líder da rede entre os membros (categoria === 'Líder')
+      const liderObj = membrosRede.find(m => m.categoria && m.categoria.trim() === 'Líder');
+      const nomeLiderExibicao = liderObj ? liderObj.nome : (r.lider && r.lider !== 'A definir' ? r.lider : 'Não definido');
+
       membrosRede.sort((a, b) => {
         const getPeso = (cat) => {
           if (!cat) return 3;
@@ -418,8 +422,8 @@
                     <small style="color: #A58BFF; font-weight: 700; text-transform: uppercase; font-size: 0.65rem; display: block;">Base da Rede</small>
                     <strong>${m.nome}</strong>
                   </div>
-                </div>
               </div>
+            </div>
             `;
           } else {
             membrosHtml += `
@@ -455,7 +459,10 @@
         <div class="supervisao-card ${r.informal ? 'informal' : ''}">
           <div class="supervisao-header" onclick="toggleSanfona(this)">
             <div class="supervisao-header-left">
-              <h3>📍 ${r.nome} ${r.informal ? '<span class="tag tag-informal" style="margin-left: 6px;">🌱 INFORMAL</span>' : ''}</h3>
+              <div>
+                <h3>📍 ${r.nome} ${r.informal ? '<span class="tag tag-informal" style="margin-left: 6px;">🌱 INFORMAL</span>' : ''}</h3>
+                <small style="color: var(--text-muted); font-size: 0.78rem; display: block; margin-top: 2px;">👑 Líder: <strong>${nomeLiderExibicao}</strong></small>
+              </div>
             </div>
             <div>${botoesGestao}</div>
           </div>
