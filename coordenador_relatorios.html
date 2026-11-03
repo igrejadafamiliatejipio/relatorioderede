@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Relatórios do Coordenador - Ministério TOPO</title>
+  <style>
+    :root {
+      --bg: #0D0F12; --card-bg: #161B22; --card-border: #30363D;
+      --input-bg: #0D1117; --text: #F0F6FC; --text-muted: #8B949E;
+      --primary: #6E56CF; --primary-hover: #5B45B0;
+      --success: #23D160; --warning: #E3B341; --danger: #E5534B; --info: #388BFD;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); padding: 16px 8px; display: flex; justify-content: center; min-height: 100vh; }
+    .container { max-width: 960px; width: 100%; background: var(--card-bg); padding: 20px; border-radius: 16px; border: 1px solid var(--card-border); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); }
+    
+    .top-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px; }
+    .btn-voltar { background: #21262D; color: var(--text); border: 1px solid var(--card-border); padding: 6px 12px; border-radius: 6px; font-size: 0.82rem; text-decoration: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-voltar:hover { background: #30363D; }
+    
+    .header { text-align: center; margin-bottom: 24px; }
+    .header h1 { font-size: 1.5rem; font-weight: 700; margin-top: 4px; }
+    .badge-topo { display: inline-block; background: var(--primary); color: #FFF; padding: 4px 12px; border-radius: 20px; font-size: 0.72rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 6px; text-transform: uppercase; }
+
+    /* Grid de Relatórios */
+    .reports-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+    .report-card { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; gap: 16px; transition: border-color 0.2s; }
+    .report-card:hover { border-color: var(--primary); }
+    .report-card h3 { font-size: 1.05rem; display: flex; align-items: center; gap: 8px; }
+    .report-card p { font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; }
+    
+    .btn-acao { background: var(--primary); color: #FFF; border: none; padding: 10px 16px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; text-decoration: none; transition: background 0.2s; }
+    .btn-acao:hover { background: var(--primary-hover); }
+    .btn-acao.disabled { background: #21262D; color: var(--text-muted); cursor: not-allowed; border: 1px solid var(--card-border); }
+
+    .loading-box { text-align: center; padding: 40px; color: var(--text-muted); }
+
+    @media (max-width: 650px) { 
+      body { padding: 8px 4px; }
+      .container { padding: 14px; border-radius: 12px; }
+    }
+  </style>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <!-- Biblioteca html2pdf para gerar o PDF visual -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+<div class="container">
+  <div class="top-nav">
+    <a href="coordenador_menu.html" class="btn-voltar">← Voltar ao Menu</a>
+    <span id="labelCoordenadorLogado" style="font-size: 0.8rem; color: var(--text-muted);"></span>
+  </div>
+
+  <div class="header">
+    <span class="badge-topo" id="badgeMinisterioRelatorio">CENTRAL DE RELATÓRIOS</span>
+    <h1>Relatórios do Ministério</h1>
+  </div>
+
+  <div id="painelRelatorios" style="display: none;">
+    <div class="reports-grid">
+      
+      <!-- RELATÓRIO 1: ÁRVORE GENEALÓGICA -->
+      <div class="report-card">
+        <div>
+          <h3>🌳 Árvore Genealógica (PDF)</h3>
+          <p>Gera um documento visual completo em formato PDF contendo a hierarquia estruturada do ministério: Coordenação, Supervisões e Redes com seus respectivos Líderes.</p>
+        </div>
+        <button onclick="gerarPdfArvore()" class="btn-acao">
+          📄 Baixar PDF da Árvore
+        </button>
+      </div>
+
+      <!-- ESPAÇO PARA FUTUROS RELATÓRIOS -->
+      <div class="report-card" style="opacity: 0.7;">
+        <div>
+          <h3>📊 Em Breve: Relatório de Batismos</h3>
+          <p>Métricas detalhadas e listagem de membros batizados e não batizados separados por supervisão.</p>
+        </div>
+        <button class="btn-acao disabled" disabled>Em Desenvolvimento</button>
+      </div>
+
+      <div class="report-card" style="opacity: 0.7;">
+        <div>
+          <h3>📈 Em Breve: Frequência e Alertas</h3>
+          <p>Consolidado mensal de faltas consecutivas e relatórios enviados pelas redes do ministério.</p>
+        </div>
+        <button class="btn-acao disabled" disabled>Em Desenvolvimento</button>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="loading" class="loading-box">Carregando dados para relatórios...</div>
+</div>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyB7FJXs9wiRFYIs2ugZoWrw7jTXPR5weGk",
+    authDomain: "app-redes-iftejipio.firebaseapp.com",
+    projectId: "app-redes-iftejipio",
+    storageBucket: "app-redes-iftejipio.firebasestorage.app",
+    messagingSenderId: "954529090793",
+    appId: "1:954529090793:web:6702d102b6e5b178b6b478",
+    measurementId: "G-2MJ96WMYQ5"
+  };
+  if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  let ministerioAtivo = 'TOPO';
+  let nomeCoord = '';
+  let membrosMinisterio = [];
+  let perfisRedesMinisterio = [];
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    const logado = sessionStorage.getItem('topo_coord_logado');
+    if (!logado) {
+      alert("Sessão expirada. Faça login novamente.");
+      window.location.href = "index.html";
+      return;
+    }
+
+    ministerioAtivo = sessionStorage.getItem('topo_ministerio') || 'TOPO';
+    nomeCoord = sessionStorage.getItem('topo_coord_nome') || 'Coordenador(a)';
+
+    document.getElementById('badgeMinisterioRelatorio').innerText = `RELATÓRIOS - MINISTÉRIO ${ministerioAtivo}`;
+    document.getElementById('labelCoordenadorLogado').innerText = `${nomeCoord} (Coordenação)`;
+
+    await carregarDados();
+  });
+
+  async function carregarDados() {
+    try {
+      const snapMembros = await db.collection('membros')
+        .where('ministerio', '==', ministerioAtivo)
+        .get();
+
+      membrosMinisterio = [];
+      snapMembros.forEach(doc => {
+        const d = doc.data();
+        if (d.status !== 'INATIVO') membrosMinisterio.push({ id: doc.id, ...d });
+      });
+
+      const snapPerfis = await db.collection('perfis_redes').get();
+      perfisRedesMinisterio = [];
+      snapPerfis.forEach(doc => {
+        const d = doc.data();
+        perfisRedesMinisterio.push({ nome: doc.id, ...d });
+      });
+
+    } catch (err) {
+      alert("Erro ao carregar dados para relatórios.");
+      console.error(err);
+    } finally {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('painelRelatorios').style.display = 'block';
+    }
+  }
+
+  function gerarPdfArvore() {
+    const elemento = document.createElement('div');
+    elemento.style.padding = '20px';
+    elemento.style.background = '#FFFFFF';
+    elemento.style.color = '#000000';
+    elemento.style.fontFamily = 'Arial, sans-serif';
+    elemento.style.width = '800px';
+
+    let htmlArvore = `
+      <div style="text-align: center; margin-bottom: 25px; border-bottom: 2px solid #6E56CF; padding-bottom: 12px;">
+        <h1 style="color: #6E56CF; margin: 0; font-size: 22px;">MINISTÉRIO ${ministerioAtivo}</h1>
+        <p style="color: #555; font-size: 13px; margin: 4px 0 0 0;">Árvore Genealógica e Hierárquica de Liderança</p>
+      </div>
+
+      <div style="background: #6E56CF; color: #fff; padding: 10px; border-radius: 6px; text-align: center; font-weight: bold; margin-bottom: 15px; font-size: 15px;">
+        👑 Coordenação: ${nomeCoord}
+      </div>
+      
+      <div style="text-align: center; font-size: 18px; color: #6E56CF; margin: -8px 0 8px 0;">│</div>
+    `;
+
+    if (perfisRedesMinisterio.length > 0) {
+      const supervisoesMap = {};
+      perfisRedesMinisterio.forEach(r => {
+        const sup = r.supervisao || 'Geral';
+        if (!supervisoesMap[sup]) supervisoesMap[sup] = [];
+        supervisoesMap[sup].push(r);
+      });
+
+      for (let supName in supervisoesMap) {
+        supervisoesMap[supName].sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
+        
+        htmlArvore += `
+          <div style="border: 1px solid #ccc; border-radius: 6px; padding: 10px; margin-bottom: 12px; background: #F9F9F9;">
+            <div style="font-weight: bold; color: #333; font-size: 13px; margin-bottom: 6px; border-bottom: 1px solid #ddd; padding-bottom: 3px;">
+              🛡️ Supervisão: ${supName}
+            </div>
+            <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px;">
+        `;
+
+        supervisoesMap[supName].forEach(r => {
+          const membrosRede = membrosMinisterio.filter(m => m.rede === r.nome);
+          const liderObj = membrosRede.find(m => m.categoria && m.categoria.trim() === 'Líder');
+          const nomeLider = liderObj ? liderObj.nome : (r.lider && r.lider !== 'A definir' ? r.lider : 'A definir');
+
+          htmlArvore += `
+            <div style="background: #fff; border: 1px solid #ddd; border-radius: 5px; padding: 6px 8px; width: 48%; font-size: 11px;">
+              <strong>📍 ${r.nome}</strong><br>
+              <span style="color: #666;">Líder: </span><span style="color: #1a7f37; font-weight: bold;">${nomeLider}</span>
+            </div>
+          `;
+        });
+
+        htmlArvore += `
+            </div>
+          </div>
+          <div style="text-align: center; font-size: 14px; color: #bbb; margin: -4px 0 4px 0;">│</div>
+        `;
+      }
+    }
+
+    elemento.innerHTML = htmlArvore;
+
+    const opt = {
+      margin:       10,
+      filename:     `arvore_genealogica_${ministerioAtivo.toLowerCase()}.pdf`,
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2, useCORS: true },
+      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    html2pdf().from(elemento).set(opt).save();
+  }
+</script>
+</body>
+</html>
