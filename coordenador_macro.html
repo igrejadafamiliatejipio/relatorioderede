@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel Macro do Coordenador - Ministério TOPO</title>
+  <style>
+    :root {
+      --bg: #0D0F12; --card-bg: #161B22; --card-border: #30363D;
+      --input-bg: #0D1117; --text: #F0F6FC; --text-muted: #8B949E;
+      --primary: #6E56CF; --primary-hover: #5B45B0;
+      --success: #23D160; --warning: #E3B341; --danger: #E5534B; --info: #388BFD;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); padding: 16px 8px; display: flex; justify-content: center; min-height: 100vh; }
+    .container { max-width: 960px; width: 100%; background: var(--card-bg); padding: 20px; border-radius: 16px; border: 1px solid var(--card-border); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); }
+    
+    .top-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px; }
+    .btn-voltar { background: #21262D; color: var(--text); border: 1px solid var(--card-border); padding: 6px 12px; border-radius: 6px; font-size: 0.82rem; text-decoration: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-voltar:hover { background: #30363D; }
+    
+    .header { text-align: center; margin-bottom: 20px; }
+    .header h1 { font-size: 1.5rem; font-weight: 700; margin-top: 4px; }
+    .badge-topo { display: inline-block; background: var(--primary); color: #FFF; padding: 4px 12px; border-radius: 20px; font-size: 0.72rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 6px; text-transform: uppercase; }
+
+    /* Métricas Responsivas */
+    .metrics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 20px; }
+    .metric-card { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 10px; padding: 12px 8px; text-align: center; }
+    .metric-card h4 { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
+    .metric-card .value { font-size: 1.2rem; font-weight: 800; color: var(--text); }
+    
+    .section-title { font-size: 1.05rem; font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    
+    /* Sanfona */
+    .sanfona-box { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 12px; margin-bottom: 16px; overflow: hidden; }
+    .sanfona-header { padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; font-size: 0.95rem; font-weight: 600; color: var(--text); gap: 8px; }
+    .sanfona-header:hover { background: rgba(255,255,255,0.02); }
+    .sanfona-conteudo { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out, padding 0.3s ease-out; padding: 0 14px; background: var(--card-bg); border-top: 0px solid var(--card-border); }
+    .sanfona-box.ativo .sanfona-conteudo { max-height: 1500px; padding: 14px; border-top: 1px solid var(--card-border); overflow-y: auto; }
+    .seta-sanfona { transition: transform 0.3s; font-size: 0.75rem; color: var(--text-muted); flex-shrink: 0; }
+    .sanfona-box.ativo .seta-sanfona { transform: rotate(180deg); }
+
+    /* Tabelas */
+    .table-container { width: 100%; overflow-x: auto; margin-bottom: 10px; border: 1px solid var(--card-border); border-radius: 10px; -webkit-overflow-scrolling: touch; }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem; white-space: nowrap; }
+    th, td { padding: 10px 12px; border-bottom: 1px solid var(--card-border); }
+    th { background: var(--input-bg); color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase; }
+    tr:last-child td { border-bottom: none; }
+    
+    .tag { font-size: 0.7rem; padding: 2px 6px; border-radius: 12px; font-weight: 600; display: inline-block; }
+    .tag-green { background: rgba(35, 209, 96, 0.2); color: var(--success); border: 1px solid rgba(35, 209, 96, 0.4); }
+    .tag-yellow { background: rgba(227, 179, 65, 0.2); color: var(--warning); border: 1px solid rgba(227, 179, 65, 0.4); }
+    .tag-blue { background: rgba(56, 139, 253, 0.2); color: var(--info); border: 1px solid rgba(56, 139, 253, 0.3); }
+    
+    .btn-whats { background: #23D160; color: #000; padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+    .btn-detalhes-sup { background: rgba(110, 86, 207, 0.2); color: #A58BFF; border: 1px solid rgba(110, 86, 207, 0.4); padding: 5px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; text-decoration: none; white-space: nowrap; }
+    .btn-detalhes-sup:hover { background: var(--primary); color: #FFF; }
+
+    /* Cards da Árvore de Supervisão */
+    .supervisao-card { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 12px; margin-bottom: 10px; overflow: hidden; }
+    .supervisao-header { padding: 12px 14px; cursor: pointer; user-select: none; }
+    .supervisao-header:hover { background: rgba(255,255,255,0.02); }
+    
+    .redes-list { padding: 0 12px; max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out, padding 0.3s ease-out; background: var(--card-bg); border-top: 0px solid var(--card-border); }
+    .supervisao-card.ativo .redes-list { max-height: 1000px; padding: 12px; border-top: 1px solid var(--card-border); overflow-y: auto; }
+    
+    .rede-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; border-bottom: 1px solid var(--card-border); font-size: 0.85rem; background: rgba(255,255,255,0.01); border-radius: 8px; margin-bottom: 6px; gap: 6px; }
+    .rede-item:last-child { margin-bottom: 0; }
+
+    .loading-box { text-align: center; padding: 40px; color: var(--text-muted); }
+
+    @media (max-width: 650px) { 
+      body { padding: 8px 4px; }
+      .container { padding: 14px; border-radius: 12px; }
+      .metrics-grid { grid-template-columns: repeat(2, 1fr); gap: 6px; }
+      .header h1 { font-size: 1.3rem; }
+    }
+  </style>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+<div class="container">
+  <div class="top-nav">
+    <a href="coordenador_menu.html" class="btn-voltar">← Voltar ao Menu</a>
+    <span id="labelCoordenadorLogado" style="font-size: 0.8rem; color: var(--text-muted);"></span>
+  </div>
+
+  <div class="header">
+    <span class="badge-topo" id="badgeMinisterioMacro">PAINEL MACRO - COORDENAÇÃO</span>
+    <h1>Raio-X do Ministério</h1>
+  </div>
+
+  <div id="painelMacroCoord" style="display: none;">
+    <!-- MÉTRICAS DO MINISTÉRIO -->
+    <div class="metrics-grid">
+      <div class="metric-card"><h4>Total de Redes</h4><div class="value" id="mTotalRedes">0</div></div>
+      <div class="metric-card" id="cardRedesMF" style="display: none;"><h4>Redes (Fem / Masc)</h4><div class="value" id="mRedesMF" style="font-size: 1rem;">0 / 0</div></div>
+      <div class="metric-card"><h4>Total Membros</h4><div class="value" id="mTotalMembros">0</div></div>
+      <div class="metric-card"><h4>Total Base (c/ Líder/Sup)</h4><div class="value" id="mTotalBase" style="color: var(--info);">0</div></div>
+      <div class="metric-card"><h4>Batizados</h4><div class="value" id="mBatizados" style="color: var(--success);">0</div></div>
+      <div class="metric-card"><h4>Não Batizados</h4><div class="value" id="mNaoBatizados" style="color: var(--warning);">0</div></div>
+      <div class="metric-card"><h4>Batizados (Não Base)</h4><div class="value" id="mBatizadosNaoBase" style="color: var(--info);">0</div></div>
+      <div class="metric-card"><h4>Redes Oficiais</h4><div class="value" id="mRedesOficiais" style="color: var(--success);">0</div></div>
+      <div class="metric-card"><h4>Redes Informais</h4><div class="value" id="mRedesInformais" style="color: var(--warning);">0</div></div>
+      <div class="metric-card"><h4>Total Supervisores</h4><div class="value" id="mTotalSupervisores">0</div></div>
+    </div>
+
+    <!-- RAIO-X DOS SUPERVISORES -->
+    <div class="section-title">📊 Raio-X dos Supervisores</div>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Supervisão</th>
+            <th>Total Redes</th>
+            <th>Membros</th>
+            <th>Base (c/ Líder)</th>
+            <th>Batizados</th>
+            <th>Não Batizados</th>
+            <th>Batiz. (Não Base)</th>
+          </tr>
+        </thead>
+        <tbody id="tabelaSupervisoresBody"></tbody>
+      </table>
+    </div>
+
+    <!-- SANFONA: ANIVERSARIANTES DO MÊS (SUPERVISORES E LÍDERES) -->
+    <div class="sanfona-box" id="boxSanfonaNiverCoord">
+      <div class="sanfona-header" onclick="toggleSanfonaGeral('boxSanfonaNiverCoord')">
+        <span>🎂 Aniversariantes do Mês (Supervisores & Líderes)</span>
+        <span class="seta-sanfona">▼</span>
+      </div>
+      <div class="sanfona-conteudo">
+        <div class="table-container">
+          <table>
+            <thead><tr><th>Nome</th><th>Cargo / Rede</th><th>Data Nasc.</th><th>Ação</th></tr></thead>
+            <tbody id="tabelaNiverCoordBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- SANFONA: ÁRVORE DE SUPERVISÃO -->
+    <div class="sanfona-box" id="boxSanfonaArvore">
+      <div class="sanfona-header" onclick="toggleSanfonaGeral('boxSanfonaArvore')">
+        <span>🌳 Árvore de Supervisão do Ministério</span>
+        <span class="seta-sanfona">▼</span>
+      </div>
+      <div class="sanfona-conteudo">
+        <div id="treeContainerSupervisores"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="loading" class="loading-box">Carregando dados consolidados do Ministério...</div>
+</div>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyB7FJXs9wiRFYIs2ugZoWrw7jTXPR5weGk",
+    authDomain: "app-redes-iftejipio.firebaseapp.com",
+    projectId: "app-redes-iftejipio",
+    storageBucket: "app-redes-iftejipio.firebasestorage.app",
+    messagingSenderId: "954529090793",
+    appId: "1:954529090793:web:6702d102b6e5b178b6b478",
+    measurementId: "G-2MJ96WMYQ5"
+  };
+  if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  let ministerioAtivo = 'TOPO';
+  let nomeCoord = '';
+  let membrosMinisterio = [];
+  let perfisRedesMinisterio = [];
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    const logado = sessionStorage.getItem('topo_coord_logado');
+    if (!logado) {
+      alert("Sessão expirada. Faça login novamente.");
+      window.location.href = "index.html";
+      return;
+    }
+
+    ministerioAtivo = sessionStorage.getItem('topo_ministerio') || 'TOPO';
+    nomeCoord = sessionStorage.getItem('topo_coord_nome') || 'Coordenador(a)';
+
+    document.getElementById('badgeMinisterioMacro').innerText = `PAINEL MACRO - MINISTÉRIO ${ministerioAtivo}`;
+    document.getElementById('labelCoordenadorLogado').innerText = `${nomeCoord} (Coordenação)`;
+
+    await carregarDadosConsolidados();
+  });
+
+  async function carregarDadosConsolidados() {
+    try {
+      const snapMembros = await db.collection('membros')
+        .where('ministerio', '==', ministerioAtivo)
+        .get();
+
+      membrosMinisterio = [];
+      snapMembros.forEach(doc => {
+        const d = doc.data();
+        if (d.status !== 'INATIVO') membrosMinisterio.push({ id: doc.id, ...d });
+      });
+
+      const snapPerfis = await db.collection('perfis_redes').get();
+      perfisRedesMinisterio = [];
+      snapPerfis.forEach(doc => {
+        const d = doc.data();
+        perfisRedesMinisterio.push({ nome: doc.id, ...d });
+      });
+
+      renderizarPainelCoordenador();
+    } catch (err) {
+      alert("Erro ao carregar dados do ministério. Verifique o console.");
+      console.error(err);
+    } finally {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('painelMacroCoord').style.display = 'block';
+    }
+  }
+
+  function renderizarPainelCoordenador() {
+    const totalRedes = perfisRedesMinisterio.length;
+    let redesOficiais = perfisRedesMinisterio.filter(r => r.status !== 'informal').length;
+    let redesInformais = perfisRedesMinisterio.filter(r => r.status === 'informal').length;
+
+    let femininas = 0, masculinas = 0;
+    if (ministerioAtivo === 'TOPO') {
+      perfisRedesMinisterio.forEach(r => {
+        const nomeR = r.nome.toLowerCase();
+        if (nomeR.includes('mulher') || nomeR.includes('feminina') || nomeR.includes('el') || nomeR.includes('irmã')) femininas++;
+        else masculinas++;
+      });
+      document.getElementById('cardRedesMF').style.display = 'block';
+      document.getElementById('mRedesMF').innerText = `${femininas} / ${masculinas}`;
+    }
+
+    const totalMembros = membrosMinisterio.length;
+    const categoriasBase = ['Base da Rede', 'Líder', 'Supervisor', 'Coordenador'];
+    const totalBase = membrosMinisterio.filter(m => categoriasBase.includes(m.categoria)).length;
+
+    const batizados = membrosMinisterio.filter(m => m.batizado === 'Sim').length;
+    const naoBatizados = membrosMinisterio.filter(m => m.batizado !== 'Sim').length;
+    const batizadosNaoBase = membrosMinisterio.filter(m => m.batizado === 'Sim' && !categoriasBase.includes(m.categoria)).length;
+
+    const supervisoresSet = new Set();
+    membrosMinisterio.forEach(m => {
+      if (m.categoria === 'Supervisor' && m.nome) supervisoresSet.add(m.nome);
+    });
+    perfisRedesMinisterio.forEach(r => {
+      if (r.supervisao) supervisoresSet.add(r.supervisao);
+    });
+    const totalSupervisores = supervisoresSet.size;
+
+    document.getElementById('mTotalRedes').innerText = totalRedes;
+    document.getElementById('mTotalMembros').innerText = totalMembros;
+    document.getElementById('mTotalBase').innerText = totalBase;
+    document.getElementById('mBatizados').innerText = batizados;
+    document.getElementById('mNaoBatizados').innerText = naoBatizados;
+    document.getElementById('mBatizadosNaoBase').innerText = batizadosNaoBase;
+    document.getElementById('mRedesOficiais').innerText = redesOficiais;
+    document.getElementById('mRedesInformais').innerText = redesInformais;
+    document.getElementById('mTotalSupervisores').innerText = totalSupervisores;
+
+    // Raio-X dos Supervisores
+    const tabelaSup = document.getElementById('tabelaSupervisoresBody');
+    tabelaSup.innerHTML = '';
+    const listaSupervisores = Array.from(supervisoresSet).sort();
+
+    if (listaSupervisores.length === 0) {
+      tabelaSup.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Nenhum supervisor encontrado.</td></tr>`;
+    } else {
+      listaSupervisores.forEach(supNome => {
+        const redesSup = perfisRedesMinisterio.filter(r => r.supervisao === supNome).map(r => r.nome);
+        const membrosSup = membrosMinisterio.filter(m => m.supervisao === supNome || redesSup.includes(m.rede));
+        
+        const tRedes = redesSup.length;
+        const tMembros = membrosSup.length;
+        const tBase = membrosSup.filter(m => categoriasBase.includes(m.categoria)).length;
+        const tBatizados = membrosSup.filter(m => m.batizado === 'Sim').length;
+        const tNaoBatizados = membrosSup.filter(m => m.batizado !== 'Sim').length;
+        const tBatizadosNaoBase = membrosSup.filter(m => m.batizado === 'Sim' && !categoriasBase.includes(m.categoria)).length;
+
+        tabelaSup.innerHTML += `
+          <tr>
+            <td><strong>${supNome}</strong></td>
+            <td>${tRedes}</td>
+            <td>${tMembros}</td>
+            <td>${tBase}</td>
+            <td><span class="tag tag-green">${tBatizados}</span></td>
+            <td><span class="tag tag-yellow">${tNaoBatizados}</span></td>
+            <td><span class="tag tag-blue">${tBatizadosNaoBase}</span></td>
+          </tr>
+        `;
+      });
+    }
+
+    // Aniversariantes do Mês (Apenas Supervisores e Líderes de Rede)
+    const tabelaNiver = document.getElementById('tabelaNiverCoordBody');
+    tabelaNiver.innerHTML = '';
+    const hoje = new Date();
+    const mesAtual = hoje.getMonth() + 1;
+    const diaAtual = hoje.getDate();
+    let qtdNivers = 0;
+
+    membrosMinisterio.forEach(m => {
+      const cat = m.categoria ? m.categoria.trim() : '';
+      const isSupervisor = (cat === 'Supervisor');
+      const isLider = (cat === 'Líder' || cat === 'Lider');
+
+      if (isSupervisor || isLider) {
+        const nasc = m.nascimento;
+        if (nasc) {
+          const partes = nasc.toString().split('-');
+          if (partes.length === 3 && parseInt(partes[1]) === mesAtual) {
+            qtdNivers++;
+            const diaNasc = parseInt(partes[2]);
+            const isHoje = (diaNasc === diaAtual);
+            const whats = m.whatsapp ? m.whatsapp.trim() : '';
+            let acaoHtml = `<span style="color:var(--text-muted); font-size:0.82rem;">Dia ${partes[2]}</span>`;
+
+            if (isHoje && whats !== '') {
+              acaoHtml = `<a href="https://api.whatsapp.com/send?phone=55${whats.replace(/\D/g,'')}&text=${encodeURIComponent('Parabéns ' + m.nome + '!')}" target="_blank" class="btn-whats">🎂 Dar Parabéns</a>`;
+            }
+
+            const cargoTexto = isSupervisor ? '👑 Supervisor(a)' : `🛡️ Líder (${m.rede || 'Rede'})`;
+
+            tabelaNiver.innerHTML += `
+              <tr>
+                <td><strong>${m.nome}</strong></td>
+                <td>${cargoTexto}</td>
+                <td>${partes[2]}/${partes[1]}</td>
+                <td>${acaoHtml}</td>
+              </tr>
+            `;
+          }
+        }
+      }
+    });
+
+    if (qtdNivers === 0) {
+      tabelaNiver.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Nenhum supervisor ou líder aniversariante neste mês.</td></tr>`;
+    }
+
+    // Árvore de Supervisão
+    const treeContainer = document.getElementById('treeContainerSupervisores');
+    treeContainer.innerHTML = '';
+
+    if (listaSupervisores.length === 0) {
+      treeContainer.innerHTML = `<div style="color:var(--text-muted); text-align:center; padding: 20px;">Nenhuma supervisão cadastrada.</div>`;
+    } else {
+      listaSupervisores.forEach(supNome => {
+        const redesSup = perfisRedesMinisterio.filter(r => r.supervisao === supNome);
+        redesSup.sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
+
+        let redesHtml = '';
+        if (redesSup.length === 0) {
+          redesHtml = `<div style="color:var(--text-muted); padding:6px 0; font-size:0.82rem;">Nenhuma rede vinculada a esta supervisão.</div>`;
+        } else {
+          redesSup.forEach(r => {
+            const membrosRede = membrosMinisterio.filter(m => m.rede === r.nome);
+            const liderObj = membrosRede.find(m => m.categoria && m.categoria.trim() === 'Líder');
+            const nomeLider = liderObj ? liderObj.nome : (r.lider && r.lider !== 'A definir' ? r.lider : 'A definir');
+
+            redesHtml += `
+              <div class="rede-item">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span>📍</span>
+                  <div>
+                    <strong>${r.nome}</strong>
+                    <small style="color: var(--text-muted); display: block; font-size: 0.75rem;">👑 Líder: <span style="color: var(--success);">${nomeLider}</span></small>
+                  </div>
+                </div>
+              </div>
+            `;
+          });
+        }
+
+        treeContainer.innerHTML += `
+          <div class="supervisao-card">
+            <div class="supervisao-header" onclick="toggleSanfonaCard(this)">
+              <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+                <h3 style="font-size: 0.98rem; margin: 0;">🛡️ Supervisão: <strong>${supNome}</strong></h3>
+                <div onclick="event.stopPropagation()">
+                  <a href="supervisor_macro.html?supervisor=${encodeURIComponent(supNome)}" class="btn-detalhes-sup">🔍 Ver Painel Macro</a>
+                </div>
+              </div>
+            </div>
+            <div class="redes-list">${redesHtml}</div>
+          </div>
+        `;
+      });
+    }
+  }
+
+  function toggleSanfonaGeral(boxId) {
+    document.getElementById(boxId).classList.toggle('ativo');
+  }
+
+  function toggleSanfonaCard(headerEl) {
+    headerEl.parentElement.classList.toggle('ativo');
+  }
+</script>
+</body>
+</html>
