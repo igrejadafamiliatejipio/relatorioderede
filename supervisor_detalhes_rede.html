@@ -366,7 +366,67 @@
 
     ministerioAtivo = sessionStorage.getItem('topo_ministerio') || 'TOPO';
     supervisorNome = sessionStorage.getItem('topo_sup_nome') || sessionStorage.getItem('topo_coord_logado');
-    document.getElementById('badgeMinisterio').innerText = `DETALHES DA REDE - ${ministerioAtivo}`; document.getElementById('tituloRedeNome').innerText = nomeRedeAtiva;  await carregarDadosCompletosRede(); });  async function carregarDadosCompletosRede() { try { const snapMembros = await db.collection('membros') .where('rede', '==', nomeRedeAtiva) .get();  membrosCache = []; let liderObj = null; let totalBase = 0;  snapMembros.forEach(doc => { const d = doc.data(); if (d.status !== 'INATIVO') { membrosCache.push({ id: doc.id, ...d }); if (d.categoria === 'Líder') { liderObj = { id: doc.id, ...d }; totalBase++; } else if (d.categoria === 'Base da Rede') { totalBase++; } } });  // Ordenação rigorosa: Líder (1), Base da Rede (2), Liderados (3) membrosCache.sort((a, b) => { const getPeso = (cat) => { if (!cat) return 3; const c = cat.trim(); if (c === 'Líder' \vert{}\vert{} c === 'Lider') return 1; if (c === 'Base da Rede') return 2; return 3; }; const pesoA = getPeso(a.categoria); const pesoB = getPeso(b.categoria); if (pesoA !== pesoB) return pesoA - pesoB; return a.nome.localeCompare(b.nome); });  const totalMembros = membrosCache.length; document.getElementById('txtTotalMembros').innerText = totalMembros; document.getElementById('txtTotalBase').innerText = totalBase; document.getElementById('totalMembrosSanfona').innerText = totalMembros;  const cardSaude = document.getElementById('cardSaudeRede'); const titSaude = document.getElementById('titSaude'); const descSaude = document.getElementById('descSaude');  if (totalMembros === 12) { cardSaude.className = "health-card green"; titSaude.innerText = "Rede Equilibrada"; descSaude.innerText = "Tamanho ideal atingido (12 membros ativas)."; } else if (totalMembros < 12) { cardSaude.className = "health-card yellow"; titSaude.innerText = "⚠️ Alerta de Crescimento"; descSaude.innerText = `Necessário +${12 - totalMembros} membros para atingir a meta de 12.`;
+    document.getElementById('badgeMinisterio').innerText = `DETALHES DA REDE - ${ministerioAtivo}`;
+    document.getElementById('tituloRedeNome').innerText = nomeRedeAtiva;
+
+    await carregarDadosCompletosRede();
+  });
+
+  async function carregarDadosCompletosRede() {
+    try {
+      const snapMembros = await db.collection('membros')
+        .where('rede', '==', nomeRedeAtiva)
+        .get();
+
+      membrosCache = [];
+      let liderObj = null;
+      let totalBase = 0;
+
+      snapMembros.forEach(doc => {
+        const d = doc.data();
+        if (d.status !== 'INATIVO') {
+          membrosCache.push({ id: doc.id, ...d });
+          if (d.categoria === 'Líder') {
+            liderObj = { id: doc.id, ...d };
+            totalBase++;
+          } else if (d.categoria === 'Base da Rede') {
+            totalBase++;
+          }
+        }
+      });
+
+      // Ordenação rigorosa: Líder (1), Base da Rede (2), Liderados (3)
+      membrosCache.sort((a, b) => {
+        const getPeso = (cat) => {
+          if (!cat) return 3;
+          const c = cat.trim();
+          if (c === 'Líder' || c === 'Lider') return 1;
+          if (c === 'Base da Rede') return 2;
+          return 3;
+        };
+        const pesoA = getPeso(a.categoria);
+        const pesoB = getPeso(b.categoria);
+        if (pesoA !== pesoB) return pesoA - pesoB;
+        return a.nome.localeCompare(b.nome);
+      });
+
+      const totalMembros = membrosCache.length;
+      document.getElementById('txtTotalMembros').innerText = totalMembros;
+      document.getElementById('txtTotalBase').innerText = totalBase;
+      document.getElementById('totalMembrosSanfona').innerText = totalMembros;
+
+      const cardSaude = document.getElementById('cardSaudeRede');
+      const titSaude = document.getElementById('titSaude');
+      const descSaude = document.getElementById('descSaude');
+
+      if (totalMembros === 12) {
+        cardSaude.className = "health-card green";
+        titSaude.innerText = "Rede Equilibrada";
+        descSaude.innerText = "Tamanho ideal atingido (12 membros ativas).";
+      } else if (totalMembros < 12) {
+        cardSaude.className = "health-card yellow";
+        titSaude.innerText = "⚠️ Alerta de Crescimento";
+        descSaude.innerText = `Necessário +${12 - totalMembros} membros para atingir a meta de 12.`;
       } else {
         cardSaude.className = "health-card blue";
         titSaude.innerText = "🚀 Alerta de Multiplicação";
@@ -377,7 +437,7 @@
       acoesLider.innerHTML = '';
       if (liderObj) {
         document.getElementById('liderNome').innerText = liderObj.nome;
-        document.getElementById('liderDetalhes').innerText = `📱 ${liderObj.whatsapp \vert{}\vert{} 'Sem WhatsApp'} \vert{} ✉️ ${liderObj.email || 'Sem e-mail'} | Batizado: ${liderObj.batizado \vert{}\vert{} 'Não'} \vert{} Sexo: ${liderObj.sexo || 'Não inf.'}`;
+        document.getElementById('liderDetalhes').innerText = `📱 ${liderObj.whatsapp || 'Sem WhatsApp'} | ✉️ ${liderObj.email || 'Sem e-mail'} | Batizado: ${liderObj.batizado || 'Não'} | Sexo: ${liderObj.sexo || 'Não inf.'}`;
         
         if (liderObj.whatsapp) {
           acoesLider.innerHTML += `<a href="https://api.whatsapp.com/send?phone=55${liderObj.whatsapp.replace(/\D/g,'')}&text=${encodeURIComponent('Olá pastor/líder ' + liderObj.nome + ', passando para alinhar sobre a rede!')}" target="_blank" class="btn-whats-mini">💬 Wpp</a>`;
@@ -404,4 +464,450 @@
           div.className = 'membro-card';
           div.innerHTML = `
             <div class="membro-main">
-              <strong>${isLider ? '
+              <strong>${isLider ? '👑 ' : (m.categoria === 'Base da Rede' ? '🛡️ ' : '👤 ')}${m.nome}</strong>
+              <small>📱 ${m.whatsapp || 'Sem'} | Sexo: ${m.sexo || 'Não inf.'} | Batiz: ${m.batizado || 'Não'}</small>
+              <div class="tags">${tagCat}</div>
+            </div>
+            <div class="actions-group">
+              ${linkWhats}
+              <button class="btn-edit" onclick="abrirModalEdicao('${m.id}')">✏️ Editar</button>
+              <button class="btn-transfer" onclick="abrirModalTransferir('${m.id}', '${m.nome}', '${m.sexo || ''}')">🔄 Transf.</button>
+              <button class="btn-delete" onclick="removerMembro('${m.id}', '${m.nome}')">🗑️ Excluir</button>
+            </div>
+          `;
+          containerSanfona.appendChild(div);
+        });
+      }
+
+      const snapVisitas = await db.collection('visitas_supervisao')
+        .where('rede', '==', nomeRedeAtiva)
+        .get();
+
+      let visitas = [];
+      snapVisitas.forEach(doc => {
+        visitas.push({ id: doc.id, ...doc.data() });
+      });
+      visitas.sort((a, b) => a.dataVisita.localeCompare(b.dataVisita));
+
+      if (visitas.length > 0) {
+        let somaNotas = visitas.reduce((acc, v) => acc + (v.notaFinal || 0), 0);
+        document.getElementById('txtMediaNotas').innerText = (somaNotas / visitas.length).toFixed(1);
+      } else {
+        document.getElementById('txtMediaNotas').innerText = "0.0";
+      }
+
+      renderizarGraficoEvolucao(visitas);
+
+      const containerVisitas = document.getElementById('listaVisitasSupervisor');
+      containerVisitas.innerHTML = '';
+      if (visitas.length === 0) {
+        containerVisitas.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem;">Nenhuma visita registrada pelo supervisor ainda.</div>';
+      } else {
+        [...visitas].reverse().forEach(v => {
+          const partes = v.dataVisita.split('-');
+          const dataF = partes.length === 3 ? `${partes[2]}/${partes[1]}/${partes[0]}` : v.dataVisita;
+
+          const card = document.createElement('div');
+          card.className = 'visita-card';
+          card.innerHTML = `
+            <div class="visita-header">
+              <strong>📅 Data: ${dataF} | Supervisor: ${v.supervisor || '-'}</strong>
+              <span style="font-weight: 800; color: var(--warning); font-size: 1.05rem;">⭐ ${v.notaFinal || '-'} / 5.0</span>
+            </div>
+            <div class="criterio-resumo"><strong>🌟 Acolhimento (${v.criterios?.acolhimento?.nota || '-'}/5):</strong> ${v.criterios?.acolhimento?.comentario || '-'}</div>
+            <div class="criterio-resumo"><strong>📖 Edificação (${v.criterios?.edificacao?.nota || '-'}/5):</strong> ${v.criterios?.edificacao?.comentario || '-'}</div>
+            <div class="criterio-resumo"><strong>👥 Consolidação (${v.criterios?.consolidacao?.nota || '-'}/5):</strong> ${v.criterios?.consolidacao?.comentario || '-'}</div>
+            <div class="criterio-resumo"><strong>🌱 Liderança (${v.criterios?.lideranca?.nota || '-'}/5):</strong> ${v.criterios?.lideranca?.comentario || '-'}</div>
+            <div class="criterio-resumo"><strong>⏰ Organização (${v.criterios?.organizacao?.nota || '-'}/5):</strong> ${v.criterios?.organizacao?.comentario || '-'}</div>
+            <div class="criterio-resumo"><strong>📱 Relatórios (${v.criterios?.relatorios?.nota || '-'}/5):</strong> ${v.criterios?.relatorios?.comentario || '-'}</div>
+            ${v.observacoesGerais ? `<div style="margin-top:6px; font-size:0.82rem; color: #A58BFF;"><strong>Obs Gerais:</strong> ${v.observacoesGerais}</div>` : ''}
+          `;
+          containerVisitas.appendChild(card);
+        });
+      }
+
+      const snapRelLider = await db.collection('relatorios')
+        .where('rede', '==', nomeRedeAtiva)
+        .get();
+
+      relatoriosLiderCache = [];
+      snapRelLider.forEach(doc => {
+        relatoriosLiderCache.push({ id: doc.id, ...doc.data() });
+      });
+      relatoriosLiderCache.sort((a, b) => (b.dataEncontro || '').localeCompare(a.dataEncontro || ''));
+
+      renderizarRelatoriosLider();
+
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('conteudoDetalhes').style.display = 'block';
+
+    } catch (err) {
+      console.error(err);
+      document.getElementById('loading').innerHTML = `<div style="color:var(--danger)">Erro ao carregar os detalhes da rede.</div>`;
+    }
+  }
+
+  function toggleSanfona() {
+    const conteudo = document.getElementById('conteudoSanfona');
+    const seta = document.getElementById('setaSanfona');
+    if (conteudo.style.display === 'block') {
+      conteudo.style.display = 'none';
+      seta.innerText = '▼';
+    } else {
+      conteudo.style.display = 'block';
+      seta.innerText = '▲';
+    }
+  }
+
+  function renderizarGraficoEvolucao(visitas) {
+    const ctx = document.getElementById('graficoEvolucao').getContext('2d');
+    if (chartInstance) chartInstance.destroy();
+
+    const labels = visitas.map(v => {
+      const partes = v.dataVisita.split('-');
+      return partes.length === 3 ? `${partes[2]}/${partes[1]}` : v.dataVisita;
+    });
+    const dadosNotas = visitas.map(v => v.notaFinal || 0);
+
+    chartInstance = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Nota Final da Visita',
+          data: dadosNotas,
+          borderColor: '#6E56CF',
+          backgroundColor: 'rgba(110, 86, 207, 0.1)',
+          borderWidth: 3,
+          fill: true,
+          tension: 0.3,
+          pointRadius: 5,
+          pointBackgroundColor: '#6E56CF'
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { min: 0, max: 5, ticks: { color: '#8B949E' }, grid: { color: '#30363D' } },
+          x: { ticks: { color: '#8B949E' }, grid: { color: '#30363D' } }
+        }
+      }
+    });
+  }
+
+  function renderizarRelatoriosLider() {
+    const container = document.getElementById('listaRelatoriosLider');
+    const btnMais = document.getElementById('btnCarregarMais');
+    container.innerHTML = '';
+
+    const relatoriosParaExibir = relatoriosLiderCache.slice(0, limiteRelatoriosExibidos);
+
+    if (relatoriosParaExibir.length === 0) {
+      container.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem;">Nenhum relatório enviado pelo líder.</div>';
+      btnMais.style.display = 'none';
+      return;
+    }
+
+    relatoriosParaExibir.forEach(r => {
+      const fotoHtml = r.fotoRede 
+        ? `<img src="${r.fotoRede}" class="relatorio-foto" alt="Foto">` 
+        : `<div class="relatorio-foto">📷</div>`;
+
+      const div = document.createElement('div');
+      div.className = 'relatorio-item';
+      div.setAttribute('onclick', `abrirDetalhesRelatorioLider('${r.id}')`);
+      div.innerHTML = `
+        ${fotoHtml}
+        <div class="relatorio-meta">
+          <div class="relatorio-data-hora">📅 ${r.dataEncontro || 'Data não inf.'} às ${r.horario || ''}</div>
+          <div class="relatorio-tema">📌 Tema: ${r.tema || 'Sem Tema'}</div>
+          <div class="relatorio-local">📍 Local: ${r.local || 'Não informado'}</div>
+        </div>
+      `;
+      container.appendChild(div);
+    });
+
+    if (relatoriosLiderCache.length > limiteRelatoriosExibidos) {
+      btnMais.style.display = 'block';
+    } else {
+      btnMais.style.display = 'none';
+    }
+  }
+
+  function carregarMaisRelatoriosLider() {
+    limiteRelatoriosExibidos += 3;
+    renderizarRelatoriosLider();
+  }
+
+  function abrirDetalhesRelatorioLider(relId) {
+    const r = relatoriosLiderCache.find(x => x.id === relId);
+    if (!r) return;
+
+    const fotoDetalhe = r.fotoRede ? `<img src="${r.fotoRede}" style="width:100%; max-height:220px; object-fit:cover; border-radius:8px; margin-bottom:12px;" alt="Foto da Rede">` : '<div style="background:var(--input-bg); padding:16px; text-align:center; border-radius:8px; margin-bottom:12px; color:var(--text-muted);">Sem foto cadastrada</div>';
+    
+    document.getElementById('conteudoDetalhesRelatorio').innerHTML = `
+      ${fotoDetalhe}
+      <div style="margin-bottom:6px;"><strong style="color:var(--primary)">Data/Horário:</strong> ${r.dataEncontro || '-'} às ${r.horario || '-'}</div>
+      <div style="margin-bottom:6px;"><strong style="color:var(--primary)">Tema:</strong> ${r.tema || '-'}</div>
+      <div style="margin-bottom:6px;"><strong style="color:var(--primary)">Local:</strong> ${r.local || '-'}</div>
+      <div style="margin-bottom:6px;"><strong style="color:var(--success)">Presentes:</strong> ${r.presentes || 'Nenhum'}</div>
+      <div style="margin-bottom:6px;"><strong style="color:var(--danger)">Faltantes:</strong> ${r.faltantes || 'Nenhum'}</div>
+      <div style="margin-bottom:6px;"><strong style="color:var(--primary)">Visitantes:</strong> ${r.visitantes || 'Nenhum'}</div>
+      <div style="margin-bottom:6px;"><strong style="color:var(--primary)">Resumo da Palavra:</strong> ${r.resumoPalavra || '-'}</div>
+    `;
+
+    document.getElementById('modalRelatorioDetalhes').style.display = 'flex';
+  }
+
+  function fecharModalRelatorio() {
+    document.getElementById('modalRelatorioDetalhes').style.display = 'none';
+  }
+
+  // --- CADASTRAR MEMBRO DIRETAMENTE NA REDE ---
+  function abrirModalCadastrarMembro() {
+    document.getElementById('novoNome').value = '';
+    document.getElementById('novoNascimento').value = '';
+    document.getElementById('novoSexo').value = '';
+    document.getElementById('novoWhatsapp').value = '';
+    document.getElementById('novoCategoria').value = 'Liderado';
+    document.getElementById('modalCadastrarMembro').style.display = 'flex';
+  }
+
+  function fecharModalCadastrarMembro() {
+    document.getElementById('modalCadastrarMembro').style.display = 'none';
+  }
+
+  async function salvarNovoMembroRede() {
+    const nome = document.getElementById('novoNome').value.trim();
+    const nascimento = document.getElementById('novoNascimento').value;
+    const sexo = document.getElementById('novoSexo').value;
+    const whatsapp = document.getElementById('novoWhatsapp').value.trim();
+    const categoria = document.getElementById('novoCategoria').value;
+
+    if (!nome || !sexo) return alert("Preencha ao menos o Nome e o Sexo do membro.");
+
+    fecharModalCadastrarMembro();
+    document.getElementById('loading').style.display = 'block';
+
+    try {
+      const supervisaoResponsavel = sessionStorage.getItem('topo_sup_nome') || 'Supervisão Geral';
+      await db.collection('membros').add({
+        nome,
+        nascimento,
+        sexo,
+        whatsapp,
+        categoria,
+        rede: nomeRedeAtiva,
+        ministerio: ministerioAtivo,
+        supervisao: supervisaoResponsavel,
+        status: 'ATIVO',
+        criadoEm: new Date().toISOString()
+      });
+
+      alert("✅ Membro cadastrado com sucesso!");
+      await carregarDadosCompletosRede();
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao cadastrar membro.");
+      document.getElementById('loading').style.display = 'none';
+    }
+  }
+
+  // --- ALTERAR LÍDER DA REDE ---
+  function abrirModalAlterarLider() {
+    const select = document.getElementById('selectNovoLiderRede');
+    select.innerHTML = '';
+
+    membrosCache.forEach(m => {
+      const opt = document.createElement('option');
+      opt.value = m.id;
+      opt.textContent = `${m.nome} (${m.categoria || 'Liderado'})`;
+      if (m.categoria === 'Líder') opt.selected = true;
+      select.appendChild(opt);
+    });
+
+    document.getElementById('modalAlterarLider').style.display = 'flex';
+  }
+
+  function fecharModalAlterarLider() {
+    document.getElementById('modalAlterarLider').style.display = 'none';
+  }
+
+  async function salvarNovoLiderRede() {
+    const novoLiderId = document.getElementById('selectNovoLiderRede').value;
+    if (!novoLiderId) return alert("Selecione um membro.");
+
+    fecharModalAlterarLider();
+    document.getElementById('loading').style.display = 'block';
+
+    try {
+      const batch = db.batch();
+      membrosCache.forEach(m => {
+        const ref = db.collection('membros').doc(m.id);
+        if (m.id === novoLiderId) {
+          batch.update(ref, { categoria: 'Líder' });
+        } else if (m.categoria === 'Líder') {
+          batch.update(ref, { categoria: 'Base da Rede' });
+        }
+      });
+      await batch.commit();
+
+      alert("✅ Líder da rede atualizado com sucesso!");
+      await carregarDadosCompletosRede();
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao alterar líder.");
+      document.getElementById('loading').style.display = 'none';
+    }
+  }
+
+  function abrirModalEdicao(docId) {
+    const m = membrosCache.find(x => x.id === docId);
+    if (!m) return;
+
+    document.getElementById('editDocId').value = docId;
+    document.getElementById('editNome').value = m.nome || '';
+    document.getElementById('editNascimento').value = m.nascimento || '';
+    document.getElementById('editSexo').value = m.sexo || '';
+    document.getElementById('editWhatsapp').value = m.whatsapp || '';
+    document.getElementById('editEmail').value = m.email || '';
+    document.getElementById('editEmailAntigo').value = m.email || '';
+    document.getElementById('editBatizado').value = m.batizado || 'Não';
+    document.getElementById('editCategoria').value = m.categoria || 'Liderado';
+
+    document.getElementById('modalEdicao').style.display = 'flex';
+  }
+
+  function fecharModalEdicao() {
+    document.getElementById('modalEdicao').style.display = 'none';
+  }
+
+  async function salvarEdicaoMembro() {
+    const docId = document.getElementById('editDocId').value;
+    const nome = document.getElementById('editNome').value.trim();
+    const nascimento = document.getElementById('editNascimento').value;
+    const sexo = document.getElementById('editSexo').value;
+    const whatsapp = document.getElementById('editWhatsapp').value.trim();
+    const email = document.getElementById('editEmail').value.trim().toLowerCase();
+    const emailAntigo = document.getElementById('editEmailAntigo').value.trim().toLowerCase();
+    const batizado = document.getElementById('editBatizado').value;
+    const categoria = document.getElementById('editCategoria').value;
+
+    if (!nome) return alert("Informe o nome.");
+
+    // Validação de atenção redobrada caso o e-mail (acesso) seja alterado
+    const membroAtual = membrosCache.find(x => x.id === docId);
+    const ehLider = membroAtual && membroAtual.categoria === 'Líder';
+
+    if (ehLider && email !== emailAntigo) {
+      const confirmou = confirm(
+        `⚠️ ATENÇÃO REDOBRADA!\n\nVocê está alterando o e-mail de acesso do líder "${nome}".\n\nDe: "${emailAntigo || 'Nenhum'}"\nPara: "${email || 'Nenhum'}"\n\nO e-mail é a credencial de login do líder no sistema. Se você alterar, o acesso anterior deixará de funcionar imediatamente. Deseja realmente prosseguir com esta alteração?`
+      );
+      if (!confirmou) return;
+    }
+
+    fecharModalEdicao();
+    document.getElementById('loading').style.display = 'block';
+
+    try {
+      await db.collection('membros').doc(docId).update({ nome, nascimento, sexo, whatsapp, email, batizado, categoria });
+      alert("✅ Membro atualizado com sucesso!");
+      await carregarDadosCompletosRede();
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao atualizar membro.");
+      document.getElementById('loading').style.display = 'none';
+    }
+  }
+
+  async function removerMembro(membroId, nome) {
+    if (!confirm(`Deseja realmente remover ${nome} desta rede?`)) return;
+    document.getElementById('loading').style.display = 'block';
+    try {
+      await db.collection('membros').doc(membroId).update({ status: 'INATIVO' });
+      alert(`✅ ${nome} removido(a) com sucesso.`);
+      await carregarDadosCompletosRede();
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao remover membro.");
+      document.getElementById('loading').style.display = 'none';
+    }
+  }
+
+  // --- TRANSFERÊNCIA DE MEMBRO (FILTRADA POR MINISTÉRIO E SEXO) ---
+  async function abrirModalTransferir(membroId, membroNome, membroSexo) {
+    document.getElementById('transMembroId').value = membroId;
+    document.getElementById('transMembroNome').value = membroNome;
+    document.getElementById('transMembroSexo').value = membroSexo;
+    
+    const select = document.getElementById('selectRedeDestino');
+    select.innerHTML = '<option value="">Carregando redes compatíveis...</option>';
+    document.getElementById('modalTransferir').style.display = 'flex';
+
+    try {
+      const snapMinisterio = await db.collection('membros')
+        .where('ministerio', '==', ministerioAtivo)
+        .get();
+
+      let redesComLiderSexo = {};
+
+      snapMinisterio.forEach(doc => {
+        const d = doc.data();
+        if (d.rede && d.rede.trim() !== '' && d.rede !== nomeRedeAtiva) {
+          const rNome = d.rede.trim();
+          if (!redesComLiderSexo[rNome]) {
+            redesComLiderSexo[rNome] = '';
+          }
+          if (d.categoria === 'Líder') {
+            redesComLiderSexo[rNome] = d.sexo || '';
+          }
+        }
+      });
+
+      select.innerHTML = '';
+      let redesDisponiveis = 0;
+
+      for (const [redeNome, sexoLider] of Object.entries(redesComLiderSexo)) {
+        if (!membroSexo || sexoLider === '' || sexoLider === membroSexo) {
+          select.innerHTML += `<option value="${redeNome}">${redeNome} ${sexoLider ? '(' + sexoLider + ')' : ''}</option>`;
+          redesDisponiveis++;
+        }
+      }
+
+      if (redesDisponiveis === 0) {
+        select.innerHTML = '<option value="">Nenhuma rede compatível do mesmo sexo encontrada no ministério</option>';
+      }
+
+    } catch (err) {
+      console.error(err);
+      select.innerHTML = '<option value="">Erro ao carregar redes de destino</option>';
+    }
+  }
+
+  function fecharModalTransferir() {
+    document.getElementById('modalTransferir').style.display = 'none';
+  }
+
+  async function executarTransferencia() {
+    const membroId = document.getElementById('transMembroId').value;
+    const novaRede = document.getElementById('selectRedeDestino').value;
+    if (!membroId || !novaRede) return alert("Selecione a rede de destino.");
+
+    fecharModalTransferir();
+    document.getElementById('loading').style.display = 'block';
+
+    try {
+      await db.collection('membros').doc(membroId).update({ rede: novaRede });
+      alert("✅ Membro transferido com sucesso!");
+      await carregarDadosCompletosRede();
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao transferir membro.");
+      document.getElementById('loading').style.display = 'none';
+    }
+  }
+</script>
+
+</body>
+</html>
