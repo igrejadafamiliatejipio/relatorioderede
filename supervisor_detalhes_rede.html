@@ -216,10 +216,17 @@
     </div>
 
     <!-- RELATÓRIOS DO LÍDER -->
-    <div style="margin-bottom: 12px;">
+    <div style="margin-bottom: 24px;">
       <div class="section-title">📜 Últimos Relatórios do Líder</div>
       <div id="listaRelatoriosLider" class="relatorios-grid"></div>
       <button class="btn-carregar-mais" id="btnCarregarMais" onclick="carregarMaisRelatoriosLider()" style="display: none;">Carregar mais relatórios</button>
+    </div>
+
+    <!-- SEÇÃO FINAL: APAGAR REDE -->
+    <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--card-border); text-align: center;">
+      <button onclick="apagarRede()" style="background: rgba(229, 83, 75, 0.15); color: var(--danger); border: 1px solid rgba(229, 83, 75, 0.3); padding: 10px 16px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+        🗑️ Apagar Definitivamente esta Rede
+      </button>
     </div>
 
   </div>
@@ -712,6 +719,34 @@
 
   function fecharFotoCheia() {
     document.getElementById('modalFotoCheia').style.display = 'none';
+  }
+
+  // --- APAGAR REDE ---
+  async function apagarRede() {
+    if (membrosCache.length > 0) {
+      alert(`⚠️ Não é possível apagar a rede "${nomeRedeAtiva}". Ela ainda possui ${membrosCache.length} membro(s) ativo(s) / líder(es) vinculados.\n\nPara poder apagar a rede, todos os membros devem ser transferidos para outra rede ou removidos.`);
+      return;
+    }
+
+    const confirmou1 = confirm(`⚠️ ATENÇÃO: Tem certeza absoluta que deseja apagar a rede "${nomeRedeAtiva}"?\n\nEsta ação é irreversível.`);
+    if (!confirmou1) return;
+
+    const confirmou2 = confirm(`Confirmação final: Deseja realmente excluir permanentemente a rede "${nomeRedeAtiva}" do sistema?`);
+    if (!confirmou2) return;
+
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('conteudoDetalhes').style.display = 'none';
+
+    try {
+      await db.collection('perfis_redes').doc(nomeRedeAtiva).delete();
+      alert(`✅ Rede "${nomeRedeAtiva}" apagada com sucesso!`);
+      window.location.href = "supervisor_macro.html";
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao apagar a rede.");
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('conteudoDetalhes').style.display = 'block';
+    }
   }
 
   // --- EDITAR PERFIL DA REDE ---
