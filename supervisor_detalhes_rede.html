@@ -69,6 +69,8 @@
     .tag { font-size: 0.68rem; padding: 2px 6px; border-radius: 10px; font-weight: 600; }
     .tag-base { background: rgba(110, 86, 207, 0.2); color: #A58BFF; border: 1px solid rgba(110, 86, 207, 0.4); }
     .tag-liderado { background: rgba(139, 148, 158, 0.2); color: var(--text-muted); border: 1px solid rgba(139, 148, 158, 0.3); }
+    .tag-falta-amarelo { background: rgba(227, 179, 65, 0.2); color: var(--warning); border: 1px solid rgba(227, 179, 65, 0.4); }
+    .tag-falta-vermelho { background: rgba(229, 83, 75, 0.2); color: var(--danger); border: 1px solid rgba(229, 83, 75, 0.4); }
 
     .actions-group { display: flex; gap: 4px; align-items: center; flex-wrap: nowrap; width: 100%; justify-content: space-between; border-top: 1px solid var(--card-border); padding-top: 8px; overflow-x: auto; }
     
@@ -423,6 +425,18 @@
         perfilRedeCache = { status: 'oficial' };
       }
 
+      // 1. Carregar relatórios do líder para calcular faltas no histórico
+      const snapRelLider = await db.collection('relatorios')
+        .where('rede', '==', nomeRedeAtiva)
+        .get();
+
+      relatoriosLiderCache = [];
+      snapRelLider.forEach(doc => {
+        relatoriosLiderCache.push({ id: doc.id, ...doc.data() });
+      });
+      relatoriosLiderCache.sort((a, b) => (b.dataEncontro || '').localeCompare(a.dataEncontro || ''));
+
+      // 2. Carregar membros
       const snapMembros = await db.collection('membros')
         .where('rede', '==', nomeRedeAtiva)
         .get();
@@ -498,6 +512,18 @@
         acoesLider.innerHTML += `<button class="btn-edit" onclick="abrirModalAlterarLider()">⭐ Definir Líder</button>`;
       }
 
+      // Contabilizar faltas por membro nos relatórios do líder
+      let contagemFaltas = {};
+      relatoriosLiderCache.forEach(r => {
+        if (r.faltantes) {
+          // Normaliza e divide por vírgula ou quebras de linha
+          const lista = r.faltantes.split(/[,;\n]/).map(n => n.trim().toLowerCase()).filter(n => n.length > 0);
+          lista.forEach(nomeFaltante => {
+            contagemFaltas[nomeFaltante] = (contagemFaltas[nomeFaltante] || 0) + 1;
+          });
+        }
+      });
+
       const containerSanfona = document.getElementById('listaLideradosSanfona');
       containerSanfona.innerHTML = '';
       if (membrosCache.length === 0) {
@@ -505,7 +531,18 @@
       } else {
         membrosCache.forEach(m => {
           const isLider = m.categoria === 'Líder';
-          const tagCat = isLider ? '<span class="tag tag-base">⭐ Líder</span>' : (m.categoria === 'Base da Rede' ? '<span class="tag tag-base">Base da Rede</span>' : '<span class="tag tag-liderado">Liderado</span>');
+          let tagsHtml = isLider ? '<span class="tag tag-base">⭐ Líder</span>' : (m.categoria === 'Base da Rede' ? '<span class="tag tag-base">Base da Rede</span>' : '<span class="tag tag-liderado">Liderado</span>');
+
+          // Checar contagem de faltas
+          const nomeMembroLower = m.nome.trim().toLowerCase();
+          const totalFaltas = contagemFaltas[nomeMembroLower] || 0;
+
+          if (totalFaltas === 2) {
+            tagsHtml += ` <span class="tag tag-falta-amarelo">⚠️ Faltou 2 vezes</span>`;
+          } else if (totalFaltas > 2) {
+            tagsHtml += ` <span class="tag tag-falta-vermelho">🚨 Faltou ${totalFaltas} vezes</span>`;
+          }
+
           const linkWhats = m.whatsapp ? `<a href="https://api.whatsapp.com/send?phone=55${m.whatsapp.replace(/\D/g,'')}" target="_blank" class="btn-whats-mini">💬 Wpp</a>` : '';
 
           const div = document.createElement('div');
@@ -514,7 +551,7 @@
             <div class="membro-main">
               <strong>${isLider ? '👑 ' : (m.categoria === 'Base da Rede' ? '🛡️ ' : '👤 ')}${m.nome}</strong>
               <small>📱 ${m.whatsapp || 'Sem'} | Sexo: ${m.sexo || 'Não inf.'} | Batiz: ${m.batizado || 'Não'}</small>
-              <div class="tags">${tagCat}</div>
+              <div class="tags">${tagsHtml}</div>
             </div>
             <div class="actions-group">
               ${linkWhats}
@@ -573,16 +610,6 @@
           containerVisitas.appendChild(card);
         });
       }
-
-      const snapRelLider = await db.collection('relatorios')
-        .where('rede', '==', nomeRedeAtiva)
-        .get();
-
-      relatoriosLiderCache = [];
-      snapRelLider.forEach(doc => {
-        relatoriosLiderCache.push({ id: doc.id, ...doc.data() });
-      });
-      relatoriosLiderCache.sort((a, b) => (b.dataEncontro || '').localeCompare(a.dataEncontro || ''));
 
       renderizarRelatoriosLider();
 
