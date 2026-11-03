@@ -95,7 +95,8 @@
     <!-- MÉTRICAS DO MINISTÉRIO -->
     <div class="metrics-grid">
       <div class="metric-card"><h4>Total de Redes</h4><div class="value" id="mTotalRedes">0</div></div>
-      <div class="metric-card" id="cardRedesMF" style="display: none;"><h4>Redes (Fem / Masc)</h4><div class="value" id="mRedesMF" style="font-size: 1rem;">0 / 0</div></div>
+      <div class="metric-card" id="cardRedesMF" style="display: none;"><h4>Redes (Homens / Mulheres)</h4><div class="value" id="mRedesMF" style="font-size: 1rem;">0 / 0</div></div>
+      <div class="metric-card" id="cardMembrosMF" style="display: none;"><h4>Membros (Homens / Mulheres)</h4><div class="value" id="mMembrosMF" style="font-size: 1rem;">0 / 0</div></div>
       <div class="metric-card"><h4>Total Membros</h4><div class="value" id="mTotalMembros">0</div></div>
       <div class="metric-card"><h4>Total Base (c/ Líder/Sup)</h4><div class="value" id="mTotalBase" style="color: var(--info);">0</div></div>
       <div class="metric-card"><h4>Batizados</h4><div class="value" id="mBatizados" style="color: var(--success);">0</div></div>
@@ -125,7 +126,7 @@
       </table>
     </div>
 
-    <!-- SANFONA: ANIVERSARIANTES DO MÊS (SUPERVISORES E LÍDERES) -->
+    <!-- SANFONA: ANIVERSARIANTES DO MÊS -->
     <div class="sanfona-box" id="boxSanfonaNiverCoord">
       <div class="sanfona-header" onclick="toggleSanfonaGeral('boxSanfonaNiverCoord')">
         <span>🎂 Aniversariantes do Mês (Supervisores & Líderes)</span>
@@ -173,6 +174,7 @@
   let nomeCoord = '';
   let membrosMinisterio = [];
   let perfisRedesMinisterio = [];
+  let supervisoresSexoMap = {}; // Mapa para guardar o sexo de cada supervisor
 
   document.addEventListener('DOMContentLoaded', async () => {
     const logado = sessionStorage.getItem('topo_coord_logado');
@@ -210,6 +212,14 @@
         perfisRedesMinisterio.push({ nome: doc.id, ...d });
       });
 
+      // Mapear o sexo de cada supervisor com base nos cadastros de membros
+      supervisoresSexoMap = {};
+      membrosMinisterio.forEach(m => {
+        if (m.categoria === 'Supervisor' && m.nome && m.sexo) {
+          supervisoresSexoMap[m.nome] = m.sexo.trim();
+        }
+      });
+
       renderizarPainelCoordenador();
     } catch (err) {
       alert("Erro ao carregar dados do ministério. Verifique o console.");
@@ -225,15 +235,25 @@
     let redesOficiais = perfisRedesMinisterio.filter(r => r.status !== 'informal').length;
     let redesInformais = perfisRedesMinisterio.filter(r => r.status === 'informal').length;
 
-    let femininas = 0, masculinas = 0;
+    // Se for TOPO, contar redes e membros por gênero do supervisor
     if (ministerioAtivo === 'TOPO') {
+      let redesHomens = 0, redesMulheres = 0;
       perfisRedesMinisterio.forEach(r => {
-        const nomeR = r.nome.toLowerCase();
-        if (nomeR.includes('mulher') || nomeR.includes('feminina') || nomeR.includes('el') || nomeR.includes('irmã')) femininas++;
-        else masculinas++;
+        const supSexo = supervisoresSexoMap[r.supervisao] || '';
+        if (supSexo.toLowerCase() === 'masculino') redesHomens++;
+        else if (supSexo.toLowerCase() === 'feminino') redesMulheres++;
       });
       document.getElementById('cardRedesMF').style.display = 'block';
-      document.getElementById('mRedesMF').innerText = `${femininas} / ${masculinas}`;
+      document.getElementById('mRedesMF').innerText = `${redesHomens} / ${redesMulheres}`;
+
+      let membrosHomens = 0, membrosMulheres = 0;
+      membrosMinisterio.forEach(m => {
+        const supSexo = supervisoresSexoMap[m.supervisao] || '';
+        if (supSexo.toLowerCase() === 'masculino') membrosHomens++;
+        else if (supSexo.toLowerCase() === 'feminino') membrosMulheres++;
+      });
+      document.getElementById('cardMembrosMF').style.display = 'block';
+      document.getElementById('mMembrosMF').innerText = `${membrosHomens} / ${membrosMulheres}`;
     }
 
     const totalMembros = membrosMinisterio.length;
