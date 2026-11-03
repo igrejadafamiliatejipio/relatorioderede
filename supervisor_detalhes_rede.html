@@ -32,7 +32,7 @@
     .badge-topo { display: inline-block; background: var(--primary); color: #FFF; padding: 4px 12px; border-radius: 20px; font-size: 0.72rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 6px; text-transform: uppercase; }
     .header h1 { font-size: 1.5rem; font-weight: 800; margin-top: 4px; }
 
-    /* Estilo Compacto IDêntico ao Painel Macro */
+    /* Resumo Compacto Lado a Lado */
     .resumo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 16px; }
     .resumo-card { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 10px; padding: 12px 6px; text-align: center; }
     .resumo-card h3 { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
@@ -55,9 +55,10 @@
     .sanfona-header:hover { background: rgba(255,255,255,0.05); }
     .sanfona-conteudo { display: none; padding: 14px; border-top: 1px solid var(--card-border); }
 
-    .membro-card { background: var(--card-bg); border: 1px solid var(--card-border); padding: 12px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
-    .membro-main { flex: 1; min-width: 180px; }
-    .membro-main strong { font-size: 0.92rem; color: var(--text); display: block; }
+    /* Card de Membro Otimizado para 4 Botões na Mesma Linha */
+    .membro-card { background: var(--card-bg); border: 1px solid var(--card-border); padding: 12px; border-radius: 8px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; }
+    .membro-main { width: 100%; min-width: 0; }
+    .membro-main strong { font-size: 0.92rem; color: var(--text); display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .membro-main small { color: var(--text-muted); font-size: 0.75rem; }
 
     .tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
@@ -65,15 +66,21 @@
     .tag-base { background: rgba(110, 86, 207, 0.2); color: #A58BFF; border: 1px solid rgba(110, 86, 207, 0.4); }
     .tag-liderado { background: rgba(139, 148, 158, 0.2); color: var(--text-muted); border: 1px solid rgba(139, 148, 158, 0.3); }
 
-    .actions-group { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
-    .btn-whats-mini { background: #23D160; color: #000; border: none; padding: 5px 8px; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 0.72rem; text-decoration: none; display: inline-flex; align-items: center; gap: 3px; }
+    /* Grupo de Botões Compacto e Alinhado na Mesma Linha */
+    .actions-group { display: flex; gap: 4px; align-items: center; flex-wrap: nowrap; width: 100%; justify-content: space-between; border-top: 1px solid var(--card-border); padding-top: 8px; overflow-x: auto; }
+    
+    .btn-whats-mini { background: #23D160; color: #000; border: none; padding: 5px 6px; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 0.68rem; text-decoration: none; display: inline-flex; align-items: center; gap: 2px; white-space: nowrap; flex: 1; justify-content: center; }
     .btn-whats-mini:hover { background: #1EBE55; }
-    .btn-edit { background: rgba(56, 139, 253, 0.15); color: var(--info); border: 1px solid rgba(56, 139, 253, 0.3); padding: 5px 8px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.72rem; }
+    
+    .btn-edit { background: rgba(56, 139, 253, 0.15); color: var(--info); border: 1px solid rgba(56, 139, 253, 0.3); padding: 5px 6px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.68rem; white-space: nowrap; flex: 1; justify-content: center; display: inline-flex; align-items: center; gap: 2px; }
     .btn-edit:hover { background: var(--info); color: #FFF; }
-    .btn-transfer { background: rgba(227, 179, 65, 0.15); color: var(--warning); border: 1px solid rgba(227, 179, 65, 0.3); padding: 5px 8px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.72rem; }
+    
+    .btn-transfer { background: rgba(227, 179, 65, 0.15); color: var(--warning); border: 1px solid rgba(227, 179, 65, 0.3); padding: 5px 6px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.68rem; white-space: nowrap; flex: 1; justify-content: center; display: inline-flex; align-items: center; gap: 2px; }
     .btn-transfer:hover { background: var(--warning); color: #000; }
-    .btn-delete { background: rgba(229, 83, 75, 0.15); color: var(--danger); border: 1px solid rgba(229, 83, 75, 0.3); padding: 5px 8px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.72rem; }
+    
+    .btn-delete { background: rgba(229, 83, 75, 0.15); color: var(--danger); border: 1px solid rgba(229, 83, 75, 0.3); padding: 5px 6px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.68rem; white-space: nowrap; flex: 1; justify-content: center; display: inline-flex; align-items: center; gap: 2px; }
     .btn-delete:hover { background: var(--danger); color: #FFF; }
+
     .btn-cadastrar-mini { background: var(--primary); color: #FFF; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.75rem; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
     .btn-cadastrar-mini:hover { background: var(--primary-hover); }
 
@@ -116,8 +123,6 @@
     @media (max-width: 600px) {
       .container { padding: 14px; }
       .lider-evidencia { flex-direction: column; align-items: stretch; gap: 10px; }
-      .membro-card { flex-direction: column; align-items: stretch; gap: 8px; }
-      .actions-group { justify-content: space-between; border-top: 1px solid var(--card-border); padding-top: 6px; }
       .relatorio-item { flex-direction: column; }
       .relatorio-foto { width: 100%; height: 110px; }
     }
@@ -143,7 +148,7 @@
 
   <div id="conteudoDetalhes" style="display: none;">
     
-    <!-- RESUMO E SAÚDE (COMPACTO LADO A LADO) -->
+    <!-- RESUMO E SAÚDE -->
     <div class="resumo-grid">
       <div class="resumo-card">
         <h3>Total Membros</h3>
@@ -173,7 +178,7 @@
         <strong id="liderNome">Não definido</strong>
         <small id="liderDetalhes">📱 - | ✉️ -</small>
       </div>
-      <div class="actions-group" id="liderAcoesDestaque"></div>
+      <div class="actions-group" id="liderAcoesDestaque" style="border:none; padding-top:0;"></div>
     </div>
 
     <!-- SANFONA COM OS LIDERADOS E BOTÃO DE CADASTRAR -->
@@ -223,6 +228,7 @@
   <div class="modal-card">
     <div class="modal-header"><span>✏️ Editar Membro</span> <button onclick="fecharModalEdicao()" style="background:none; border:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer;">✕</button></div>
     <input type="hidden" id="editDocId">
+    <input type="hidden" id="editEmailAntigo">
 
     <div class="form-group"><label>Nome Completo</label><input type="text" id="editNome"></div>
     <div class="form-group"><label>Data de Nascimento</label><input type="date" id="editNascimento"></div>
@@ -231,7 +237,7 @@
       <select id="editSexo"><option value="">Selecione...</option><option value="Masculino">Masculino</option><option value="Feminino">Feminino</option></select>
     </div>
     <div class="form-group"><label>WhatsApp</label><input type="text" id="editWhatsapp"></div>
-    <div class="form-group"><label>E-mail de Acesso</label><input type="email" id="editEmail"></div>
+    <div class="form-group"><label>E-mail de Acesso (Login)</label><input type="email" id="editEmail"></div>
     <div class="form-group">
       <label>Batizado?</label>
       <select id="editBatizado"><option value="Sim">Sim</option><option value="Não">Não</option></select>
@@ -360,67 +366,7 @@
 
     ministerioAtivo = sessionStorage.getItem('topo_ministerio') || 'TOPO';
     supervisorNome = sessionStorage.getItem('topo_sup_nome') || sessionStorage.getItem('topo_coord_logado');
-    document.getElementById('badgeMinisterio').innerText = `DETALHES DA REDE - ${ministerioAtivo}`;
-    document.getElementById('tituloRedeNome').innerText = nomeRedeAtiva;
-
-    await carregarDadosCompletosRede();
-  });
-
-  async function carregarDadosCompletosRede() {
-    try {
-      const snapMembros = await db.collection('membros')
-        .where('rede', '==', nomeRedeAtiva)
-        .get();
-
-      membrosCache = [];
-      let liderObj = null;
-      let totalBase = 0;
-
-      snapMembros.forEach(doc => {
-        const d = doc.data();
-        if (d.status !== 'INATIVO') {
-          membrosCache.push({ id: doc.id, ...d });
-          if (d.categoria === 'Líder') {
-            liderObj = { id: doc.id, ...d };
-            totalBase++;
-          } else if (d.categoria === 'Base da Rede') {
-            totalBase++;
-          }
-        }
-      });
-
-      // Ordenação rigorosa: Líder (1), Base da Rede (2), Liderados (3)
-      membrosCache.sort((a, b) => {
-        const getPeso = (cat) => {
-          if (!cat) return 3;
-          const c = cat.trim();
-          if (c === 'Líder' || c === 'Lider') return 1;
-          if (c === 'Base da Rede') return 2;
-          return 3;
-        };
-        const pesoA = getPeso(a.categoria);
-        const pesoB = getPeso(b.categoria);
-        if (pesoA !== pesoB) return pesoA - pesoB;
-        return a.nome.localeCompare(b.nome);
-      });
-
-      const totalMembros = membrosCache.length;
-      document.getElementById('txtTotalMembros').innerText = totalMembros;
-      document.getElementById('txtTotalBase').innerText = totalBase;
-      document.getElementById('totalMembrosSanfona').innerText = totalMembros;
-
-      const cardSaude = document.getElementById('cardSaudeRede');
-      const titSaude = document.getElementById('titSaude');
-      const descSaude = document.getElementById('descSaude');
-
-      if (totalMembros === 12) {
-        cardSaude.className = "health-card green";
-        titSaude.innerText = "Rede Equilibrada";
-        descSaude.innerText = "Tamanho ideal atingido (12 membros ativas).";
-      } else if (totalMembros < 12) {
-        cardSaude.className = "health-card yellow";
-        titSaude.innerText = "⚠️ Alerta de Crescimento";
-        descSaude.innerText = `Necessário +${12 - totalMembros} membros para atingir a meta de 12.`;
+    document.getElementById('badgeMinisterio').innerText = `DETALHES DA REDE - ${ministerioAtivo}`; document.getElementById('tituloRedeNome').innerText = nomeRedeAtiva;  await carregarDadosCompletosRede(); });  async function carregarDadosCompletosRede() { try { const snapMembros = await db.collection('membros') .where('rede', '==', nomeRedeAtiva) .get();  membrosCache = []; let liderObj = null; let totalBase = 0;  snapMembros.forEach(doc => { const d = doc.data(); if (d.status !== 'INATIVO') { membrosCache.push({ id: doc.id, ...d }); if (d.categoria === 'Líder') { liderObj = { id: doc.id, ...d }; totalBase++; } else if (d.categoria === 'Base da Rede') { totalBase++; } } });  // Ordenação rigorosa: Líder (1), Base da Rede (2), Liderados (3) membrosCache.sort((a, b) => { const getPeso = (cat) => { if (!cat) return 3; const c = cat.trim(); if (c === 'Líder' \vert{}\vert{} c === 'Lider') return 1; if (c === 'Base da Rede') return 2; return 3; }; const pesoA = getPeso(a.categoria); const pesoB = getPeso(b.categoria); if (pesoA !== pesoB) return pesoA - pesoB; return a.nome.localeCompare(b.nome); });  const totalMembros = membrosCache.length; document.getElementById('txtTotalMembros').innerText = totalMembros; document.getElementById('txtTotalBase').innerText = totalBase; document.getElementById('totalMembrosSanfona').innerText = totalMembros;  const cardSaude = document.getElementById('cardSaudeRede'); const titSaude = document.getElementById('titSaude'); const descSaude = document.getElementById('descSaude');  if (totalMembros === 12) { cardSaude.className = "health-card green"; titSaude.innerText = "Rede Equilibrada"; descSaude.innerText = "Tamanho ideal atingido (12 membros ativas)."; } else if (totalMembros < 12) { cardSaude.className = "health-card yellow"; titSaude.innerText = "⚠️ Alerta de Crescimento"; descSaude.innerText = `Necessário +${12 - totalMembros} membros para atingir a meta de 12.`;
       } else {
         cardSaude.className = "health-card blue";
         titSaude.innerText = "🚀 Alerta de Multiplicação";
@@ -431,12 +377,12 @@
       acoesLider.innerHTML = '';
       if (liderObj) {
         document.getElementById('liderNome').innerText = liderObj.nome;
-        document.getElementById('liderDetalhes').innerText = `📱 ${liderObj.whatsapp || 'Sem WhatsApp'} | ✉️ ${liderObj.email || 'Sem e-mail'} | Batizado: ${liderObj.batizado || 'Não'} | Sexo: ${liderObj.sexo || 'Não inf.'}`;
+        document.getElementById('liderDetalhes').innerText = `📱 ${liderObj.whatsapp \vert{}\vert{} 'Sem WhatsApp'} \vert{} ✉️ ${liderObj.email || 'Sem e-mail'} | Batizado: ${liderObj.batizado \vert{}\vert{} 'Não'} \vert{} Sexo: ${liderObj.sexo || 'Não inf.'}`;
         
         if (liderObj.whatsapp) {
-          acoesLider.innerHTML += `<a href="https://api.whatsapp.com/send?phone=55${liderObj.whatsapp.replace(/\D/g,'')}&text=${encodeURIComponent('Olá pastor/líder ' + liderObj.nome + ', passando para alinhar sobre a rede!')}" target="_blank" class="btn-whats-mini">💬 WhatsApp</a>`;
+          acoesLider.innerHTML += `<a href="https://api.whatsapp.com/send?phone=55${liderObj.whatsapp.replace(/\D/g,'')}&text=${encodeURIComponent('Olá pastor/líder ' + liderObj.nome + ', passando para alinhar sobre a rede!')}" target="_blank" class="btn-whats-mini">💬 Wpp</a>`;
         }
-        acoesLider.innerHTML += `<button class="btn-edit" onclick="abrirModalAlterarLider()">⭐ Alterar Líder</button>`;
+        acoesLider.innerHTML += `<button class="btn-edit" onclick="abrirModalAlterarLider()">⭐ Alterar</button>`;
         acoesLider.innerHTML += `<button class="btn-edit" onclick="abrirModalEdicao('${liderObj.id}')">✏️ Editar</button>`;
       } else {
         document.getElementById('liderNome').innerText = "Não definido";
@@ -452,443 +398,10 @@
         membrosCache.forEach(m => {
           const isLider = m.categoria === 'Líder';
           const tagCat = isLider ? '<span class="tag tag-base">⭐ Líder</span>' : (m.categoria === 'Base da Rede' ? '<span class="tag tag-base">Base da Rede</span>' : '<span class="tag tag-liderado">Liderado</span>');
-          const linkWhats = m.whatsapp ? `<a href="https://api.whatsapp.com/send?phone=55${m.whatsapp.replace(/\D/g,'')}" target="_blank" class="btn-whats-mini">💬 WhatsApp</a>` : '';
+          const linkWhats = m.whatsapp ? `<a href="https://api.whatsapp.com/send?phone=55${m.whatsapp.replace(/\D/g,'')}" target="_blank" class="btn-whats-mini">💬 Wpp</a>` : '';
 
           const div = document.createElement('div');
           div.className = 'membro-card';
           div.innerHTML = `
             <div class="membro-main">
-              <strong>${isLider ? '👑 ' : (m.categoria === 'Base da Rede' ? '🛡️ ' : '👤 ')}${m.nome}</strong>
-              <small>📱 ${m.whatsapp || 'Sem'} | Sexo: ${m.sexo || 'Não inf.'} | Batizado: ${m.batizado || 'Não'}</small>
-              <div class="tags">${tagCat}</div>
-            </div>
-            <div class="actions-group">
-              ${linkWhats}
-              <button class="btn-edit" onclick="abrirModalEdicao('${m.id}')">✏️ Editar</button>
-              <button class="btn-transfer" onclick="abrirModalTransferir('${m.id}', '${m.nome}', '${m.sexo || ''}')">🔄 Transferir</button>
-              <button class="btn-delete" onclick="removerMembro('${m.id}', '${m.nome}')">Remover</button>
-            </div>
-          `;
-          containerSanfona.appendChild(div);
-        });
-      }
-
-      const snapVisitas = await db.collection('visitas_supervisao')
-        .where('rede', '==', nomeRedeAtiva)
-        .get();
-
-      let visitas = [];
-      snapVisitas.forEach(doc => {
-        visitas.push({ id: doc.id, ...doc.data() });
-      });
-      visitas.sort((a, b) => a.dataVisita.localeCompare(b.dataVisita));
-
-      if (visitas.length > 0) {
-        let somaNotas = visitas.reduce((acc, v) => acc + (v.notaFinal || 0), 0);
-        document.getElementById('txtMediaNotas').innerText = (somaNotas / visitas.length).toFixed(1);
-      } else {
-        document.getElementById('txtMediaNotas').innerText = "0.0";
-      }
-
-      renderizarGraficoEvolucao(visitas);
-
-      const containerVisitas = document.getElementById('listaVisitasSupervisor');
-      containerVisitas.innerHTML = '';
-      if (visitas.length === 0) {
-        containerVisitas.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem;">Nenhuma visita registrada pelo supervisor ainda.</div>';
-      } else {
-        [...visitas].reverse().forEach(v => {
-          const partes = v.dataVisita.split('-');
-          const dataF = partes.length === 3 ? `${partes[2]}/${partes[1]}/${partes[0]}` : v.dataVisita;
-
-          const card = document.createElement('div');
-          card.className = 'visita-card';
-          card.innerHTML = `
-            <div class="visita-header">
-              <strong>📅 Data: ${dataF} | Supervisor: ${v.supervisor || '-'}</strong>
-              <span style="font-weight: 800; color: var(--warning); font-size: 1.05rem;">⭐ ${v.notaFinal || '-'} / 5.0</span>
-            </div>
-            <div class="criterio-resumo"><strong>🌟 Acolhimento (${v.criterios?.acolhimento?.nota || '-'}/5):</strong> ${v.criterios?.acolhimento?.comentario || '-'}</div>
-            <div class="criterio-resumo"><strong>📖 Edificação (${v.criterios?.edificacao?.nota || '-'}/5):</strong> ${v.criterios?.edificacao?.comentario || '-'}</div>
-            <div class="criterio-resumo"><strong>👥 Consolidação (${v.criterios?.consolidacao?.nota || '-'}/5):</strong> ${v.criterios?.consolidacao?.comentario || '-'}</div>
-            <div class="criterio-resumo"><strong>🌱 Liderança (${v.criterios?.lideranca?.nota || '-'}/5):</strong> ${v.criterios?.lideranca?.comentario || '-'}</div>
-            <div class="criterio-resumo"><strong>⏰ Organização (${v.criterios?.organizacao?.nota || '-'}/5):</strong> ${v.criterios?.organizacao?.comentario || '-'}</div>
-            <div class="criterio-resumo"><strong>📱 Relatórios (${v.criterios?.relatorios?.nota || '-'}/5):</strong> ${v.criterios?.relatorios?.comentario || '-'}</div>
-            ${v.observacoesGerais ? `<div style="margin-top:6px; font-size:0.82rem; color: #A58BFF;"><strong>Obs Gerais:</strong> ${v.observacoesGerais}</div>` : ''}
-          `;
-          containerVisitas.appendChild(card);
-        });
-      }
-
-      const snapRelLider = await db.collection('relatorios')
-        .where('rede', '==', nomeRedeAtiva)
-        .get();
-
-      relatoriosLiderCache = [];
-      snapRelLider.forEach(doc => {
-        relatoriosLiderCache.push({ id: doc.id, ...doc.data() });
-      });
-      relatoriosLiderCache.sort((a, b) => (b.dataEncontro || '').localeCompare(a.dataEncontro || ''));
-
-      renderizarRelatoriosLider();
-
-      document.getElementById('loading').style.display = 'none';
-      document.getElementById('conteudoDetalhes').style.display = 'block';
-
-    } catch (err) {
-      console.error(err);
-      document.getElementById('loading').innerHTML = `<div style="color:var(--danger)">Erro ao carregar os detalhes da rede.</div>`;
-    }
-  }
-
-  function toggleSanfona() {
-    const conteudo = document.getElementById('conteudoSanfona');
-    const seta = document.getElementById('setaSanfona');
-    if (conteudo.style.display === 'block') {
-      conteudo.style.display = 'none';
-      seta.innerText = '▼';
-    } else {
-      conteudo.style.display = 'block';
-      seta.innerText = '▲';
-    }
-  }
-
-  function renderizarGraficoEvolucao(visitas) {
-    const ctx = document.getElementById('graficoEvolucao').getContext('2d');
-    if (chartInstance) chartInstance.destroy();
-
-    const labels = visitas.map(v => {
-      const partes = v.dataVisita.split('-');
-      return partes.length === 3 ? `${partes[2]}/${partes[1]}` : v.dataVisita;
-    });
-    const dadosNotas = visitas.map(v => v.notaFinal || 0);
-
-    chartInstance = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: labels,
-        datasets: [{
-          label: 'Nota Final da Visita',
-          data: dadosNotas,
-          borderColor: '#6E56CF',
-          backgroundColor: 'rgba(110, 86, 207, 0.1)',
-          borderWidth: 3,
-          fill: true,
-          tension: 0.3,
-          pointRadius: 5,
-          pointBackgroundColor: '#6E56CF'
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: { legend: { display: false } },
-        scales: {
-          y: { min: 0, max: 5, ticks: { color: '#8B949E' }, grid: { color: '#30363D' } },
-          x: { ticks: { color: '#8B949E' }, grid: { color: '#30363D' } }
-        }
-      }
-    });
-  }
-
-  function renderizarRelatoriosLider() {
-    const container = document.getElementById('listaRelatoriosLider');
-    const btnMais = document.getElementById('btnCarregarMais');
-    container.innerHTML = '';
-
-    const relatoriosParaExibir = relatoriosLiderCache.slice(0, limiteRelatoriosExibidos);
-
-    if (relatoriosParaExibir.length === 0) {
-      container.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem;">Nenhum relatório enviado pelo líder.</div>';
-      btnMais.style.display = 'none';
-      return;
-    }
-
-    relatoriosParaExibir.forEach(r => {
-      const fotoHtml = r.fotoRede 
-        ? `<img src="${r.fotoRede}" class="relatorio-foto" alt="Foto">` 
-        : `<div class="relatorio-foto">📷</div>`;
-
-      const div = document.createElement('div');
-      div.className = 'relatorio-item';
-      div.setAttribute('onclick', `abrirDetalhesRelatorioLider('${r.id}')`);
-      div.innerHTML = `
-        ${fotoHtml}
-        <div class="relatorio-meta">
-          <div class="relatorio-data-hora">📅 ${r.dataEncontro || 'Data não inf.'} às ${r.horario || ''}</div>
-          <div class="relatorio-tema">📌 Tema: ${r.tema || 'Sem Tema'}</div>
-          <div class="relatorio-local">📍 Local: ${r.local || 'Não informado'}</div>
-        </div>
-      `;
-      container.appendChild(div);
-    });
-
-    if (relatoriosLiderCache.length > limiteRelatoriosExibidos) {
-      btnMais.style.display = 'block';
-    } else {
-      btnMais.style.display = 'none';
-    }
-  }
-
-  function carregarMaisRelatoriosLider() {
-    limiteRelatoriosExibidos += 3;
-    renderizarRelatoriosLider();
-  }
-
-  function abrirDetalhesRelatorioLider(relId) {
-    const r = relatoriosLiderCache.find(x => x.id === relId);
-    if (!r) return;
-
-    const fotoDetalhe = r.fotoRede ? `<img src="${r.fotoRede}" style="width:100%; max-height:220px; object-fit:cover; border-radius:8px; margin-bottom:12px;" alt="Foto da Rede">` : '<div style="background:var(--input-bg); padding:16px; text-align:center; border-radius:8px; margin-bottom:12px; color:var(--text-muted);">Sem foto cadastrada</div>';
-    
-    document.getElementById('conteudoDetalhesRelatorio').innerHTML = `
-      ${fotoDetalhe}
-      <div style="margin-bottom:6px;"><strong style="color:var(--primary)">Data/Horário:</strong> ${r.dataEncontro || '-'} às ${r.horario || '-'}</div>
-      <div style="margin-bottom:6px;"><strong style="color:var(--primary)">Tema:</strong> ${r.tema || '-'}</div>
-      <div style="margin-bottom:6px;"><strong style="color:var(--primary)">Local:</strong> ${r.local || '-'}</div>
-      <div style="margin-bottom:6px;"><strong style="color:var(--success)">Presentes:</strong> ${r.presentes || 'Nenhum'}</div>
-      <div style="margin-bottom:6px;"><strong style="color:var(--danger)">Faltantes:</strong> ${r.faltantes || 'Nenhum'}</div>
-      <div style="margin-bottom:6px;"><strong style="color:var(--primary)">Visitantes:</strong> ${r.visitantes || 'Nenhum'}</div>
-      <div style="margin-bottom:6px;"><strong style="color:var(--primary)">Resumo da Palavra:</strong> ${r.resumoPalavra || '-'}</div>
-    `;
-
-    document.getElementById('modalRelatorioDetalhes').style.display = 'flex';
-  }
-
-  function fecharModalRelatorio() {
-    document.getElementById('modalRelatorioDetalhes').style.display = 'none';
-  }
-
-  // --- CADASTRAR MEMBRO DIRETAMENTE NA REDE ---
-  function abrirModalCadastrarMembro() {
-    document.getElementById('novoNome').value = '';
-    document.getElementById('novoNascimento').value = '';
-    document.getElementById('novoSexo').value = '';
-    document.getElementById('novoWhatsapp').value = '';
-    document.getElementById('novoCategoria').value = 'Liderado';
-    document.getElementById('modalCadastrarMembro').style.display = 'flex';
-  }
-
-  function fecharModalCadastrarMembro() {
-    document.getElementById('modalCadastrarMembro').style.display = 'none';
-  }
-
-  async function salvarNovoMembroRede() {
-    const nome = document.getElementById('novoNome').value.trim();
-    const nascimento = document.getElementById('novoNascimento').value;
-    const sexo = document.getElementById('novoSexo').value;
-    const whatsapp = document.getElementById('novoWhatsapp').value.trim();
-    const categoria = document.getElementById('novoCategoria').value;
-
-    if (!nome || !sexo) return alert("Preencha ao menos o Nome e o Sexo do membro.");
-
-    fecharModalCadastrarMembro();
-    document.getElementById('loading').style.display = 'block';
-
-    try {
-      const supervisaoResponsavel = sessionStorage.getItem('topo_sup_nome') || 'Supervisão Geral';
-      await db.collection('membros').add({
-        nome,
-        nascimento,
-        sexo,
-        whatsapp,
-        categoria,
-        rede: nomeRedeAtiva,
-        ministerio: ministerioAtivo,
-        supervisao: supervisaoResponsavel,
-        status: 'ATIVO',
-        criadoEm: new Date().toISOString()
-      });
-
-      alert("✅ Membro cadastrado com sucesso!");
-      await carregarDadosCompletosRede();
-    } catch (err) {
-      console.error(err);
-      alert("Erro ao cadastrar membro.");
-      document.getElementById('loading').style.display = 'none';
-    }
-  }
-
-  // --- ALTERAR LÍDER DA REDE ---
-  function abrirModalAlterarLider() {
-    const select = document.getElementById('selectNovoLiderRede');
-    select.innerHTML = '';
-
-    membrosCache.forEach(m => {
-      const opt = document.createElement('option');
-      opt.value = m.id;
-      opt.textContent = `${m.nome} (${m.categoria || 'Liderado'})`;
-      if (m.categoria === 'Líder') opt.selected = true;
-      select.appendChild(opt);
-    });
-
-    document.getElementById('modalAlterarLider').style.display = 'flex';
-  }
-
-  function fecharModalAlterarLider() {
-    document.getElementById('modalAlterarLider').style.display = 'none';
-  }
-
-  async function salvarNovoLiderRede() {
-    const novoLiderId = document.getElementById('selectNovoLiderRede').value;
-    if (!novoLiderId) return alert("Selecione um membro.");
-
-    fecharModalAlterarLider();
-    document.getElementById('loading').style.display = 'block';
-
-    try {
-      const batch = db.batch();
-      membrosCache.forEach(m => {
-        const ref = db.collection('membros').doc(m.id);
-        if (m.id === novoLiderId) {
-          batch.update(ref, { categoria: 'Líder' });
-        } else if (m.categoria === 'Líder') {
-          batch.update(ref, { categoria: 'Base da Rede' });
-        }
-      });
-      await batch.commit();
-
-      alert("✅ Líder da rede atualizado com sucesso!");
-      await carregarDadosCompletosRede();
-    } catch (err) {
-      console.error(err);
-      alert("Erro ao alterar líder.");
-      document.getElementById('loading').style.display = 'none';
-    }
-  }
-
-  function abrirModalEdicao(docId) {
-    const m = membrosCache.find(x => x.id === docId);
-    if (!m) return;
-
-    document.getElementById('editDocId').value = docId;
-    document.getElementById('editNome').value = m.nome || '';
-    document.getElementById('editNascimento').value = m.nascimento || '';
-    document.getElementById('editSexo').value = m.sexo || '';
-    document.getElementById('editWhatsapp').value = m.whatsapp || '';
-    document.getElementById('editEmail').value = m.email || '';
-    document.getElementById('editBatizado').value = m.batizado || 'Não';
-    document.getElementById('editCategoria').value = m.categoria || 'Liderado';
-
-    document.getElementById('modalEdicao').style.display = 'flex';
-  }
-
-  function fecharModalEdicao() {
-    document.getElementById('modalEdicao').style.display = 'none';
-  }
-
-  async function salvarEdicaoMembro() {
-    const docId = document.getElementById('editDocId').value;
-    const nome = document.getElementById('editNome').value.trim();
-    const nascimento = document.getElementById('editNascimento').value;
-    const sexo = document.getElementById('editSexo').value;
-    const whatsapp = document.getElementById('editWhatsapp').value.trim();
-    const email = document.getElementById('editEmail').value.trim().toLowerCase();
-    const batizado = document.getElementById('editBatizado').value;
-    const categoria = document.getElementById('editCategoria').value;
-
-    if (!nome) return alert("Informe o nome.");
-
-    fecharModalEdicao();
-    document.getElementById('loading').style.display = 'block';
-
-    try {
-      await db.collection('membros').doc(docId).update({ nome, nascimento, sexo, whatsapp, email, batizado, categoria });
-      alert("✅ Membro atualizado com sucesso!");
-      await carregarDadosCompletosRede();
-    } catch (err) {
-      console.error(err);
-      alert("Erro ao atualizar membro.");
-      document.getElementById('loading').style.display = 'none';
-    }
-  }
-
-  async function removerMembro(membroId, nome) {
-    if (!confirm(`Deseja realmente remover ${nome} desta rede?`)) return;
-    document.getElementById('loading').style.display = 'block';
-    try {
-      await db.collection('membros').doc(membroId).update({ status: 'INATIVO' });
-      alert(`✅ ${nome} removido(a) com sucesso.`);
-      await carregarDadosCompletosRede();
-    } catch (err) {
-      console.error(err);
-      alert("Erro ao remover membro.");
-      document.getElementById('loading').style.display = 'none';
-    }
-  }
-
-  // --- TRANSFERÊNCIA DE MEMBRO (FILTRADA POR MINISTÉRIO E SEXO) ---
-  async function abrirModalTransferir(membroId, membroNome, membroSexo) {
-    document.getElementById('transMembroId').value = membroId;
-    document.getElementById('transMembroNome').value = membroNome;
-    document.getElementById('transMembroSexo').value = membroSexo;
-    
-    const select = document.getElementById('selectRedeDestino');
-    select.innerHTML = '<option value="">Carregando redes compatíveis...</option>';
-    document.getElementById('modalTransferir').style.display = 'flex';
-
-    try {
-      const snapMinisterio = await db.collection('membros')
-        .where('ministerio', '==', ministerioAtivo)
-        .get();
-
-      let redesComLiderSexo = {};
-
-      snapMinisterio.forEach(doc => {
-        const d = doc.data();
-        if (d.rede && d.rede.trim() !== '' && d.rede !== nomeRedeAtiva) {
-          const rNome = d.rede.trim();
-          if (!redesComLiderSexo[rNome]) {
-            redesComLiderSexo[rNome] = '';
-          }
-          if (d.categoria === 'Líder') {
-            redesComLiderSexo[rNome] = d.sexo || '';
-          }
-        }
-      });
-
-      select.innerHTML = '';
-      let redesDisponiveis = 0;
-
-      for (const [redeNome, sexoLider] of Object.entries(redesComLiderSexo)) {
-        if (!membroSexo || sexoLider === '' || sexoLider === membroSexo) {
-          select.innerHTML += `<option value="${redeNome}">${redeNome} ${sexoLider ? '(' + sexoLider + ')' : ''}</option>`;
-          redesDisponiveis++;
-        }
-      }
-
-      if (redesDisponiveis === 0) {
-        select.innerHTML = '<option value="">Nenhuma rede compatível do mesmo sexo encontrada no ministério</option>';
-      }
-
-    } catch (err) {
-      console.error(err);
-      select.innerHTML = '<option value="">Erro ao carregar redes de destino</option>';
-    }
-  }
-
-  function fecharModalTransferir() {
-    document.getElementById('modalTransferir').style.display = 'none';
-  }
-
-  async function executarTransferencia() {
-    const membroId = document.getElementById('transMembroId').value;
-    const novaRede = document.getElementById('selectRedeDestino').value;
-    if (!membroId || !novaRede) return alert("Selecione a rede de destino.");
-
-    fecharModalTransferir();
-    document.getElementById('loading').style.display = 'block';
-
-    try {
-      await db.collection('membros').doc(membroId).update({ rede: novaRede });
-      alert("✅ Membro transferido com sucesso!");
-      await carregarDadosCompletosRede();
-    } catch (err) {
-      console.error(err);
-      alert("Erro ao transferir membro.");
-      document.getElementById('loading').style.display = 'none';
-    }
-  }
-</script>
-
-</body>
-</html>
+              <strong>${isLider ? '
