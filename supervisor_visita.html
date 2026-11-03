@@ -49,20 +49,21 @@
     .btn:hover { background-color: var(--primary-hover); }
 
     /* Cronograma / Agenda Cards */
-    .agenda-item { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 14px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; gap: 12px; transition: 0.2s; }
+    .agenda-item { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; gap: 16px; transition: 0.2s; }
     .agenda-conteudo-esq { display: flex; align-items: center; gap: 14px; flex: 1; min-width: 0; }
     .agenda-info { flex: 1; min-width: 0; }
-    .agenda-info .rede-nome { font-size: 1.05rem; color: #FFF; font-weight: 700; display: block; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .rede-nome { font-size: 1.05rem; color: #FFF; font-weight: 700; display: block; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .lider-nome { font-size: 0.85rem; color: #A58BFF; font-weight: 600; display: block; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .agenda-info small { color: var(--text-muted); font-size: 0.78rem; display: block; }
     
-    .data-badge { background: rgba(110, 86, 207, 0.2); border: 1px solid rgba(110, 86, 207, 0.4); color: #A58BFF; padding: 6px 10px; border-radius: 8px; text-align: center; min-width: 75px; flex-shrink: 0; }
-    .data-badge span { display: block; font-size: 1rem; font-weight: 800; line-height: 1.1; }
+    .data-badge { background: rgba(110, 86, 207, 0.2); border: 1px solid rgba(110, 86, 207, 0.4); color: #A58BFF; padding: 8px 12px; border-radius: 8px; text-align: center; min-width: 75px; flex-shrink: 0; }
+    .data-badge span { display: block; font-size: 1.1rem; font-weight: 800; line-height: 1.1; }
     .data-badge small { font-size: 0.65rem; text-transform: uppercase; }
 
-    .acoes-agenda { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
-    .btn-relatorio { background: rgba(35, 209, 96, 0.15); color: var(--success); border: 1px solid rgba(35, 209, 96, 0.3); padding: 7px 10px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.78rem; text-decoration: none; white-space: nowrap; }
+    .acoes-agenda { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+    .btn-relatorio { background: rgba(35, 209, 96, 0.15); color: var(--success); border: 1px solid rgba(35, 209, 96, 0.3); padding: 7px 12px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.78rem; text-decoration: none; white-space: nowrap; }
     .btn-relatorio:hover { background: var(--success); color: #000; }
-    .btn-delete { background: rgba(229, 83, 75, 0.15); color: var(--danger); border: 1px solid rgba(229, 83, 75, 0.3); padding: 7px 8px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.78rem; }
+    .btn-delete { background: rgba(229, 83, 75, 0.15); color: var(--danger); border: 1px solid rgba(229, 83, 75, 0.3); padding: 7px 10px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.78rem; }
     .btn-delete:hover { background: var(--danger); color: #FFF; }
     
     .badge-concluido { background: rgba(35, 209, 96, 0.2); color: var(--success); padding: 6px 10px; border-radius: 8px; font-size: 0.78rem; font-weight: 700; border: 1px solid rgba(35, 209, 96, 0.4); text-align: center; }
@@ -91,12 +92,11 @@
       body { padding: 8px 4px; }
       .container { padding: 14px; border-radius: 12px; }
       .row { flex-direction: column; gap: 0; } 
-      .agenda-item { flex-direction: column; align-items: stretch; gap: 10px; padding: 12px; }
-      .agenda-conteudo-esq { width: 100%; }
-      .data-badge { display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 8px 12px; min-width: unset; width: 100%; }
-      .data-badge span { font-size: 0.95rem; }
-      .acoes-agenda { width: 100%; justify-content: space-between; border-top: 1px solid var(--card-border); padding-top: 8px; }
-      .btn-relatorio, .btn-delete, .badge-concluido { flex: 1; text-align: center; justify-content: center; }
+      .agenda-item { flex-direction: column; align-items: stretch; gap: 12px; padding: 14px; }
+      .agenda-conteudo-esq { flex-direction: row; align-items: center; width: 100%; }
+      .data-badge { padding: 8px 12px; min-width: 70px; }
+      .acoes-agenda { width: 100%; justify-content: space-between; border-top: 1px solid var(--card-border); padding-top: 10px; gap: 8px; }
+      .btn-relatorio, .btn-delete, .badge-concluido { flex: 1; text-align: center; justify-content: center; padding: 8px; font-size: 0.8rem; }
       .modal-card { padding: 14px; max-height: 95vh; }
     }
   </style>
@@ -358,6 +358,19 @@
 
       agendamentos.sort((a, b) => a.dataVisita.localeCompare(b.dataVisita));
 
+      // Busca os membros para mapear o nome do líder de cada rede
+      const snapMembros = await db.collection('membros')
+        .where('ministerio', '==', ministerioAtivo)
+        .get();
+      const lideresPorRede = {};
+      snapMembros.forEach(doc => {
+        const m = doc.data();
+        const cat = m.categoria ? m.categoria.trim().toLowerCase() : '';
+        if ((cat === 'lider' || cat === 'líder') && m.rede) {
+          lideresPorRede[m.rede.trim()] = m.nome;
+        }
+      });
+
       if (agendamentos.length === 0) {
         container.innerHTML = `<div style="color: var(--text-muted); font-size: 0.9rem; text-align: center; padding: 20px;">Nenhuma visita agendada.</div>`;
         return;
@@ -368,6 +381,7 @@
         const partesData = item.dataVisita.split('-'); 
         const dataFormatada = partesData.length === 3 ? `${partesData[2]}/${partesData[1]}/${partesData[0]}` : item.dataVisita;
         const concluido = item.status === 'CONCLUIDO';
+        const liderRede = lideresPorRede[item.rede ? item.rede.trim() : ''] || 'Líder não definido';
 
         const div = document.createElement('div');
         div.className = 'agenda-item';
@@ -379,13 +393,14 @@
             </div>
             <div class="agenda-info">
               <span class="rede-nome">🏠 ${item.rede}</span>
-              <small>🕒 ${dataFormatada} às ${item.horario || '19:30'} ${isCoordenador ? ' | 👤 ' + item.supervisor : ''}</small>
+              <span class="lider-nome">👤 Líder: ${liderRede}</span>
+              <small>🕒 ${dataFormatada} às ${item.horario || '19:30'} ${isCoordenador ? ' | 👤 Sup: ' + item.supervisor : ''}</small>
             </div>
           </div>
           <div class="acoes-agenda">
             ${concluido 
               ? `<span class="badge-concluido">✅ Concluído (${item.notaFinal || '-'})</span>` 
-              : `<button class="btn-relatorio" onclick="abrirModalRelatorio('${item.id}', '${item.rede}', '${item.dataVisita}')">📝 Relatório</button>`
+              : `<button class="btn-relatorio" onclick="abrirModalRelatorio('${item.id}', '${item.rede}', '${item.dataVisita}')">📝 Preencher</button>`
             }
             <button class="btn-delete" onclick="excluirAgendamento('${item.id}')">Excluir</button>
           </div>
