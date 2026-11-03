@@ -212,7 +212,6 @@
         perfisRedesMinisterio.push({ nome: doc.id, ...d });
       });
 
-      // Mapear o sexo de cada supervisor com base nos cadastros de membros
       supervisoresSexoMap = {};
       membrosMinisterio.forEach(m => {
         if (m.categoria === 'Supervisor' && m.nome && m.sexo) {
@@ -235,7 +234,6 @@
     let redesOficiais = perfisRedesMinisterio.filter(r => r.status !== 'informal').length;
     let redesInformais = perfisRedesMinisterio.filter(r => r.status === 'informal').length;
 
-    // Se for TOPO, calcular redes e membros com base no sexo do supervisor
     if (ministerioAtivo === 'TOPO') {
       let redesHomens = 0, redesMulheres = 0;
       perfisRedesMinisterio.forEach(r => {
@@ -288,7 +286,6 @@
     document.getElementById('mRedesInformais').innerText = redesInformais;
     document.getElementById('mTotalSupervisores').innerText = totalSupervisores;
 
-    // Raio-X dos Supervisores
     const tabelaSup = document.getElementById('tabelaSupervisoresBody');
     tabelaSup.innerHTML = '';
     const listaSupervisores = Array.from(supervisoresSet).sort();
@@ -321,7 +318,6 @@
       });
     }
 
-    // Aniversariantes do Mês (Apenas Supervisores e Líderes de Rede)
     const tabelaNiver = document.getElementById('tabelaNiverCoordBody');
     tabelaNiver.innerHTML = '';
     const hoje = new Date();
@@ -356,7 +352,7 @@
                 <td><strong>${m.nome}</strong></td>
                 <td>${cargoTexto}</td>
                 <td>${partes[2]}/${partes[1]}</td>
-                <td>${acaoHtml}</td>
+                <td>${cargoTexto === 'X' ? '' : acaoHtml}</td>
               </tr>
             `;
           }
@@ -368,7 +364,6 @@
       tabelaNiver.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Nenhum supervisor ou líder aniversariante neste mês.</td></tr>`;
     }
 
-    // Árvore de Supervisão
     const treeContainer = document.getElementById('treeContainerSupervisores');
     treeContainer.innerHTML = '';
 
@@ -408,7 +403,8 @@
               <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
                 <h3 style="font-size: 0.98rem; margin: 0;">🛡️ Supervisão: <strong>${supNome}</strong></h3>
                 <div onclick="event.stopPropagation()">
-                  <a href="supervisor_macro.html?supervisor=${encodeURIComponent(supNome)}" class="btn-detalhes-sup">🔍 Ver Painel Macro</a>
+                  <!-- Botão ajustado para "Ver Detalhes" -->
+                  <a href="supervisor_macro.html?supervisor=${encodeURIComponent(supNome)}" class="btn-detalhes-sup">🔍 Ver Detalhes</a>
                 </div>
               </div>
             </div>
