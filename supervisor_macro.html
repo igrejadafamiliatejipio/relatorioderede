@@ -101,7 +101,7 @@
 <body>
 <div class="container">
   <div class="top-nav">
-    <a href="supervisor_menu.html" class="btn-voltar">← Voltar ao Menu</a>
+    <a href="supervisor_menu.html" class="btn-voltar" id="btnVoltarMenu">← Voltar ao Menu</a>
     <span id="labelSupervisorLogado" style="font-size: 0.8rem; color: var(--text-muted);"></span>
   </div>
 
@@ -187,16 +187,27 @@
   let relatoriosCache = [];
 
   document.addEventListener('DOMContentLoaded', async () => {
-    supervisorNome = sessionStorage.getItem('topo_sup_nome');
-    const resp = sessionStorage.getItem('topo_sup_responsavel');
+    const urlParams = new URLSearchParams(window.location.search);
+    const supParam = urlParams.get('supervisor');
+    
+    // Se veio da URL (acessado pelo coordenador), usa ele. Senão, pega o supervisor logado.
+    supervisorNome = supParam || sessionStorage.getItem('topo_sup_nome');
+    const resp = sessionStorage.getItem('topo_sup_responsavel') || (supParam ? 'Supervisão (Visualização Coordenador)' : 'Supervisor(a)');
+    const coordLogado = sessionStorage.getItem('topo_coord_logado');
 
-    if (!supervisorNome) {
+    if (!supervisorNome && !coordLogado) {
       alert("Sessão expirada. Faça login novamente.");
       window.location.href = "index.html";
       return;
     }
 
-    document.getElementById('labelSupervisorLogado').innerText = `${supervisorNome} - ${resp || 'Supervisor(a)'}`;
+    // Se foi acessado pelo coordenador, ajusta o botão "Voltar" para retornar ao painel do coordenador
+    if (supParam && coordLogado) {
+      document.getElementById('btnVoltarMenu').href = "coordenador_macro.html";
+      document.getElementById('btnVoltarMenu').innerText = "← Voltar ao Raio-X";
+    }
+
+    document.getElementById('labelSupervisorLogado').innerText = `${supervisorNome} - ${resp}`;
 
     await carregarDadosMacro();
   });
@@ -376,7 +387,6 @@
     supervisorRedesTodas.forEach(r => {
       const membrosRede = membrosCache.filter(m => m.rede === r.nome);
       
-      // Identificar o líder da rede entre os membros (categoria === 'Líder')
       const liderObj = membrosRede.find(m => m.categoria && m.categoria.trim() === 'Líder');
       const nomeLiderExibicao = liderObj ? liderObj.nome : (r.lider && r.lider !== 'A definir' ? r.lider : 'Não definido');
 
