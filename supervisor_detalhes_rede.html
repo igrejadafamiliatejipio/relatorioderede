@@ -32,10 +32,11 @@
     .badge-topo { display: inline-block; background: var(--primary); color: #FFF; padding: 4px 12px; border-radius: 20px; font-size: 0.72rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 6px; text-transform: uppercase; }
     .header h1 { font-size: 1.5rem; font-weight: 800; margin-top: 4px; }
 
-    .resumo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
-    .resumo-card { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 14px 10px; text-align: center; }
-    .resumo-card h3 { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
-    .resumo-card .valor { font-size: 1.4rem; font-weight: 800; color: var(--text); }
+    /* Estilo Compacto IDêntico ao Painel Macro */
+    .resumo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 16px; }
+    .resumo-card { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 10px; padding: 12px 6px; text-align: center; }
+    .resumo-card h3 { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
+    .resumo-card .valor { font-size: 1.2rem; font-weight: 800; color: var(--text); }
 
     .health-card { padding: 14px 16px; border-radius: 12px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; border: 1px solid transparent; }
     .health-card.green { background: rgba(35, 209, 96, 0.1); border-color: rgba(35, 209, 96, 0.3); color: var(--success); }
@@ -114,7 +115,6 @@
 
     @media (max-width: 600px) {
       .container { padding: 14px; }
-      .resumo-grid { grid-template-columns: 1fr; }
       .lider-evidencia { flex-direction: column; align-items: stretch; gap: 10px; }
       .membro-card { flex-direction: column; align-items: stretch; gap: 8px; }
       .actions-group { justify-content: space-between; border-top: 1px solid var(--card-border); padding-top: 6px; }
@@ -143,14 +143,14 @@
 
   <div id="conteudoDetalhes" style="display: none;">
     
-    <!-- RESUMO E SAÚDE -->
+    <!-- RESUMO E SAÚDE (COMPACTO LADO A LADO) -->
     <div class="resumo-grid">
       <div class="resumo-card">
-        <h3>Total de Membros</h3>
+        <h3>Total Membros</h3>
         <div class="valor" id="txtTotalMembros">0</div>
       </div>
       <div class="resumo-card">
-        <h3>Membros na Base (c/ Líder)</h3>
+        <h3>Membros Base</h3>
         <div class="valor" id="txtTotalBase">0</div>
       </div>
       <div class="resumo-card">
@@ -180,10 +180,10 @@
     <div class="sanfona-box">
       <div class="sanfona-header" onclick="toggleSanfona()">
         <span style="display: flex; align-items: center; gap: 8px;">
-          👥 Lista de Membros e Liderados (<span id="totalMembrosSanfona">0</span>)
+          👥 Membros (<span id="totalMembrosSanfona">0</span>)
         </span>
         <div style="display: flex; align-items: center; gap: 8px;" onclick="event.stopPropagation()">
-          <button class="btn-cadastrar-mini" onclick="abrirModalCadastrarMembro()">➕ Cadastrar Membro</button>
+          <button class="btn-cadastrar-mini" onclick="abrirModalCadastrarMembro()">➕ Cadastrar</button>
           <span id="setaSanfona" style="cursor: pointer;">▼</span>
         </div>
       </div>
@@ -208,7 +208,7 @@
 
     <!-- RELATÓRIOS DO LÍDER -->
     <div style="margin-bottom: 12px;">
-      <div class="section-title">📜 Últimos Relatórios Enviados pelo Líder</div>
+      <div class="section-title">📜 Últimos Relatórios do Líder</div>
       <div id="listaRelatoriosLider"></div>
       <button class="btn-carregar-mais" id="btnCarregarMais" onclick="carregarMaisRelatoriosLider()" style="display: none;">Carregar mais 3 relatórios</button>
     </div>
