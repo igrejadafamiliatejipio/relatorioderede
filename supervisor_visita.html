@@ -21,74 +21,81 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-    body { background-color: var(--bg); color: var(--text); padding: 24px 12px; display: flex; justify-content: center; min-height: 100vh; }
-    .container { max-width: 780px; width: 100%; background: var(--card-bg); padding: 32px; border-radius: 16px; border: 1px solid var(--card-border); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); }
+    body { background-color: var(--bg); color: var(--text); padding: 16px 8px; display: flex; justify-content: center; min-height: 100vh; }
+    .container { max-width: 780px; width: 100%; background: var(--card-bg); padding: 20px 16px; border-radius: 16px; border: 1px solid var(--card-border); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); }
 
-    .top-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .top-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
     .btn-voltar { background: #21262D; color: var(--text); border: 1px solid var(--card-border); padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; text-decoration: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
     .btn-voltar:hover { background: #30363D; }
 
-    .header { text-align: center; margin-bottom: 28px; }
+    .header { text-align: center; margin-bottom: 20px; }
     .badge-topo { display: inline-block; background: var(--primary); color: #FFF; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 8px; text-transform: uppercase; }
-    .header h1 { font-size: 1.6rem; font-weight: 700; margin-top: 4px; }
+    .header h1 { font-size: 1.4rem; font-weight: 700; margin-top: 4px; }
 
-    .form-box { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 20px; margin-bottom: 28px; }
-    .section-title { font-size: 1.05rem; font-weight: 700; color: var(--text); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+    .form-box { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 16px; margin-bottom: 24px; }
+    .section-title { font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
 
-    .form-group { margin-bottom: 14px; text-align: left; }
-    .row { display: flex; gap: 14px; }
+    .form-group { margin-bottom: 12px; text-align: left; }
+    .row { display: flex; gap: 12px; }
     .row .form-group { flex: 1; }
 
-    label { display: block; font-weight: 600; font-size: 0.82rem; margin-bottom: 6px; color: var(--text-muted); text-transform: uppercase; }
-    input, select, textarea { width: 100%; padding: 11px 14px; background-color: var(--card-bg); border: 1px solid var(--card-border); border-radius: 8px; font-size: 0.95rem; color: var(--text); outline: none; }
+    label { display: block; font-weight: 600; font-size: 0.8rem; margin-bottom: 6px; color: var(--text-muted); text-transform: uppercase; }
+    input, select, textarea { width: 100%; padding: 12px 14px; background-color: var(--card-bg); border: 1px solid var(--card-border); border-radius: 8px; font-size: 0.95rem; color: var(--text); outline: none; }
     input:focus, select:focus, textarea:focus { border-color: var(--primary); }
     textarea { resize: vertical; min-height: 70px; }
 
     .btn { background-color: var(--primary); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.95rem; width: 100%; transition: 0.2s; }
     .btn:hover { background-color: var(--primary-hover); }
 
-    /* Cronograma / Agenda Cards */
-    .agenda-item { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 16px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; gap: 12px; transition: 0.2s; }
-    .agenda-info strong { font-size: 1.1rem; color: #FFF; display: block; margin-bottom: 4px; }
-    .agenda-info small { color: var(--text-muted); font-size: 0.85rem; display: block; }
+    /* Cronograma / Agenda Cards Adaptados para Mobile */
+    .agenda-item { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 14px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; gap: 12px; transition: 0.2s; }
+    .agenda-info strong { font-size: 1rem; color: #FFF; display: block; margin-bottom: 2px; }
+    .agenda-info small { color: var(--text-muted); font-size: 0.8rem; display: block; }
     
-    .data-badge { background: rgba(110, 86, 207, 0.2); border: 1px solid rgba(110, 86, 207, 0.4); color: #A58BFF; padding: 8px 12px; border-radius: 8px; text-align: center; min-width: 95px; flex-shrink: 0; }
-    .data-badge span { display: block; font-size: 1.1rem; font-weight: 800; }
-    .data-badge small { font-size: 0.72rem; text-transform: uppercase; }
+    .data-badge { background: rgba(110, 86, 207, 0.2); border: 1px solid rgba(110, 86, 207, 0.4); color: #A58BFF; padding: 6px 10px; border-radius: 8px; text-align: center; min-width: 80px; flex-shrink: 0; }
+    .data-badge span { display: block; font-size: 1rem; font-weight: 800; }
+    .data-badge small { font-size: 0.68rem; text-transform: uppercase; }
 
-    .acoes-agenda { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
-    .btn-relatorio { background: rgba(35, 209, 96, 0.15); color: var(--success); border: 1px solid rgba(35, 209, 96, 0.3); padding: 7px 12px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.82rem; text-decoration: none; }
+    .acoes-agenda { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+    .btn-relatorio { background: rgba(35, 209, 96, 0.15); color: var(--success); border: 1px solid rgba(35, 209, 96, 0.3); padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.8rem; text-decoration: none; text-align: center; }
     .btn-relatorio:hover { background: var(--success); color: #000; }
-    .btn-delete { background: rgba(229, 83, 75, 0.15); color: var(--danger); border: 1px solid rgba(229, 83, 75, 0.3); padding: 7px 10px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.82rem; }
+    .btn-delete { background: rgba(229, 83, 75, 0.15); color: var(--danger); border: 1px solid rgba(229, 83, 75, 0.3); padding: 8px 10px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.8rem; }
     .btn-delete:hover { background: var(--danger); color: #FFF; }
     
-    .badge-concluido { background: rgba(35, 209, 96, 0.2); color: var(--success); padding: 6px 12px; border-radius: 8px; font-size: 0.82rem; font-weight: 700; border: 1px solid rgba(35, 209, 96, 0.4); }
+    .badge-concluido { background: rgba(35, 209, 96, 0.2); color: var(--success); padding: 6px 10px; border-radius: 8px; font-size: 0.78rem; font-weight: 700; border: 1px solid rgba(35, 209, 96, 0.4); text-align: center; }
 
     /* Modal do Relatório de Visita */
-    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 999; display: none; }
-    .modal-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 24px; max-width: 720px; width: 100%; max-height: 90vh; overflow-y: auto; text-align: left; }
-    .modal-header { font-size: 1.2rem; font-weight: 700; margin-bottom: 16px; color: var(--text); display: flex; justify-content: space-between; align-items: center; }
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); display: flex; align-items: center; justify-content: center; padding: 12px; z-index: 999; display: none; }
+    .modal-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 18px 14px; max-width: 720px; width: 100%; max-height: 92vh; overflow-y: auto; text-align: left; }
+    .modal-header { font-size: 1.1rem; font-weight: 700; margin-bottom: 14px; color: var(--text); display: flex; justify-content: space-between; align-items: center; }
 
-    .criterio-card { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 10px; padding: 16px; margin-bottom: 16px; }
-    .criterio-titulo { font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; }
-    .criterio-peso { font-size: 0.75rem; background: rgba(110, 86, 207, 0.2); color: #A58BFF; padding: 2px 8px; border-radius: 8px; border: 1px solid rgba(110, 86, 207, 0.4); }
-    .criterio-desc { font-size: 0.82rem; color: var(--text-muted); line-height: 1.4; margin-bottom: 12px; }
+    .criterio-card { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 10px; padding: 14px; margin-bottom: 14px; }
+    .criterio-titulo { font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; }
+    .criterio-peso { font-size: 0.72rem; background: rgba(110, 86, 207, 0.2); color: #A58BFF; padding: 2px 8px; border-radius: 8px; border: 1px solid rgba(110, 86, 207, 0.4); }
+    .criterio-desc { font-size: 0.8rem; color: var(--text-muted); line-height: 1.4; margin-bottom: 10px; }
 
-    .estrelas-container { display: flex; gap: 6px; margin-bottom: 10px; }
-    .estrela { font-size: 1.6rem; cursor: pointer; color: #30363D; transition: 0.2s; user-select: none; }
+    .estrelas-container { display: flex; gap: 4px; margin-bottom: 8px; align-items: center; }
+    .estrela { font-size: 1.8rem; cursor: pointer; color: #30363D; transition: 0.2s; user-select: none; padding: 0 2px; }
     .estrela.selecionada { color: #E3B341; text-shadow: 0 0 8px rgba(227, 179, 65, 0.4); }
-    .nota-badge { font-weight: 700; font-size: 0.82rem; color: var(--warning); margin-left: 6px; align-self: center; }
+    .nota-badge { font-weight: 700; font-size: 0.85rem; color: var(--warning); margin-left: 8px; }
 
-    .placar-card { background: linear-gradient(135deg, rgba(110, 86, 207, 0.15) 0%, var(--input-bg) 100%); border: 1px solid var(--primary); border-radius: 10px; padding: 16px; text-align: center; margin-bottom: 20px; }
-    .placar-nota { font-size: 2rem; font-weight: 800; color: var(--text); }
+    .placar-card { background: linear-gradient(135deg, rgba(110, 86, 207, 0.15) 0%, var(--input-bg) 100%); border: 1px solid var(--primary); border-radius: 10px; padding: 14px; text-align: center; margin-bottom: 16px; }
+    .placar-nota { font-size: 1.8rem; font-weight: 800; color: var(--text); }
 
     .loading-box { text-align: center; padding: 30px; color: var(--text-muted); }
 
+    /* Media Query Específica para Celulares Pequenos */
     @media (max-width: 600px) { 
+      body { padding: 8px 4px; }
+      .container { padding: 14px 10px; border-radius: 12px; }
       .row { flex-direction: column; gap: 0; } 
-      .agenda-item { flex-direction: column; align-items: flex-start; }
-      .data-badge { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 6px 12px; }
-      .acoes-agenda { width: 100%; justify-content: space-between; margin-top: 6px; }
+      .agenda-item { flex-direction: column; align-items: stretch; gap: 10px; }
+      .agenda-item > div:first-child { align-items: center; }
+      .data-badge { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 6px 14px; }
+      .data-badge span { font-size: 1.1rem; }
+      .acoes-agenda { width: 100%; display: flex; flex-direction: column; gap: 8px; }
+      .btn-relatorio, .btn-delete, .badge-concluido { width: 100%; text-align: center; padding: 10px; }
+      .modal-card { padding: 14px 10px; }
     }
   </style>
 
@@ -105,8 +112,8 @@
 
   <div class="header">
     <span class="badge-topo" id="badgeMinisterio">MINISTÉRIO</span>
-    <h1>📅 Agenda e Relatórios de Visita</h1>
-    <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;">Agende suas visitas e preencha o relatório de avaliação diretamente na data.</p>
+    <h1>📅 Agenda e Relatórios</h1>
+    <p style="color: var(--text-muted); font-size: 0.8rem; margin-top: 4px;">Agende suas visitas e preencha o relatório de avaliação.</p>
   </div>
 
   <!-- FORMULÁRIO DE NOVO AGENDAMENTO -->
@@ -135,7 +142,7 @@
 
   <!-- CRONOGRAMA DE VISITAS -->
   <div>
-    <div class="section-title">🗓️ Cronograma e Relatórios de Visita</div>
+    <div class="section-title">🗓️ Cronograma e Relatórios</div>
     <div id="listaCronograma">
       <div class="loading-box">Carregando cronograma...</div>
     </div>
@@ -146,8 +153,8 @@
 <div id="modalRelatorioVisita" class="modal-overlay">
   <div class="modal-card">
     <div class="modal-header">
-      <span id="tituloModalVisita">📋 Preencher Relatório de Visita</span>
-      <button onclick="fecharModalRelatorio()" style="background:none; border:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer;">✕</button>
+      <span id="tituloModalVisita" style="font-size: 1rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 85%;">📋 Relatório</span>
+      <button onclick="fecharModalRelatorio()" style="background:none; border:none; color:var(--text-muted); font-size:1.3rem; cursor:pointer; padding: 4px;">✕</button>
     </div>
     <input type="hidden" id="modalAgendaId">
     <input type="hidden" id="modalRedeNome">
@@ -155,80 +162,80 @@
 
     <!-- PLACAR EM TEMPO REAL -->
     <div class="placar-card">
-      <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 2px;">Nota Final Ponderada</div>
-      <div class="placar-nota" id="displayNotaFinal">-.- <span style="font-size: 1rem; color: var(--text-muted);">/ 5.0</span></div>
-      <div id="displayStatusNota" style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-top: 2px;">Preencha os critérios abaixo</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 2px;">Nota Final Ponderada</div>
+      <div class="placar-nota" id="displayNotaFinal">-.- <span style="font-size: 0.9rem; color: var(--text-muted);">/ 5.0</span></div>
+      <div id="displayStatusNota" style="font-size: 0.78rem; font-weight: 600; color: var(--text-muted); margin-top: 2px;">Preencha os critérios abaixo</div>
     </div>
 
     <!-- 6 CRITÉRIOS DETALHADOS -->
     <div class="criterio-card">
       <div class="criterio-titulo"><span>🌟 1. Acolhimento e Relacionamento</span><span class="criterio-peso">Peso: 2.0</span></div>
-      <div class="criterio-desc"><strong>O que avalia:</strong> O clima da rede, se as pessoas se sentem amadas, integradas e à vontade. Como os novos membros e visitantes são recebidos e acolhidos no grupo. Uma rede saudável transborda amor fraternal e um ambiente convidativo.</div>
+      <div class="criterio-desc"><strong>O que avalia:</strong> O clima da rede, se as pessoas se sentem amadas, integradas e à vontade.</div>
       <div class="estrelas-container" id="estrelas_1">
         <span class="estrela" onclick="atribuirEstrela(1, 1)">★</span><span class="estrela" onclick="atribuirEstrela(1, 2)">★</span><span class="estrela" onclick="atribuirEstrela(1, 3)">★</span><span class="estrela" onclick="atribuirEstrela(1, 4)">★</span><span class="estrela" onclick="atribuirEstrela(1, 5)">★</span>
         <span class="nota-badge" id="badge_1">0/5</span>
       </div>
-      <input type="text" id="comentario_1" placeholder="Comentário do supervisor (Motivo da nota)..." required>
+      <input type="text" id="comentario_1" placeholder="Motivo da nota..." required>
     </div>
 
     <div class="criterio-card">
-      <div class="criterio-titulo"><span>📖 2. Edificação e Clareza da Palavra</span><span class="criterio-peso">Peso: 1.5</span></div>
-      <div class="criterio-desc"><strong>O que avalia:</strong> Como a mensagem/tema foi ministrada pelo líder, se houve clareza, profundidade bíblica e aplicação prática para o dia a dia dos membros. É o alimento espiritual que fortalece a fé e gera transformação.</div>
+      <div class="criterio-titulo"><span>📖 2. Edificação e Clareza</span><span class="criterio-peso">Peso: 1.5</span></div>
+      <div class="criterio-desc"><strong>O que avalia:</strong> Como a mensagem/tema foi ministrada pelo líder, clareza e profundidade.</div>
       <div class="estrelas-container" id="estrelas_2">
         <span class="estrela" onclick="atribuirEstrela(2, 1)">★</span><span class="estrela" onclick="atribuirEstrela(2, 2)">★</span><span class="estrela" onclick="atribuirEstrela(2, 3)">★</span><span class="estrela" onclick="atribuirEstrela(2, 4)">★</span><span class="estrela" onclick="atribuirEstrela(2, 5)">★</span>
         <span class="nota-badge" id="badge_2">0/5</span>
       </div>
-      <input type="text" id="comentario_2" placeholder="Comentário do supervisor (Motivo da nota)..." required>
+      <input type="text" id="comentario_2" placeholder="Motivo da nota..." required>
     </div>
 
     <div class="criterio-card">
-      <div class="criterio-titulo"><span>👥 3. Consolidação e Cuidado com os Novos</span><span class="criterio-peso">Peso: 1.5</span></div>
-      <div class="criterio-desc"><strong>O que avalia:</strong> O acompanhamento prático daqueles que chegaram há pouco tempo, atenção aos novos convertidos e integração na igreja. Garante que ninguém fique pelo caminho e o fluxo de crescimento funcione.</div>
+      <div class="criterio-titulo"><span>👥 3. Consolidação</span><span class="criterio-peso">Peso: 1.5</span></div>
+      <div class="criterio-desc"><strong>O que avalia:</strong> Acompanhamento prático dos novos convertidos e integração na igreja.</div>
       <div class="estrelas-container" id="estrelas_3">
         <span class="estrela" onclick="atribuirEstrela(3, 1)">★</span><span class="estrela" onclick="atribuirEstrela(3, 2)">★</span><span class="estrela" onclick="atribuirEstrela(3, 3)">★</span><span class="estrela" onclick="atribuirEstrela(3, 4)">★</span><span class="estrela" onclick="atribuirEstrela(3, 5)">★</span>
         <span class="nota-badge" id="badge_3">0/5</span>
       </div>
-      <input type="text" id="comentario_3" placeholder="Comentário do supervisor (Motivo da nota)..." required>
+      <input type="text" id="comentario_3" placeholder="Motivo da nota..." required>
     </div>
 
     <div class="criterio-card">
-      <div class="criterio-titulo"><span>🌱 4. Foco em Liderança e Multiplicação</span><span class="criterio-peso">Peso: 2.5</span></div>
-      <div class="criterio-desc"><strong>O que avalia:</strong> Se o líder está intencionalmente preparando novos líderes (base), delegando funções e mantendo a visão de que a rede em breve vai se multiplicar. Evita a estagnação e levanta novos obreiros.</div>
+      <div class="criterio-titulo"><span>🌱 4. Liderança e Multiplicação</span><span class="criterio-peso">Peso: 2.5</span></div>
+      <div class="criterio-desc"><strong>O que avalia:</strong> Se o líder está preparando novos líderes (base) e mantendo a visão de multiplicação.</div>
       <div class="estrelas-container" id="estrelas_4">
         <span class="estrela" onclick="atribuirEstrela(4, 1)">★</span><span class="estrela" onclick="atribuirEstrela(4, 2)">★</span><span class="estrela" onclick="atribuirEstrela(4, 3)">★</span><span class="estrela" onclick="atribuirEstrela(4, 4)">★</span><span class="estrela" onclick="atribuirEstrela(4, 5)">★</span>
         <span class="nota-badge" id="badge_4">0/5</span>
       </div>
-      <input type="text" id="comentario_4" placeholder="Comentário do supervisor (Motivo da nota)..." required>
+      <input type="text" id="comentario_4" placeholder="Motivo da nota..." required>
     </div>
 
     <div class="criterio-card">
-      <div class="criterio-titulo"><span>⏰ 5. Organização, Pontualidade e Dinâmica</span><span class="criterio-peso">Peso: 1.0</span></div>
-      <div class="criterio-desc"><strong>O que avalia:</strong> Se a reunião começou no horário, bom aproveitamento do tempo (equilíbrio entre louvor, palavra, comunhão) e se o local era adequado. Demonstra zelo pela casa e respeito pelos membros.</div>
+      <div class="criterio-titulo"><span>⏰ 5. Organização e Pontualidade</span><span class="criterio-peso">Peso: 1.0</span></div>
+      <div class="criterio-desc"><strong>O que avalia:</strong> Início no horário, aproveitamento do tempo e zelo pelo ambiente.</div>
       <div class="estrelas-container" id="estrelas_5">
         <span class="estrela" onclick="atribuirEstrela(5, 1)">★</span><span class="estrela" onclick="atribuirEstrela(5, 2)">★</span><span class="estrela" onclick="atribuirEstrela(5, 3)">★</span><span class="estrela" onclick="atribuirEstrela(5, 4)">★</span><span class="estrela" onclick="atribuirEstrela(5, 5)">★</span>
         <span class="nota-badge" id="badge_5">0/5</span>
       </div>
-      <input type="text" id="comentario_5" placeholder="Comentário do supervisor (Motivo da nota)..." required>
+      <input type="text" id="comentario_5" placeholder="Motivo da nota..." required>
     </div>
 
     <div class="criterio-card">
-      <div class="criterio-titulo"><span>📱 6. Fidelidade nos Relatórios e Comunicação</span><span class="criterio-peso">Peso: 1.5</span></div>
-      <div class="criterio-desc"><strong>O que avalia:</strong> O alinhamento do líder com a liderança superior, envio pontual dos relatórios semanais pelo sistema e transparência em relação aos desafios da rede. Facilita o Raio-X do ministério.</div>
+      <div class="criterio-titulo"><span>📱 6. Relatórios e Comunicação</span><span class="criterio-peso">Peso: 1.5</span></div>
+      <div class="criterio-desc"><strong>O que avalia:</strong> Envio pontual dos relatórios semanais e transparência com a liderança.</div>
       <div class="estrelas-container" id="estrelas_6">
         <span class="estrela" onclick="atribuirEstrela(6, 1)">★</span><span class="estrela" onclick="atribuirEstrela(6, 2)">★</span><span class="estrela" onclick="atribuirEstrela(6, 3)">★</span><span class="estrela" onclick="atribuirEstrela(6, 4)">★</span><span class="estrela" onclick="atribuirEstrela(6, 5)">★</span>
         <span class="nota-badge" id="badge_6">0/5</span>
       </div>
-      <input type="text" id="comentario_6" placeholder="Comentário do supervisor (Motivo da nota)..." required>
+      <input type="text" id="comentario_6" placeholder="Motivo da nota..." required>
     </div>
 
-    <div class="form-group">
-      <label>Observações Gerais / Alvos de Oração para a Rede</label>
-      <textarea id="inputObsGerais" placeholder="Considerações finais, combinados feitos com o líder..."></textarea>
+    <div class="form-group" style="margin-top: 10px;">
+      <label>Observações Gerais / Alvos de Oração</label>
+      <textarea id="inputObsGerais" placeholder="Considerações finais e combinados..."></textarea>
     </div>
 
-    <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px;">
-      <button type="button" class="btn" style="background: #21262D; width: auto;" onclick="fecharModalRelatorio()">Cancelar</button>
-      <button type="button" class="btn" style="width: auto;" onclick="salvarRelatorioVisita()">Salvar Relatório</button>
+    <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; flex-wrap: wrap;">
+      <button type="button" class="btn" style="background: #21262D; flex: 1;" onclick="fecharModalRelatorio()">Cancelar</button>
+      <button type="button" class="btn" style="flex: 1;" onclick="salvarRelatorioVisita()">Salvar Relatório</button>
     </div>
   </div>
 </div>
@@ -363,20 +370,20 @@
         const div = document.createElement('div');
         div.className = 'agenda-item';
         div.innerHTML = `
-          <div style="display: flex; align-items: center; gap: 14px;">
+          <div style="display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0;">
             <div class="data-badge">
               <small>${partesData[1] ? nomeMes(partesData[1]) : ''}</small>
               <span>${partesData[2] || ''}</span>
             </div>
-            <div class="agenda-info">
-              <strong>🏠 ${item.rede}</strong>
+            <div class="agenda-info" style="min-width: 0; overflow: hidden;">
+              <strong style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">🏠 ${item.rede}</strong>
               <small>🕒 ${dataFormatada} às ${item.horario || '19:30'} ${isCoordenador ? ' | 👤 ' + item.supervisor : ''}</small>
             </div>
           </div>
           <div class="acoes-agenda">
             ${concluido 
               ? `<span class="badge-concluido">✅ Concluído (Nota: ${item.notaFinal || '-'})</span>` 
-              : `<button class="btn-relatorio" onclick="abrirModalRelatorio('${item.id}', '${item.rede}', '${item.dataVisita}')">📝 Preencher Relatório</button>`
+              : `<button class="btn-relatorio" onclick="abrirModalRelatorio('${item.id}', '${item.rede}', '${item.dataVisita}')">📝 Preencher</button>`
             }
             <button class="btn-delete" onclick="excluirAgendamento('${item.id}')">Excluir</button>
           </div>
@@ -398,7 +405,7 @@
     document.getElementById('modalAgendaId').value = agendaId;
     document.getElementById('modalRedeNome').value = rede;
     document.getElementById('modalDataVisita').value = data;
-    document.getElementById('tituloModalVisita').innerText = `📋 Relatório de Visita: ${rede}`;
+    document.getElementById('tituloModalVisita').innerText = `📋 ${rede}`;
     
     notasCriterios = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
     for (let i = 1; i <= 6; i++) {
@@ -440,15 +447,15 @@
     const displayNota = document.getElementById('displayNotaFinal');
     const displayStatus = document.getElementById('displayStatusNota');
     if (preenchidos === 0) {
-      displayNota.innerHTML = `-.- <span style="font-size: 1rem; color: var(--text-muted);">/ 5.0</span>`;
+      displayNota.innerHTML = `-.- <span style="font-size: 0.9rem; color: var(--text-muted);">/ 5.0</span>`;
       displayStatus.innerText = "Preencha os critérios abaixo";
       return;
     }
     const notaFinal = somaPonderada / somaPesos;
-    displayNota.innerHTML = `${notaFinal.toFixed(1)} <span style="font-size: 1rem; color: var(--text-muted);">/ 5.0</span>`;
+    displayNota.innerHTML = `${notaFinal.toFixed(1)} <span style="font-size: 0.9rem; color: var(--text-muted);">/ 5.0</span>`;
     if (notaFinal >= 4.5) { displayStatus.innerText = "🌟 Excelente / Referência"; displayStatus.style.color = "var(--success)"; }
     else if (notaFinal >= 3.5) { displayStatus.innerText = "✅ Saudável e Estável"; displayStatus.style.color = "#388BFD"; }
-    else if (notaFinal >= 2.5) { displayStatus.innerText = "⚠️ Em Desenvolvimento (Requer Atenção)"; displayStatus.style.color = "var(--warning)"; }
+    else if (notaFinal >= 2.5) { displayStatus.innerText = "⚠️ Em Desenvolvimento"; displayStatus.style.color = "var(--warning)"; }
     else { displayStatus.innerText = "⛔ Crítica (Necessita Intervenção)"; displayStatus.style.color = "var(--danger)"; }
   }
 
@@ -495,7 +502,7 @@
       });
 
       fecharModalRelatorio();
-      alert("✅ Relatório de visita preenchido e vinculado com sucesso!");
+      alert("✅ Relatório de visita preenchido com sucesso!");
       await carregarCronograma();
     } catch (err) {
       console.error(err);
