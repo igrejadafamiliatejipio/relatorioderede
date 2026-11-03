@@ -3,265 +3,94 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Relatórios do Coordenador - Ministério TOPO</title>
+  <title>Central de Relatórios - Ministério TOPO</title>
   <style>
     :root {
-      --bg: #0D0F12; --card-bg: #161B22; --card-border: #30363D;
-      --input-bg: #0D1117; --text: #F0F6FC; --text-muted: #8B949E;
-      --primary: #6E56CF; --primary-hover: #5B45B0;
-      --success: #23D160; --warning: #E3B341; --danger: #E5534B; --info: #388BFD;
+      --bg: #0D0F12;
+      --card-bg: #161B22;
+      --card-border: #30363D;
+      --input-bg: #0D1117;
+      --text: #F0F6FC;
+      --text-muted: #8B949E;
+      --primary: #6E56CF;
+      --primary-hover: #5B45B0;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-    body { background-color: var(--bg); color: var(--text); padding: 16px 8px; display: flex; justify-content: center; min-height: 100vh; }
-    .container { max-width: 960px; width: 100%; background: var(--card-bg); padding: 20px; border-radius: 16px; border: 1px solid var(--card-border); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); }
-    
+    body { background-color: var(--bg); color: var(--text); padding: 20px 10px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+    .container { max-width: 780px; width: 100%; background: var(--card-bg); padding: 24px; border-radius: 16px; border: 1px solid var(--card-border); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); }
     .top-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px; }
-    .btn-voltar { background: #21262D; color: var(--text); border: 1px solid var(--card-border); padding: 6px 12px; border-radius: 6px; font-size: 0.82rem; text-decoration: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-voltar { background: #21262D; color: var(--text); border: 1px solid var(--card-border); padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
     .btn-voltar:hover { background: #30363D; }
-    
     .header { text-align: center; margin-bottom: 24px; }
     .header h1 { font-size: 1.5rem; font-weight: 700; margin-top: 4px; }
+    .header p { font-size: 0.82rem; color: var(--text-muted); margin-top: 4px; }
     .badge-topo { display: inline-block; background: var(--primary); color: #FFF; padding: 4px 12px; border-radius: 20px; font-size: 0.72rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 6px; text-transform: uppercase; }
-
-    /* Grid de Relatórios */
-    .reports-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
-    .report-card { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; gap: 16px; transition: border-color 0.2s; }
-    .report-card:hover { border-color: var(--primary); }
-    .report-card h3 { font-size: 1.05rem; display: flex; align-items: center; gap: 8px; }
-    .report-card p { font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; }
     
-    .btn-acao { background: var(--primary); color: #FFF; border: none; padding: 10px 16px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; text-decoration: none; transition: background 0.2s; }
-    .btn-acao:hover { background: var(--primary-hover); }
-    .btn-acao.disabled { background: #21262D; color: var(--text-muted); cursor: not-allowed; border: 1px solid var(--card-border); }
+    .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+    .menu-card { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 18px 12px; text-align: center; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .menu-card:hover { border-color: var(--primary); transform: translateY(-2px); background: rgba(110, 86, 207, 0.05); }
+    .menu-card.disabled { opacity: 0.6; cursor: not-allowed; }
+    .menu-card.disabled:hover { border-color: var(--card-border); transform: none; background: var(--input-bg); }
+    .menu-card .icon { font-size: 1.8rem; margin-bottom: 8px; }
+    .menu-card h3 { font-size: 0.9rem; font-weight: 700; color: var(--text); }
+    .menu-card p { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
 
-    .loading-box { text-align: center; padding: 40px; color: var(--text-muted); }
-
-    @media (max-width: 650px) { 
-      body { padding: 8px 4px; }
-      .container { padding: 14px; border-radius: 12px; }
+    @media (max-width: 480px) { 
+      .container { padding: 16px 12px; }
+      .header h1 { font-size: 1.3rem; }
+      .menu-grid { grid-template-columns: 1fr; }
+      .menu-card { padding: 14px 10px; }
     }
   </style>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-  <!-- Biblioteca html2pdf para gerar o PDF visual -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
 <div class="container">
   <div class="top-nav">
     <a href="coordenador_menu.html" class="btn-voltar">← Voltar ao Menu</a>
-    <span id="labelCoordenadorLogado" style="font-size: 0.8rem; color: var(--text-muted);"></span>
+    <span id="labelCoordenador" style="font-size: 0.8rem; color: var(--text-muted);"></span>
   </div>
-
   <div class="header">
-    <span class="badge-topo" id="badgeMinisterioRelatorio">CENTRAL DE RELATÓRIOS</span>
-    <h1>Relatórios do Ministério</h1>
+    <span class="badge-topo" id="badgeMinisterioTitulo">CENTRAL DE RELATÓRIOS</span>
+    <h1>Relatórios e Documentos</h1>
+    <p>Selecione o relatório que deseja gerar ou visualizar</p>
   </div>
+  
+  <div class="menu-grid">
+    <div class="menu-card" onclick="irPara('relatorio_arvore.html')">
+      <div class="icon">🌳</div>
+      <h3>Árvore Genealógica</h3>
+      <p>Organograma hierárquico em PDF</p>
+    </div>
 
-  <div id="painelRelatorios" style="display: none;">
-    <div class="reports-grid">
-      
-      <!-- RELATÓRIO 1: ÁRVORE HIERÁRQUICA / MAPA MENTAL -->
-      <div class="report-card">
-        <div>
-          <h3>🌳 Árvore Genealógica (Mapa Mental)</h3>
-          <p>Gera um documento em PDF estruturado em formato de organograma, exibindo o Ministério, todos os Coordenadores, Supervisões e Redes com seus Líderes.</p>
-        </div>
-        <button onclick="gerarPdfArvore()" class="btn-acao">
-          📄 Baixar PDF em Árvore
-        </button>
-      </div>
+    <div class="menu-card disabled">
+      <div class="icon">📊</div>
+      <h3>Relatório de Batismos</h3>
+      <p>Em breve</p>
+    </div>
 
-      <!-- ESPAÇO PARA FUTUROS RELATÓRIOS -->
-      <div class="report-card" style="opacity: 0.7;">
-        <div>
-          <h3>📊 Em Breve: Relatório de Batismos</h3>
-          <p>Métricas detalhadas e listagem de membros batizados e não batizados separados por supervisão.</p>
-        </div>
-        <button class="btn-acao disabled" disabled>Em Desenvolvimento</button>
-      </div>
-
-      <div class="report-card" style="opacity: 0.7;">
-        <div>
-          <h3>📈 Em Breve: Frequência e Alertas</h3>
-          <p>Consolidado mensal de faltas consecutivas e relatórios enviados pelas redes do ministério.</p>
-        </div>
-        <button class="btn-acao disabled" disabled>Em Desenvolvimento</button>
-      </div>
-
+    <div class="menu-card disabled">
+      <div class="icon">📈</div>
+      <h3>Frequência e Alertas</h3>
+      <p>Em breve</p>
     </div>
   </div>
-
-  <div id="loading" class="loading-box">Carregando dados para relatórios...</div>
 </div>
 
 <script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyB7FJXs9wiRFYIs2ugZoWrw7jTXPR5weGk",
-    authDomain: "app-redes-iftejipio.firebaseapp.com",
-    projectId: "app-redes-iftejipio",
-    storageBucket: "app-redes-iftejipio.firebasestorage.app",
-    messagingSenderId: "954529090793",
-    appId: "1:954529090793:web:6702d102b6e5b178b6b478",
-    measurementId: "G-2MJ96WMYQ5"
-  };
-  if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
-
-  let ministerioAtivo = 'TOPO';
-  let nomeCoord = '';
-  let membrosMinisterio = [];
-  let perfisRedesMinisterio = [];
-
-  document.addEventListener('DOMContentLoaded', async () => {
+  document.addEventListener('DOMContentLoaded', () => {
     const logado = sessionStorage.getItem('topo_coord_logado');
     if (!logado) {
-      alert("Sessão expirada. Faça login novamente.");
       window.location.href = "index.html";
       return;
     }
-
-    ministerioAtivo = sessionStorage.getItem('topo_ministerio') || 'TOPO';
-    nomeCoord = sessionStorage.getItem('topo_coord_nome') || 'Coordenador(a)';
-
-    document.getElementById('badgeMinisterioRelatorio').innerText = `RELATÓRIOS - MINISTÉRIO ${ministerioAtivo}`;
-    document.getElementById('labelCoordenadorLogado').innerText = `${nomeCoord} (Coordenação)`;
-
-    await carregarDados();
+    const ministerioAtivo = sessionStorage.getItem('topo_ministerio') || 'TOPO';
+    const nomeCoord = sessionStorage.getItem('topo_coord_nome') || 'Coordenador(a)';
+    
+    document.getElementById('badgeMinisterioTitulo').innerText = `CENTRAL DE RELATÓRIOS - ${ministerioAtivo}`;
+    document.getElementById('labelCoordenador').innerText = `${nomeCoord} (${ministerioAtivo})`;
   });
 
-  async function carregarDados() {
-    try {
-      const snapMembros = await db.collection('membros')
-        .where('ministerio', '==', ministerioAtivo)
-        .get();
-
-      membrosMinisterio = [];
-      snapMembros.forEach(doc => {
-        const d = doc.data();
-        if (d.status !== 'INATIVO') membrosMinisterio.push({ id: doc.id, ...d });
-      });
-
-      const snapPerfis = await db.collection('perfis_redes').get();
-      perfisRedesMinisterio = [];
-      snapPerfis.forEach(doc => {
-        const d = doc.data();
-        perfisRedesMinisterio.push({ nome: doc.id, ...d });
-      });
-
-    } catch (err) {
-      alert("Erro ao carregar dados para relatórios.");
-      console.error(err);
-    } finally {
-      document.getElementById('loading').style.display = 'none';
-      document.getElementById('painelRelatorios').style.display = 'block';
-    }
-  }
-
-  function gerarPdfArvore() {
-    const elemento = document.createElement('div');
-    elemento.style.padding = '25px';
-    elemento.style.background = '#FFFFFF';
-    elemento.style.color = '#111111';
-    elemento.style.fontFamily = 'Arial, sans-serif';
-    elemento.style.width = '820px';
-
-    // 1. Identificar todos os Coordenadores do Ministério
-    let coordenadoresList = membrosMinisterio.filter(m => m.categoria && m.categoria.trim() === 'Coordenador');
-    if (coordenadoresList.length === 0) {
-      coordenadoresList = [{ nome: nomeCoord }];
-    }
-
-    let coordenadoresHtml = '';
-    coordenadoresList.forEach(c => {
-      coordenadoresHtml += `
-        <div style="background: #F3F0FF; border: 1.5px solid #6E56CF; border-radius: 6px; padding: 8px 12px; margin-bottom: 8px; font-size: 13px; font-weight: bold; color: #4B32A8; display: inline-block; min-width: 200px;">
-          👑 ${c.nome}
-        </div>
-      `;
-    });
-
-    // 2. Agrupar Supervisões e Redes
-    let supervisoesHtml = '';
-    if (perfisRedesMinisterio.length > 0) {
-      const supervisoesMap = {};
-      perfisRedesMinisterio.forEach(r => {
-        const sup = r.supervisao || 'Geral';
-        if (!supervisoesMap[sup]) supervisoesMap[sup] = [];
-        supervisoesMap[sup].push(r);
-      });
-
-      const listaSupNames = Object.keys(supervisoesMap).sort();
-
-      listaSupNames.forEach(supName => {
-        supervisoesMap[supName].sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
-        
-        let redesCardsHtml = '';
-        supervisoesMap[supName].forEach(r => {
-          const membrosRede = membrosMinisterio.filter(m => m.rede === r.nome);
-          const liderObj = membrosRede.find(m => m.categoria && m.categoria.trim() === 'Líder');
-          const nomeLider = liderObj ? liderObj.nome : (r.lider && r.lider !== 'A definir' ? r.lider : 'A definir');
-
-          redesCardsHtml += `
-            <div style="background: #FFFFFF; border: 1px solid #D0D7DE; border-radius: 6px; padding: 8px 10px; width: 48%; margin-bottom: 8px; font-size: 11px;">
-              <div style="font-weight: bold; color: #1F2328; margin-bottom: 2px;">📍 ${r.nome}</div>
-              <div style="color: #57606A;">👑 Líder: <strong style="color: #1A7F37;">${nomeLider}</strong></div>
-            </div>
-          `;
-        });
-
-        supervisoesHtml += `
-          <div style="margin-bottom: 15px; border-left: 2px solid #6E56CF; padding-left: 12px;">
-            <div style="background: #EAE4FF; color: #322375; font-weight: bold; font-size: 12px; padding: 6px 10px; border-radius: 5px; margin-bottom: 8px;">
-              🛡️ Supervisão: ${supName}
-            </div>
-            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
-              ${redesCardsHtml}
-            </div>
-          </div>
-        `;
-      });
-    } else {
-      supervisoesHtml = `<div style="color: #666; font-size: 12px; padding: 10px;">Nenhuma supervisão ou rede cadastrada.</div>`;
-    }
-
-    // 3. Montar a Estrutura Completa do Mapa Mental / Árvore
-    elemento.innerHTML = `
-      <div style="text-align: center; margin-bottom: 25px; border-bottom: 3px solid #6E56CF; padding-bottom: 15px;">
-        <h1 style="color: #6E56CF; margin: 0; font-size: 22px; text-transform: uppercase;">Mapa Hierárquico do Ministério</h1>
-        <p style="color: #57606A; font-size: 13px; margin: 4px 0 0 0;">Ministério: <strong>${ministerioAtivo}</strong></p>
-      </div>
-
-      <!-- RAIZ: MINISTÉRIO -->
-      <div style="background: #6E56CF; color: #FFFFFF; padding: 12px; border-radius: 8px; text-align: center; font-weight: bold; font-size: 15px; margin-bottom: 15px; text-transform: uppercase;">
-        🏛️ MINISTÉRIO ${ministerioAtivo}
-      </div>
-      <div style="text-align: center; font-size: 16px; color: #6E56CF; margin: -6px 0 10px 0;">│</div>
-
-      <!-- NÍVEL 1: COORDENADORES -->
-      <div style="margin-left: 15px; border-left: 2px dashed #6E56CF; padding-left: 15px; margin-bottom: 15px;">
-        <div style="font-size: 12px; font-weight: bold; color: #57606A; text-transform: uppercase; margin-bottom: 6px;">👑 Coordenadores</div>
-        <div>${coordenadoresHtml}</div>
-      </div>
-      <div style="text-align: center; font-size: 16px; color: #6E56CF; margin: -6px 0 10px 0;">│</div>
-
-      <!-- NÍVEL 2 E 3: SUPERVISÕES, REDES E LÍDERES -->
-      <div style="margin-left: 15px; border-left: 2px dashed #6E56CF; padding-left: 15px;">
-        <div style="font-size: 12px; font-weight: bold; color: #57606A; text-transform: uppercase; margin-bottom: 10px;">🛡️ Supervisões, Redes & Liderança</div>
-        <div>${supervisoesHtml}</div>
-      </div>
-    `;
-
-    const opt = {
-      margin:       10,
-      filename:     `mapa_hierarquico_ministerio_${ministerioAtivo.toLowerCase()}.pdf`,
-      image:        { type: 'jpeg', quality: 0.98 },
-      html2canvas:  { scale: 2, useCORS: true },
-      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
-
-    html2pdf().from(elemento).set(opt).save();
-  }
+  function irPara(pagina) { window.location.href = pagina; }
 </script>
 </body>
 </html>
