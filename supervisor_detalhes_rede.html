@@ -28,9 +28,15 @@
     .btn-voltar { background: #21262D; color: var(--text); border: 1px solid var(--card-border); padding: 6px 12px; border-radius: 6px; font-size: 0.82rem; text-decoration: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
     .btn-voltar:hover { background: #30363D; }
 
-    .header { text-align: center; margin-bottom: 20px; }
+    .header { text-align: center; margin-bottom: 20px; position: relative; }
     .badge-topo { display: inline-block; background: var(--primary); color: #FFF; padding: 4px 12px; border-radius: 20px; font-size: 0.72rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 6px; text-transform: uppercase; }
-    .header h1 { font-size: 1.5rem; font-weight: 800; margin-top: 4px; }
+    
+    .header-title-wrapper { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+    .header h1 { font-size: 1.5rem; font-weight: 800; margin: 0; }
+    
+    /* Botão discreto para editar perfil da rede */
+    .btn-editar-rede-discreto { background: transparent; border: 1px solid var(--card-border); color: var(--text-muted); padding: 3px 8px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; transition: 0.2s; }
+    .btn-editar-rede-discreto:hover { background: rgba(255,255,255,0.05); color: var(--text); border-color: var(--text-muted); }
 
     /* Resumo Compacto Lado a Lado */
     .resumo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 16px; }
@@ -143,7 +149,10 @@
 
   <div class="header">
     <span class="badge-topo" id="badgeMinisterio">PAINEL DE DETALHES DA REDE</span>
-    <h1 id="tituloRedeNome">Carregando Rede...</h1>
+    <div class="header-title-wrapper">
+      <h1 id="tituloRedeNome">Carregando Rede...</h1>
+      <button class="btn-editar-rede-discreto" onclick="abrirModalEditarRede()" title="Editar Perfil da Rede">⚙️ Editar</button>
+    </div>
   </div>
 
   <div id="conteudoDetalhes" style="display: none;">
@@ -221,6 +230,25 @@
   </div>
 
   <div id="loading" class="loading-box">Carregando detalhes da rede...</div>
+</div>
+
+<!-- Modal de Edição de Perfil da Rede -->
+<div id="modalEditarRede" class="modal-overlay">
+  <div class="modal-card">
+    <div class="modal-header"><span>⚙️ Editar Perfil da Rede</span> <button onclick="fecharModalEditarRede()" style="background:none; border:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer;">✕</button></div>
+    <div class="form-group"><label>Nome da Rede</label><input type="text" id="editRedeNomeInput"></div>
+    <div class="form-group">
+      <label>Status da Rede</label>
+      <select id="editRedeStatusInput">
+        <option value="oficial">Oficial</option>
+        <option value="informal">Informal</option>
+      </select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancelar" onclick="fecharModalEditarRede()">Cancelar</button>
+      <button class="btn-salvar" onclick="salvarPerfilRede()">Salvar Alterações</button>
+    </div>
+  </div>
 </div>
 
 <!-- Modal de Edição de Membro -->
@@ -353,6 +381,7 @@
   let relatoriosLiderCache = [];
   let limiteRelatoriosExibidos = 3;
   let chartInstance = null;
+  let perfilRedeCache = {};
 
   document.addEventListener("DOMContentLoaded", async () => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -374,6 +403,14 @@
 
   async function carregarDadosCompletosRede() {
     try {
+      // Carregar perfil da rede
+      const docPerfil = await db.collection('perfis_redes').doc(nomeRedeAtiva).get();
+      if (docPerfil.exists) {
+        perfilRedeCache = docPerfil.data();
+      } else {
+        perfilRedeCache = { status: 'oficial' };
+      }
+
       const snapMembros = await db.collection('membros')
         .where('rede', '==', nomeRedeAtiva)
         .get();
@@ -662,6 +699,73 @@
 
   function fecharModalRelatorio() {
     document.getElementById('modalRelatorioDetalhes').style.display = 'none';
+  }
+
+  // --- EDITAR PERFIL DA REDE ---
+  function abrirModalEditarRede() {
+    document.getElementById('editRedeNomeInput').value = nomeRedeAtiva;
+    document.getElementById('editRedeStatusInput').value = perfilRedeCache.status || 'oficial';
+    document.getElementById('modalEditarRede').style.display = 'flex';
+  }
+
+  function fecharModalEditarRede() {
+    document.getElementById('modalEditarRede').style.display = 'none';
+  }
+
+  async function salvarPerfilRede() {
+    const novoNomeRede = document.getElementById('editRedeNomeInput').value.trim();
+    const novoStatus = document.getElementById('editRedeStatusInput').value;
+
+    if (!novoNomeRede) return alert("Informe o nome da rede.");
+
+    fecharModalEditarRede();
+    document.getElementById('loading').style.display = 'block';
+
+    try {
+      const nomeAntigo = nomeRedeAtiva;
+
+      if (novoNomeRede !== nomeAntigo) {
+        // Se mudou o nome da rede, precisamos atualizar no Firestore tanto o perfil quanto todos os membros e relatórios vinculados
+        const batch = db.batch();
+
+        // 1. Criar novo perfil e deletar o antigo
+        const novoPerfilRef = db.collection('perfis_redes').doc(novoNomeRede);
+        batch.set(novoPerfilRef, { ...perfilRedeCache, status: novoStatus });
+        batch.delete(db.collection('perfis_redes').doc(nomeAntigo));
+
+        // 2. Atualizar membros
+        const snapMembros = await db.collection('membros').where('rede', '==', nomeAntigo).get();
+        snapMembros.forEach(docSnap => {
+          batch.update(docSnap.ref, { rede: novoNomeRede });
+        });
+
+        // 3. Atualizar relatórios de líderes
+        const snapRels = await db.collection('relatorios').where('rede', '==', nomeAntigo).get();
+        snapRels.forEach(docSnap => {
+          batch.update(docSnap.ref, { rede: novoNomeRede });
+        });
+
+        // 4. Atualizar visitas do supervisor
+        const snapVisitas = await db.collection('visitas_supervisao').where('rede', '==', nomeAntigo).get();
+        snapVisitas.forEach(docSnap => {
+          batch.update(docSnap.ref, { rede: novoNomeRede });
+        });
+
+        await batch.commit();
+        alert("✅ Perfil e nome da rede atualizados com sucesso!");
+        window.location.href = `supervisor_detalhes_rede.html?rede=${encodeURIComponent(novoNomeRede)}`;
+        return;
+      } else {
+        // Apenas atualizar status se necessário
+        await db.collection('perfis_redes').doc(nomeRedeAtiva).update({ status: novoStatus });
+        alert("✅ Perfil da rede atualizado com sucesso!");
+        await carregarDadosCompletosRede();
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao atualizar perfil da rede.");
+      document.getElementById('loading').style.display = 'none';
+    }
   }
 
   // --- CADASTRAR MEMBRO DIRETAMENTE NA REDE ---
