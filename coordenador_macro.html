@@ -60,6 +60,20 @@
     .btn-transferir-mini { background: rgba(56, 139, 253, 0.15); color: var(--info); border: 1px solid rgba(56, 139, 253, 0.3); padding: 3px 6px; border-radius: 4px; font-size: 0.65rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 3px; transition: 0.2s; }
     .btn-transferir-mini:hover { background: var(--info); color: #FFF; }
 
+    /* Modal de Transferência */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.75); display: flex; align-items: center; justify-content: center; z-index: 1000; display: none; }
+    .modal-box { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 24px; width: 90%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+    .modal-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; color: var(--text); display: flex; align-items: center; gap: 6px; }
+    .modal-desc { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 16px; line-height: 1.4; }
+    .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+    .btn-modal-cancel { background: #21262D; color: var(--text); border: 1px solid var(--card-border); padding: 8px 14px; border-radius: 6px; font-size: 0.85rem; cursor: pointer; }
+    .btn-modal-cancel:hover { background: #30363D; }
+    .btn-modal-confirm { background: var(--primary); color: #FFF; border: none; padding: 8px 16px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; }
+    .btn-modal-confirm:hover { background: var(--primary-hover); }
+    .modal-select { width: 100%; padding: 10px 12px; background-color: var(--input-bg); border: 1px solid var(--card-border); border-radius: 8px; font-size: 0.9rem; color: var(--text); outline: none; }
+    .modal-select:focus { border-color: var(--primary); }
+    .modal-select option { background-color: var(--card-bg); color: var(--text); }
+
     /* Cards da Árvore de Supervisão */
     .supervisao-card { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 12px; margin-bottom: 10px; overflow: hidden; }
     .supervisao-header { padding: 12px 14px; cursor: pointer; user-select: none; }
@@ -161,6 +175,22 @@
   <div id="loading" class="loading-box">Carregando dados consolidados do Ministério...</div>
 </div>
 
+<!-- MODAL DE TRANSFERÊNCIA DE REDE -->
+<div id="modalTransferencia" class="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-title">🔄 Transferir Rede</div>
+    <div class="modal-desc" id="modalDescRede">Selecione a nova supervisão para a rede.</div>
+    <div class="form-group" style="margin-bottom: 0;">
+      <label style="display: block; font-weight: 500; font-size: 0.78rem; margin-bottom: 6px; color: var(--text-muted); text-transform: uppercase;">Nova Supervisão</label>
+      <select id="selectNovaSupervisao" class="modal-select"></select>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn-modal-cancel" onclick="fecharModalTransferencia()">Cancelar</button>
+      <button type="button" class="btn-modal-confirm" onclick="executarTransferencia()">Confirmar</button>
+    </div>
+  </div>
+</div>
+
 <script>
   const firebaseConfig = {
     apiKey: "AIzaSyB7FJXs9wiRFYIs2ugZoWrw7jTXPR5weGk",
@@ -180,6 +210,8 @@
   let perfisRedesMinisterio = [];
   let supervisoresSexoMap = {};
   let listaSupervisoresGlobal = [];
+  let redeParaTransferir = '';
+  let supervisaoAtualRede = '';
 
   document.addEventListener('DOMContentLoaded', async () => {
     const logado = sessionStorage.getItem('topo_coord_logado');
@@ -399,7 +431,7 @@
                   </div>
                 </div>
                 <div onclick="event.stopPropagation()">
-                  <button class="btn-transferir-mini" onclick="transferirRedePrompt('${r.nome}', '${supNome}')" title="Transferir para outra supervisão">🔄 Transf.</button>
+                  <button class="btn-transferir-mini" onclick="abrirModalTransferencia('${r.nome}', '${supNome}')" title="Transferir para outra supervisão">🔄 Transf.</button>
                 </div>
               </div>
             `;
@@ -423,38 +455,56 @@
     }
   }
 
-  async function transferirRedePrompt(nomeRede, supervisaoAtual) {
-    let opcoesTexto = listaSupervisoresGlobal.filter(s => s !== supervisaoAtual).map((s, i) => `${i + 1} - ${s}`).join('\n');
-    let listaDisponivel = listaSupervisoresGlobal.filter(s => s !== supervisaoAtual);
+  function abrirModalTransferencia(nomeRede, supervisaoAtual) {
+    redeParaTransferir = nomeRede;
+    supervisaoAtualRede = supervisaoAtual;
 
+    document.getElementById('modalDescRede').innerHTML = `Selecione a nova supervisão para a rede <strong>${nomeRede}</strong> (Atual: ${supervisaoAtual}):`;
+
+    const selectEl = document.getElementById('selectNovaSupervisao');
+    selectEl.innerHTML = '';
+
+    const listaDisponivel = listaSupervisoresGlobal.filter(s => s !== supervisaoAtual);
     if (listaDisponivel.length === 0) {
       alert("Não há outras supervisões cadastradas para realizar a transferência.");
       return;
     }
 
-    let escolha = prompt(`Transferir a rede "${nomeRede}" (Atual: ${supervisaoAtual})\n\nEscolha o número da nova Supervisão:\n${opcoesTexto}`);
-    if (!escolha) return;
+    listaDisponivel.forEach(sup => {
+      const opt = document.createElement('option');
+      opt.value = sup;
+      opt.textContent = sup;
+      selectEl.appendChild(opt);
+    });
 
-    let index = parseInt(escolha) - 1;
-    if (isNaN(index) || index < 0 || index >= listaDisponivel.length) {
-      alert("Opção inválida.");
+    document.getElementById('modalTransferencia').style.display = 'flex';
+  }
+
+  function fecharModalTransferencia() {
+    document.getElementById('modalTransferencia').style.display = 'none';
+  }
+
+  async function executarTransferencia() {
+    const novaSupervisao = document.getElementById('selectNovaSupervisao').value;
+    if (!novaSupervisao) {
+      alert("Selecione uma supervisão.");
       return;
     }
 
-    let novaSupervisao = listaDisponivel[index];
-    if (!confirm(`Deseja realmente transferir a rede "${nomeRede}" para a supervisão de "${novaSupervisao}"?`)) return;
+    if (!confirm(`Deseja realmente transferir a rede "${redeParaTransferir}" para a supervisão de "${novaSupervisao}"?`)) return;
 
+    fecharModalTransferencia();
     document.getElementById('loading').style.display = 'block';
 
     try {
       // 1. Atualizar na coleção perfis_redes
-      await db.collection('perfis_redes').doc(nomeRede).update({
+      await db.collection('perfis_redes').doc(redeParaTransferir).update({
         supervisao: novaSupervisao
       });
 
       // 2. Atualizar todos os membros pertencentes a essa rede na coleção membros
       const batch = db.batch();
-      const snapMembrosRede = await db.collection('membros').where('rede', '==', nomeRede).get();
+      const snapMembrosRede = await db.collection('membros').where('rede', '==', redeParaTransferir).get();
       
       snapMembrosRede.forEach(docMembro => {
         batch.update(docMembro.ref, { supervisao: novaSupervisao });
@@ -462,7 +512,7 @@
 
       await batch.commit();
 
-      alert(`✅ Rede "${nomeRede}" transferida com sucesso para "${novaSupervisao}"!`);
+      alert(`✅ Rede "${redeParaTransferir}" transferida com sucesso para "${novaSupervisao}"!`);
       await carregarDadosConsolidados();
     } catch (err) {
       console.error("Erro ao transferir rede:", err);
