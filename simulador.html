@@ -117,7 +117,7 @@
     const selectEntidade = document.getElementById('selectEntidade');
     const labelEntidade = document.getElementById('labelEntidade');
 
-    if (perfil === 'Coordenador' || !perfil) {
+    if (!perfil) {
       grupoEntidade.style.display = 'none';
       selectEntidade.required = false;
       return;
@@ -129,7 +129,14 @@
 
     let filtrados = [];
 
-    if (perfil === 'Supervisor') {
+    if (perfil === 'Coordenador') {
+      labelEntidade.innerText = '3. Selecione o(a) Coordenador(a)';
+      filtrados = dadosMembros.filter(m => {
+        const min = m.ministerio || 'TOPO';
+        const cat = m.categoria ? m.categoria.trim() : '';
+        return min === ministerio && cat === 'Coordenador';
+      });
+    } else if (perfil === 'Supervisor') {
       labelEntidade.innerText = '3. Selecione o(a) Supervisor(a)';
       filtrados = dadosMembros.filter(m => {
         const min = m.ministerio || 'TOPO';
@@ -163,33 +170,29 @@
     e.preventDefault();
     const ministerio = document.getElementById('selectMinisterio').value;
     const perfil = document.getElementById('selectPerfil').value;
+    const dadosStr = document.getElementById('selectEntidade').value;
+
+    if (!dadosStr) return alert("Por favor, selecione uma pessoa na lista.");
+    const dados = JSON.parse(dadosStr);
 
     sessionStorage.clear();
     sessionStorage.setItem('topo_ministerio', ministerio);
 
     if (perfil === 'Coordenador') {
       sessionStorage.setItem('topo_coord_logado', 'true');
-      sessionStorage.setItem('topo_coord_nome', 'Administrador Master');
+      sessionStorage.setItem('topo_coord_nome', dados.nome);
       window.location.href = 'coordenador_menu.html';
     } 
     else if (perfil === 'Supervisor') {
-      const dadosStr = document.getElementById('selectEntidade').value;
-      if (!dadosStr) return alert("Por favor, selecione um supervisor na lista.");
-      const dados = JSON.parse(dadosStr);
-
       sessionStorage.setItem('topo_sup_nome', dados.nome);
       sessionStorage.setItem('topo_sup_responsavel', 'Supervisor(a) do Ministério');
       window.location.href = 'supervisor_menu.html';
     } 
     else if (perfil === 'Lider') {
-      const dadosStr = document.getElementById('selectEntidade').value;
-      if (!dadosStr) return alert("Por favor, selecione um líder na lista.");
-      const dados = JSON.parse(dadosStr);
-
       sessionStorage.setItem('topo_rede', dados.rede || 'Rede Geral');
       sessionStorage.setItem('topo_supervisao', dados.supervisao || 'Supervisão Geral');
       sessionStorage.setItem('topo_lider', dados.nome);
-      window.location.href = 'lider.html'; // <--- CORRIGIDO AQUI PARA LEVAR AO MENU DO LÍDER
+      window.location.href = 'lider.html';
     }
   }
 </script>
