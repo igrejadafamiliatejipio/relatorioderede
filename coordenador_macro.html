@@ -174,7 +174,7 @@
   let nomeCoord = '';
   let membrosMinisterio = [];
   let perfisRedesMinisterio = [];
-  let supervisoresSexoMap = {}; // Mapa para guardar o sexo de cada supervisor
+  let supervisoresSexoMap = {};
 
   document.addEventListener('DOMContentLoaded', async () => {
     const logado = sessionStorage.getItem('topo_coord_logado');
@@ -216,7 +216,7 @@
       supervisoresSexoMap = {};
       membrosMinisterio.forEach(m => {
         if (m.categoria === 'Supervisor' && m.nome && m.sexo) {
-          supervisoresSexoMap[m.nome] = m.sexo.trim();
+          supervisoresSexoMap[m.nome.trim()] = m.sexo.trim();
         }
       });
 
@@ -235,22 +235,27 @@
     let redesOficiais = perfisRedesMinisterio.filter(r => r.status !== 'informal').length;
     let redesInformais = perfisRedesMinisterio.filter(r => r.status === 'informal').length;
 
-    // Se for TOPO, contar redes e membros por gênero do supervisor
+    // Se for TOPO, calcular redes e membros com base no sexo do supervisor
     if (ministerioAtivo === 'TOPO') {
       let redesHomens = 0, redesMulheres = 0;
       perfisRedesMinisterio.forEach(r => {
-        const supSexo = supervisoresSexoMap[r.supervisao] || '';
-        if (supSexo.toLowerCase() === 'masculino') redesHomens++;
-        else if (supSexo.toLowerCase() === 'feminino') redesMulheres++;
+        const supSexo = (supervisoresSexoMap[r.supervisao] || '').toLowerCase();
+        if (supSexo === 'masculino') redesHomens++;
+        else if (supSexo === 'feminino') redesMulheres++;
       });
       document.getElementById('cardRedesMF').style.display = 'block';
       document.getElementById('mRedesMF').innerText = `${redesHomens} / ${redesMulheres}`;
 
       let membrosHomens = 0, membrosMulheres = 0;
       membrosMinisterio.forEach(m => {
-        const supSexo = supervisoresSexoMap[m.supervisao] || '';
-        if (supSexo.toLowerCase() === 'masculino') membrosHomens++;
-        else if (supSexo.toLowerCase() === 'feminino') membrosMulheres++;
+        let sup = m.supervisao;
+        if (!sup && m.rede) {
+          const rObj = perfisRedesMinisterio.find(r => r.nome === m.rede);
+          if (rObj) sup = rObj.supervisao;
+        }
+        const supSexo = (supervisoresSexoMap[sup] || '').toLowerCase();
+        if (supSexo === 'masculino') membrosHomens++;
+        else if (supSexo === 'feminino') membrosMulheres++;
       });
       document.getElementById('cardMembrosMF').style.display = 'block';
       document.getElementById('mMembrosMF').innerText = `${membrosHomens} / ${membrosMulheres}`;
