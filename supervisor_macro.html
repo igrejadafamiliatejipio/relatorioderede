@@ -222,6 +222,9 @@
 
       supervisorRedesTodas = [...supervisorRedesOficiais, ...redesInformaisCache];
 
+      // Ordenar alfabeticamente pelo nome da rede
+      supervisorRedesTodas.sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR', { sensitivity: 'accent' }));
+
       const snapMembros = await db.collection('membros').where('supervisao', '==', supervisorNome).get();
       membrosCache = [];
       snapMembros.forEach(doc => {
@@ -366,7 +369,7 @@
       tabelaNiver.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Nenhum aniversariante neste mês.</td></tr>`;
     }
 
-    // Árvore de Redes
+    // Árvore de Redes (já ordenada alfabeticamente)
     const treeContainer = document.getElementById('treeContainerRedes');
     treeContainer.innerHTML = '';
 
