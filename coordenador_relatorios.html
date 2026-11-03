@@ -61,14 +61,14 @@
   <div id="painelRelatorios" style="display: none;">
     <div class="reports-grid">
       
-      <!-- RELATÓRIO 1: ÁRVORE GENEALÓGICA -->
+      <!-- RELATÓRIO 1: ÁRVORE HIERÁRQUICA / MAPA MENTAL -->
       <div class="report-card">
         <div>
-          <h3>🌳 Árvore Genealógica (PDF)</h3>
-          <p>Gera um documento visual completo em formato PDF contendo a hierarquia estruturada do ministério: Coordenação, Supervisões e Redes com seus respectivos Líderes.</p>
+          <h3>🌳 Árvore Genealógica (Mapa Mental)</h3>
+          <p>Gera um documento em PDF estruturado em formato de organograma, exibindo o Ministério, todos os Coordenadores, Supervisões e Redes com seus Líderes.</p>
         </div>
         <button onclick="gerarPdfArvore()" class="btn-acao">
-          📄 Baixar PDF da Árvore
+          📄 Baixar PDF em Árvore
         </button>
       </div>
 
@@ -160,25 +160,29 @@
 
   function gerarPdfArvore() {
     const elemento = document.createElement('div');
-    elemento.style.padding = '20px';
+    elemento.style.padding = '25px';
     elemento.style.background = '#FFFFFF';
-    elemento.style.color = '#000000';
+    elemento.style.color = '#111111';
     elemento.style.fontFamily = 'Arial, sans-serif';
-    elemento.style.width = '800px';
+    elemento.style.width = '820px';
 
-    let htmlArvore = `
-      <div style="text-align: center; margin-bottom: 25px; border-bottom: 2px solid #6E56CF; padding-bottom: 12px;">
-        <h1 style="color: #6E56CF; margin: 0; font-size: 22px;">MINISTÉRIO ${ministerioAtivo}</h1>
-        <p style="color: #555; font-size: 13px; margin: 4px 0 0 0;">Árvore Genealógica e Hierárquica de Liderança</p>
-      </div>
+    // 1. Identificar todos os Coordenadores do Ministério
+    let coordenadoresList = membrosMinisterio.filter(m => m.categoria && m.categoria.trim() === 'Coordenador');
+    if (coordenadoresList.length === 0) {
+      coordenadoresList = [{ nome: nomeCoord }];
+    }
 
-      <div style="background: #6E56CF; color: #fff; padding: 10px; border-radius: 6px; text-align: center; font-weight: bold; margin-bottom: 15px; font-size: 15px;">
-        👑 Coordenação: ${nomeCoord}
-      </div>
-      
-      <div style="text-align: center; font-size: 18px; color: #6E56CF; margin: -8px 0 8px 0;">│</div>
-    `;
+    let coordenadoresHtml = '';
+    coordenadoresList.forEach(c => {
+      coordenadoresHtml += `
+        <div style="background: #F3F0FF; border: 1.5px solid #6E56CF; border-radius: 6px; padding: 8px 12px; margin-bottom: 8px; font-size: 13px; font-weight: bold; color: #4B32A8; display: inline-block; min-width: 200px;">
+          👑 ${c.nome}
+        </div>
+      `;
+    });
 
+    // 2. Agrupar Supervisões e Redes
+    let supervisoesHtml = '';
     if (perfisRedesMinisterio.length > 0) {
       const supervisoesMap = {};
       perfisRedesMinisterio.forEach(r => {
@@ -187,43 +191,70 @@
         supervisoesMap[sup].push(r);
       });
 
-      for (let supName in supervisoesMap) {
+      const listaSupNames = Object.keys(supervisoesMap).sort();
+
+      listaSupNames.forEach(supName => {
         supervisoesMap[supName].sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
         
-        htmlArvore += `
-          <div style="border: 1px solid #ccc; border-radius: 6px; padding: 10px; margin-bottom: 12px; background: #F9F9F9;">
-            <div style="font-weight: bold; color: #333; font-size: 13px; margin-bottom: 6px; border-bottom: 1px solid #ddd; padding-bottom: 3px;">
-              🛡️ Supervisão: ${supName}
-            </div>
-            <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px;">
-        `;
-
+        let redesCardsHtml = '';
         supervisoesMap[supName].forEach(r => {
           const membrosRede = membrosMinisterio.filter(m => m.rede === r.nome);
           const liderObj = membrosRede.find(m => m.categoria && m.categoria.trim() === 'Líder');
           const nomeLider = liderObj ? liderObj.nome : (r.lider && r.lider !== 'A definir' ? r.lider : 'A definir');
 
-          htmlArvore += `
-            <div style="background: #fff; border: 1px solid #ddd; border-radius: 5px; padding: 6px 8px; width: 48%; font-size: 11px;">
-              <strong>📍 ${r.nome}</strong><br>
-              <span style="color: #666;">Líder: </span><span style="color: #1a7f37; font-weight: bold;">${nomeLider}</span>
+          redesCardsHtml += `
+            <div style="background: #FFFFFF; border: 1px solid #D0D7DE; border-radius: 6px; padding: 8px 10px; width: 48%; margin-bottom: 8px; font-size: 11px;">
+              <div style="font-weight: bold; color: #1F2328; margin-bottom: 2px;">📍 ${r.nome}</div>
+              <div style="color: #57606A;">👑 Líder: <strong style="color: #1A7F37;">${nomeLider}</strong></div>
             </div>
           `;
         });
 
-        htmlArvore += `
+        supervisoesHtml += `
+          <div style="margin-bottom: 15px; border-left: 2px solid #6E56CF; padding-left: 12px;">
+            <div style="background: #EAE4FF; color: #322375; font-weight: bold; font-size: 12px; padding: 6px 10px; border-radius: 5px; margin-bottom: 8px;">
+              🛡️ Supervisão: ${supName}
+            </div>
+            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+              ${redesCardsHtml}
             </div>
           </div>
-          <div style="text-align: center; font-size: 14px; color: #bbb; margin: -4px 0 4px 0;">│</div>
         `;
-      }
+      });
+    } else {
+      supervisoesHtml = `<div style="color: #666; font-size: 12px; padding: 10px;">Nenhuma supervisão ou rede cadastrada.</div>`;
     }
 
-    elemento.innerHTML = htmlArvore;
+    // 3. Montar a Estrutura Completa do Mapa Mental / Árvore
+    elemento.innerHTML = `
+      <div style="text-align: center; margin-bottom: 25px; border-bottom: 3px solid #6E56CF; padding-bottom: 15px;">
+        <h1 style="color: #6E56CF; margin: 0; font-size: 22px; text-transform: uppercase;">Mapa Hierárquico do Ministério</h1>
+        <p style="color: #57606A; font-size: 13px; margin: 4px 0 0 0;">Ministério: <strong>${ministerioAtivo}</strong></p>
+      </div>
+
+      <!-- RAIZ: MINISTÉRIO -->
+      <div style="background: #6E56CF; color: #FFFFFF; padding: 12px; border-radius: 8px; text-align: center; font-weight: bold; font-size: 15px; margin-bottom: 15px; text-transform: uppercase;">
+        🏛️ MINISTÉRIO ${ministerioAtivo}
+      </div>
+      <div style="text-align: center; font-size: 16px; color: #6E56CF; margin: -6px 0 10px 0;">│</div>
+
+      <!-- NÍVEL 1: COORDENADORES -->
+      <div style="margin-left: 15px; border-left: 2px dashed #6E56CF; padding-left: 15px; margin-bottom: 15px;">
+        <div style="font-size: 12px; font-weight: bold; color: #57606A; text-transform: uppercase; margin-bottom: 6px;">👑 Coordenadores</div>
+        <div>${coordenadoresHtml}</div>
+      </div>
+      <div style="text-align: center; font-size: 16px; color: #6E56CF; margin: -6px 0 10px 0;">│</div>
+
+      <!-- NÍVEL 2 E 3: SUPERVISÕES, REDES E LÍDERES -->
+      <div style="margin-left: 15px; border-left: 2px dashed #6E56CF; padding-left: 15px;">
+        <div style="font-size: 12px; font-weight: bold; color: #57606A; text-transform: uppercase; margin-bottom: 10px;">🛡️ Supervisões, Redes & Liderança</div>
+        <div>${supervisoesHtml}</div>
+      </div>
+    `;
 
     const opt = {
       margin:       10,
-      filename:     `arvore_genealogica_${ministerioAtivo.toLowerCase()}.pdf`,
+      filename:     `mapa_hierarquico_ministerio_${ministerioAtivo.toLowerCase()}.pdf`,
       image:        { type: 'jpeg', quality: 0.98 },
       html2canvas:  { scale: 2, useCORS: true },
       jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
