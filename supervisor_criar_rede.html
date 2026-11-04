@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Abrir Rede Informal - Ministério TOPO</title>
+  <title>Abrir Rede Informal - Ministério</title>
   <style>
     :root {
       --bg: #0D0F12; --card-bg: #161B22; --card-border: #30363D;
@@ -80,16 +80,18 @@
 
   let supervisorNome = '';
   let supervisorResp = '';
+  let ministerioAtual = 'TOPO';
 
   document.addEventListener("DOMContentLoaded", () => {
     supervisorNome = sessionStorage.getItem('topo_sup_nome');
     supervisorResp = sessionStorage.getItem('topo_sup_responsavel');
+    ministerioAtual = sessionStorage.getItem('topo_ministerio') || 'TOPO';
+
     if (!supervisorNome) {
-      window.location.href = "supervisor.html";
+      window.location.href = "index.html";
       return;
     }
     document.getElementById('labelSupervisorLogado').innerText = `${supervisorNome} - ${supervisorResp}`;
-    // Removida a linha que preenchia a data automaticamente com o dia de hoje
   });
 
   async function criarRedeInformal(e) {
@@ -105,11 +107,12 @@
     btn.innerText = "Cadastrando...";
 
     try {
-      // Salva explicitamente vinculado à supervisão logada
+      // Salva explicitamente vinculado à supervisão logada e ao ministério atual
       await db.collection('perfis_redes').doc(nomeRede).set({
         rede: nomeRede,
         supervisao: supervisorNome,
         supervisorResponsavel: supervisorResp,
+        ministerio: ministerioAtual,
         status: "informal",
         dataCriacao: dataCriacao,
         endereco: endereco,
