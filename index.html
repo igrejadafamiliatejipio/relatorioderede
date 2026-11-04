@@ -303,7 +303,17 @@
       mostrarMensagem("✅ E-mail de redefinição enviado! Verifique sua caixa de entrada e spam para redefinir sua senha.", 'sucesso');
     } catch (err) {
       console.error(err);
-      mostrarMensagem("Erro ao enviar e-mail. Verifique se o e-mail foi digitado corretamente ou se a conta já foi ativada.", 'erro');
+      let msg = "Erro ao enviar e-mail. Verifique se o e-mail foi digitado corretamente.";
+      
+      if (err.code === 'auth/user-not-found') {
+        msg = "Este e-mail não possui uma conta de acesso ativa. Clique em 'É seu primeiro acesso?' logo abaixo para cadastrar sua senha.";
+      } else if (err.code === 'auth/invalid-email') {
+        msg = "O formato do e-mail digitado é inválido.";
+      } else if (err.message) {
+        msg = err.message;
+      }
+      
+      mostrarMensagem(msg, 'erro');
     }
   }
 </script>
