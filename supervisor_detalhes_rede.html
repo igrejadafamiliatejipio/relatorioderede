@@ -86,6 +86,9 @@
     .btn-delete { background: rgba(229, 83, 75, 0.15); color: var(--danger); border: 1px solid rgba(229, 83, 75, 0.3); padding: 5px 6px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.68rem; white-space: nowrap; flex: 1; justify-content: center; display: inline-flex; align-items: center; gap: 2px; }
     .btn-delete:hover { background: var(--danger); color: #FFF; }
 
+    .btn-promover-sup { background: rgba(35, 209, 96, 0.15); color: var(--success); border: 1px solid rgba(35, 209, 96, 0.3); padding: 5px 6px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.68rem; white-space: nowrap; flex: 1; justify-content: center; display: inline-flex; align-items: center; gap: 2px; }
+    .btn-promover-sup:hover { background: var(--success); color: #000; }
+
     .btn-cadastrar-mini { background: var(--primary); color: #FFF; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.75rem; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
     .btn-cadastrar-mini:hover { background: var(--primary-hover); }
 
@@ -176,7 +179,7 @@
       </div>
     </div>
 
-    <!-- LÍDER EM DESTAQUE COM OPÇÃO DE ALTERAR -->
+    <!-- LÍDER EM DESTAQUE COM OPÇÃO DE ALTERAR E PROMOVER -->
     <div class="lider-evidencia" id="cardLiderDestaque">
       <div class="lider-evidencia-info">
         <h4>⭐ Líder da Rede</h4>
@@ -439,7 +442,6 @@
       const docPerfil = await db.collection('perfis_redes').doc(nomeRedeAtiva).get();
       if (docPerfil.exists) {
         perfilRedeCache = docPerfil.data();
-        // Guarda quem é a supervisão real dessa rede para a Lógica de Retorno
         supervisorNome = perfilRedeCache.supervisao || sessionStorage.getItem('topo_sup_nome');
       } else {
         perfilRedeCache = { status: 'oficial' };
@@ -527,6 +529,12 @@
         }
         acoesLider.innerHTML += `<button class="btn-edit" onclick="abrirModalAlterarLider()">⭐ Alterar</button>`;
         acoesLider.innerHTML += `<button class="btn-edit" onclick="abrirModalEdicao('${liderObj.id}')">✏️ Editar</button>`;
+
+        // BOTÃO DE PROMOVER A SUPERVISOR (Exibido apenas se for Coordenador logado)
+        if (coordLogado) {
+          acoesLider.innerHTML += `<button class="btn-promover-sup" onclick="promoverLiderParaSupervisor('${liderObj.id}', '${liderObj.nome}')">👑 Promover</button>`;
+        }
+
       } else {
         document.getElementById('liderNome').innerText = "Não definido";
         document.getElementById('liderDetalhes').innerText = "Nenhum líder atribuído a esta rede.";
@@ -636,6 +644,32 @@
     } catch (err) {
       console.error(err);
       alert("Erro ao carregar os detalhes da rede.");
+    }
+  }
+
+  // FUNÇÃO PARA PROMOVER O LÍDER A SUPERVISOR (COM VALIDAÇÃO DE REDE VAZIA)
+  async function promoverLiderParaSupervisor(membroId, nomeMembro) {
+    // 1. Verifica se a rede ainda possui membros ativos além do próprio líder
+    const membrosAtivosNaRede = membrosCache.filter(m => m.id !== membroId && m.status !== 'INATIVO');
+
+    if (membrosAtivosNaRede.length > 0) {
+      alert(`⚠️ Não é possível promover "${nomeMembro}" a supervisor(a).\n\nA rede "${nomeRedeAtiva}" ainda possui ${membrosAtivosNaRede.length} membro(s) ativo(s). Todos os membros precisam ser transferidos para outra rede antes de realizar a promoção.`);
+      return;
+    }
+
+    if (!confirm(`⚠️ A rede está vazia.\nDeseja realmente promover "${nomeMembro}" de Líder para Supervisor(a)?`)) return;
+
+    try {
+      await db.collection('membros').doc(membroId).update({
+        categoria: 'Supervisor'
+      });
+
+      alert(`🎉 Sucesso! "${nomeMembro}" agora é Supervisor(a) do Ministério ${ministerioAtivo}!`);
+      await carregarDadosCompletosRede();
+
+    } catch (err) {
+      console.error("Erro ao promover membro:", err);
+      alert("Erro ao realizar a promoção. Verifique o console.");
     }
   }
 
