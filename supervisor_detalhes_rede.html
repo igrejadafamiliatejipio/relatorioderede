@@ -128,7 +128,6 @@
     .btn-carregar-mais { background: #21262D; color: var(--text); border: 1px solid var(--card-border); padding: 10px; border-radius: 8px; cursor: pointer; font-weight: 600; width: 100%; text-align: center; margin-top: 10px; }
     .btn-carregar-mais:hover { background: #30363D; }
 
-    .loading-box { text-align: center; padding: 40px; color: var(--text-muted); }
   </style>
 
   <!-- Firebase SDK Compat -->
@@ -141,7 +140,7 @@
 
 <div class="container">
   <div class="top-nav">
-    <button class="btn-voltar" onclick="window.location.href='supervisor_macro.html'">← Voltar ao Painel Macro</button>
+    <button class="btn-voltar" onclick="voltarParaMacro()">← Voltar ao Painel Macro</button>
   </div>
 
   <div class="header">
@@ -232,8 +231,6 @@
     </div>
 
   </div>
-
-  <div id="loading" class="loading-box">Carregando detalhes da rede...</div>
 </div>
 
 <!-- Modal de Edição de Perfil da Rede -->
@@ -389,6 +386,15 @@
   if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
 
+  // ATIVA O CACHE NATIVO DO FIREBASE PARA CARREGAMENTO INSTANTÂNEO
+  db.enablePersistence().catch(function(err) {
+    if (err.code == 'failed-precondition') {
+      console.log("Múltiplas abas abertas, persistência falhou.");
+    } else if (err.code == 'unimplemented') {
+      console.log("Navegador não suporta persistência.");
+    }
+  });
+
   let nomeRedeAtiva = '';
   let ministerioAtivo = 'TOPO';
   let supervisorNome = '';
@@ -397,6 +403,9 @@
   let limiteRelatoriosExibidos = 4;
   let chartInstance = null;
   let perfilRedeCache = {};
+  
+  // VERIFICA SE O COORDENADOR ESTÁ LOGADO
+  const coordLogado = sessionStorage.getItem('topo_coord_logado');
 
   document.addEventListener("DOMContentLoaded", async () => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -404,28 +413,40 @@
 
     if (!nomeRedeAtiva) {
       alert("Nenhuma rede especificada.");
-      window.location.href = "supervisor_macro.html";
+      voltarParaMacro();
       return;
     }
 
     ministerioAtivo = sessionStorage.getItem('topo_ministerio') || 'TOPO';
-    supervisorNome = sessionStorage.getItem('topo_sup_nome') || sessionStorage.getItem('topo_coord_logado');
+    
     document.getElementById('badgeMinisterio').innerText = `DETALHES DA REDE - ${ministerioAtivo}`;
     document.getElementById('tituloRedeNome').innerText = nomeRedeAtiva;
 
     await carregarDadosCompletosRede();
   });
 
+  // Lógica de Retorno Inteligente
+  function voltarParaMacro() {
+    if (coordLogado && supervisorNome) {
+      window.location.href = `supervisor_macro.html?supervisor=${encodeURIComponent(supervisorNome)}`;
+    } else {
+      window.location.href = "supervisor_macro.html";
+    }
+  }
+
   async function carregarDadosCompletosRede() {
     try {
       const docPerfil = await db.collection('perfis_redes').doc(nomeRedeAtiva).get();
       if (docPerfil.exists) {
         perfilRedeCache = docPerfil.data();
+        // Guarda quem é a supervisão real dessa rede para a Lógica de Retorno
+        supervisorNome = perfilRedeCache.supervisao || sessionStorage.getItem('topo_sup_nome');
       } else {
         perfilRedeCache = { status: 'oficial' };
+        supervisorNome = sessionStorage.getItem('topo_sup_nome');
       }
 
-      // 1. Carregar relatórios do líder para calcular faltas no histórico
+      // 1. Carregar relatórios do líder
       const snapRelLider = await db.collection('relatorios')
         .where('rede', '==', nomeRedeAtiva)
         .get();
@@ -512,11 +533,10 @@
         acoesLider.innerHTML += `<button class="btn-edit" onclick="abrirModalAlterarLider()">⭐ Definir Líder</button>`;
       }
 
-      // Contabilizar faltas por membro nos relatórios do líder
+      // Contabilizar faltas
       let contagemFaltas = {};
       relatoriosLiderCache.forEach(r => {
         if (r.faltantes) {
-          // Normaliza e divide por vírgula ou quebras de linha
           const lista = r.faltantes.split(/[,;\n]/).map(n => n.trim().toLowerCase()).filter(n => n.length > 0);
           lista.forEach(nomeFaltante => {
             contagemFaltas[nomeFaltante] = (contagemFaltas[nomeFaltante] || 0) + 1;
@@ -533,7 +553,6 @@
           const isLider = m.categoria === 'Líder';
           let tagsHtml = isLider ? '<span class="tag tag-base">⭐ Líder</span>' : (m.categoria === 'Base da Rede' ? '<span class="tag tag-base">Base da Rede</span>' : '<span class="tag tag-liderado">Liderado</span>');
 
-          // Checar contagem de faltas
           const nomeMembroLower = m.nome.trim().toLowerCase();
           const totalFaltas = contagemFaltas[nomeMembroLower] || 0;
 
@@ -612,13 +631,11 @@
       }
 
       renderizarRelatoriosLider();
-
-      document.getElementById('loading').style.display = 'none';
       document.getElementById('conteudoDetalhes').style.display = 'block';
 
     } catch (err) {
       console.error(err);
-      document.getElementById('loading').innerHTML = `<div style="color:var(--danger)">Erro ao carregar os detalhes da rede.</div>`;
+      alert("Erro ao carregar os detalhes da rede.");
     }
   }
 
@@ -761,17 +778,15 @@
     const confirmou2 = confirm(`Confirmação final: Deseja realmente excluir permanentemente a rede "${nomeRedeAtiva}" do sistema?`);
     if (!confirmou2) return;
 
-    document.getElementById('loading').style.display = 'block';
     document.getElementById('conteudoDetalhes').style.display = 'none';
 
     try {
       await db.collection('perfis_redes').doc(nomeRedeAtiva).delete();
       alert(`✅ Rede "${nomeRedeAtiva}" apagada com sucesso!`);
-      window.location.href = "supervisor_macro.html";
+      voltarParaMacro();
     } catch (err) {
       console.error(err);
       alert("Erro ao apagar a rede.");
-      document.getElementById('loading').style.display = 'none';
       document.getElementById('conteudoDetalhes').style.display = 'block';
     }
   }
@@ -800,7 +815,6 @@
     if (!novoNomeRede) return alert("Informe o nome da rede.");
 
     fecharModalEditarRede();
-    document.getElementById('loading').style.display = 'block';
 
     try {
       const nomeAntigo = nomeRedeAtiva;
@@ -848,7 +862,6 @@
     } catch (err) {
       console.error(err);
       alert("Erro ao atualizar perfil da rede.");
-      document.getElementById('loading').style.display = 'none';
     }
   }
 
@@ -876,10 +889,9 @@
     if (!nome || !sexo) return alert("Preencha ao menos o Nome e o Sexo do membro.");
 
     fecharModalCadastrarMembro();
-    document.getElementById('loading').style.display = 'block';
 
     try {
-      const supervisaoResponsavel = sessionStorage.getItem('topo_sup_nome') || 'Supervisão Geral';
+      const supervisaoResponsavel = supervisorNome || sessionStorage.getItem('topo_sup_nome') || 'Supervisão Geral';
       await db.collection('membros').add({
         nome,
         nascimento,
@@ -898,7 +910,6 @@
     } catch (err) {
       console.error(err);
       alert("Erro ao cadastrar membro.");
-      document.getElementById('loading').style.display = 'none';
     }
   }
 
@@ -927,7 +938,6 @@
     if (!novoLiderId) return alert("Selecione um membro.");
 
     fecharModalAlterarLider();
-    document.getElementById('loading').style.display = 'block';
 
     try {
       const batch = db.batch();
@@ -946,7 +956,6 @@
     } catch (err) {
       console.error(err);
       alert("Erro ao alterar líder.");
-      document.getElementById('loading').style.display = 'none';
     }
   }
 
@@ -995,7 +1004,6 @@
     }
 
     fecharModalEdicao();
-    document.getElementById('loading').style.display = 'block';
 
     try {
       await db.collection('membros').doc(docId).update({ nome, nascimento, sexo, whatsapp, email, batizado, categoria });
@@ -1004,13 +1012,11 @@
     } catch (err) {
       console.error(err);
       alert("Erro ao atualizar membro.");
-      document.getElementById('loading').style.display = 'none';
     }
   }
 
   async function removerMembro(membroId, nome) {
     if (!confirm(`Deseja realmente remover ${nome} desta rede?`)) return;
-    document.getElementById('loading').style.display = 'block';
     try {
       await db.collection('membros').doc(membroId).update({ status: 'INATIVO' });
       alert(`✅ ${nome} removido(a) com sucesso.`);
@@ -1018,11 +1024,10 @@
     } catch (err) {
       console.error(err);
       alert("Erro ao remover membro.");
-      document.getElementById('loading').style.display = 'none';
     }
   }
 
-  // --- TRANSFERÊNCIA DE MEMBRO (FILTRADA POR MINISTÉRIO E SEXO) ---
+  // --- TRANSFERÊNCIA DE MEMBRO ---
   async function abrirModalTransferir(membroId, membroNome, membroSexo) {
     document.getElementById('transMembroId').value = membroId;
     document.getElementById('transMembroNome').value = membroNome;
@@ -1082,7 +1087,6 @@
     if (!membroId || !novaRede) return alert("Selecione a rede de destino.");
 
     fecharModalTransferir();
-    document.getElementById('loading').style.display = 'block';
 
     try {
       await db.collection('membros').doc(membroId).update({ rede: novaRede });
@@ -1091,7 +1095,6 @@
     } catch (err) {
       console.error(err);
       alert("Erro ao transferir membro.");
-      document.getElementById('loading').style.display = 'none';
     }
   }
 </script>
