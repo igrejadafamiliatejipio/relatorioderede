@@ -84,7 +84,6 @@
     .rede-item-base { background: linear-gradient(135deg, rgba(110, 86, 207, 0.15) 0%, rgba(22, 27, 34, 0.9) 100%); border: 1px solid rgba(110, 86, 207, 0.4); border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; }
     .rede-item-base strong { color: #A58BFF; font-size: 0.95rem; }
 
-    /* Ajustes Específicos para Celular */
     @media (max-width: 650px) { 
       body { padding: 8px 4px; }
       .container { padding: 14px; border-radius: 12px; }
@@ -220,7 +219,6 @@
 
   async function carregarDadosMacro() {
     try {
-      // 1. Carregar redes apenas desta supervisão
       const snapPerfis = await db.collection('perfis_redes')
         .where('supervisao', '==', supervisorNome)
         .get();
@@ -241,7 +239,6 @@
       supervisorRedesTodas = [...supervisorRedesOficiais, ...redesInformaisCache];
       supervisorRedesTodas.sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR', { sensitivity: 'accent' }));
 
-      // 2. Carregar membros apenas desta supervisão
       const snapMembros = await db.collection('membros')
         .where('supervisao', '==', supervisorNome)
         .get();
@@ -252,7 +249,6 @@
         if (d.status !== 'INATIVO') membrosCache.push({ id: doc.id, ...d });
       });
 
-      // 3. Carregar os relatórios apenas das redes desta supervisão
       relatoriosCache = [];
       const nomesRedes = supervisorRedesTodas.map(r => r.nome);
       
@@ -271,7 +267,6 @@
       alert("Erro ao carregar dados do painel macro. Verifique o console.");
       console.error(err);
     } finally {
-      // CORREÇÃO: Torna o painel visível após o carregamento dos dados
       document.getElementById('painelMacro').style.display = 'block';
     }
   }
@@ -471,14 +466,14 @@
 
       let botoesGestao = `
         <div style="display: flex; gap: 6px; align-items: center;" onclick="event.stopPropagation()">
-          <a href="supervisor_detalhes_rede.html?rede=${encodeURIComponent(r.nome)}${coordLogado ? '&supervisor=' + encodeURIComponent(supervisorNome) : ''}" class="btn-detalhes-rede">🔍 Detalhes</a>
+          <a href="supervisor_detalhes_rede.html?rede=${encodeURIComponent(r.nome)}" class="btn-detalhes-rede">🔍 Detalhes</a>
         </div>
       `;
 
       if (r.informal) {
         botoesGestao = `
           <div style="display: flex; gap: 6px; align-items: center;" onclick="event.stopPropagation()">
-            <a href="supervisor_detalhes_rede.html?rede=${encodeURIComponent(r.nome)}${coordLogado ? '&supervisor=' + encodeURIComponent(supervisorNome) : ''}" class="btn-detalhes-rede">🔍 Detalhes</a>
+            <a href="supervisor_detalhes_rede.html?rede=${encodeURIComponent(r.nome)}" class="btn-detalhes-rede">🔍 Detalhes</a>
             <button class="btn-promover" onclick="promoverRede('${r.nome}')">✅ Oficial</button>
             <button class="btn-excluir-rede" onclick="excluirRedeInformal('${r.nome}')">🗑️</button>
           </div>
