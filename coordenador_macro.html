@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Painel Macro do Coordenador - Ministério TOPO</title>
+  <title>Painel Macro do Coordenador - Ministério</title>
   <style>
     :root {
       --bg: #0D0F12; --card-bg: #161B22; --card-border: #30363D;
@@ -225,13 +225,14 @@
     nomeCoord = sessionStorage.getItem('topo_coord_nome') || 'Coordenador(a)';
 
     document.getElementById('badgeMinisterioMacro').innerText = `PAINEL MACRO - MINISTÉRIO ${ministerioAtivo}`;
-    document.getElementById('labelCoordenadorLogado').innerText = `${nomeCoord} (Coordenação)`;
+    document.getElementById('labelCoordenadorLogado').innerText = `${nomeCoord} (${ministerioAtivo})`;
 
     await carregarDadosConsolidados();
   });
 
   async function carregarDadosConsolidados() {
     try {
+      // 1. Carregar apenas membros do ministério ativo
       const snapMembros = await db.collection('membros')
         .where('ministerio', '==', ministerioAtivo)
         .get();
@@ -242,11 +243,29 @@
         if (d.status !== 'INATIVO') membrosMinisterio.push({ id: doc.id, ...d });
       });
 
+      // 2. Descobrir quais são as redes pertencentes a este ministério
+      // Uma rede pertence ao ministério se houver membros nela, ou se o perfil tiver o campo ministerio igual, ou se a supervisão for deste ministério.
+      const nomesRedesDoMinisterio = new Set();
+      membrosMinisterio.forEach(m => {
+        if (m.rede) nomesRedesDoMinisterio.add(m.rede);
+      });
+
+      // Carregar perfis e filtrar estritamente apenas os que pertencem ao ministério ativo
       const snapPerfis = await db.collection('perfis_redes').get();
       perfisRedesMinisterio = [];
+      
       snapPerfis.forEach(doc => {
         const d = doc.data();
-        perfisRedesMinisterio.push({ nome: doc.id, ...d });
+        const nomeRede = doc.id;
+        
+        // Verifica se a rede pertence ao ministério ativo (pelo campo ministerio gravado ou por ter membros vinculados ou supervisão vinculada)
+        const pertenceAoMinisterio = (d.ministerio === ministerioAtivo) || 
+                                     nomesRedesDoMinisterio.has(nomeRede) || 
+                                     membrosMinisterio.some(m => m.supervisao === d.supervisao);
+
+        if (pertenceAoMinisterio) {
+          perfisRedesMinisterio.push({ nome: nomeRede, ...d });
+        }
       });
 
       supervisoresSexoMap = {};
@@ -499,7 +518,8 @@
     try {
       // 1. Atualizar na coleção perfis_redes
       await db.collection('perfis_redes').doc(redeParaTransferir).update({
-        supervisao: novaSupervisao
+        supervisao: novaSupervisao,
+        ministerio: ministerioAtivo
       });
 
       // 2. Atualizar todos os membros pertencentes a essa rede na coleção membros
