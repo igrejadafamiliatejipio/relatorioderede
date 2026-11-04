@@ -201,8 +201,18 @@
     appId: "1:954529090793:web:6702d102b6e5b178b6b478",
     measurementId: "G-2MJ96WMYQ5"
   };
+  
   if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
+
+  // ATIVA O CACHE NATIVO DO FIREBASE PARA CARREGAMENTO INSTANTÂNEO
+  db.enablePersistence().catch(function(err) {
+    if (err.code == 'failed-precondition') {
+      console.log("Múltiplas abas abertas, persistência falhou.");
+    } else if (err.code == 'unimplemented') {
+      console.log("Navegador não suporta persistência.");
+    }
+  });
 
   let ministerioAtivo = 'TOPO';
   let nomeCoord = '';
@@ -232,7 +242,7 @@
 
   async function carregarDadosConsolidados() {
     try {
-      // 1. Carregar apenas membros do ministério ativo
+      // 1. Carregar membros filtrando direto no Firebase
       const snapMembros = await db.collection('membros')
         .where('ministerio', '==', ministerioAtivo)
         .get();
@@ -243,38 +253,17 @@
         if (d.status !== 'INATIVO') membrosMinisterio.push({ id: doc.id, ...d });
       });
 
-      // Mapear supervisores cadastrados neste ministério
-      const supervisoresDesteMinisterio = new Set();
-      membrosMinisterio.forEach(m => {
-        if (m.categoria && m.categoria.trim() === 'Supervisor' && m.nome) {
-          supervisoresDesteMinisterio.add(m.nome.trim());
-        }
-      });
-
-      // 2. Carregar perfis de redes de forma inteligente e rigorosa por ministério
-      const snapPerfis = await db.collection('perfis_redes').get();
+      // 2. Carregar redes filtrando direto no Firebase (Aumenta a velocidade drasticamente)
+      const snapPerfis = await db.collection('perfis_redes')
+        .where('ministerio', '==', ministerioAtivo)
+        .get();
+        
       perfisRedesMinisterio = [];
-      
       snapPerfis.forEach(doc => {
-        const d = doc.data();
-        const nomeRede = doc.id;
-        const supRede = (d.supervisao || '').trim();
-        const minRede = (d.ministerio || '').trim();
-
-        // Pertence ao ministério se:
-        // - O campo ministerio gravado na rede for exatamente igual ao ministério ativo
-        // - OU se a supervisão responsável estiver na lista de supervisores deste ministério
-        // - OU se houver membros deste ministério vinculados a esta rede
-        const pertenceAoMinisterio = 
-          (minRede.toUpperCase() === ministerioAtivo.toUpperCase()) ||
-          (supRede !== '' && supervisoresDesteMinisterio.has(supRede)) ||
-          membrosMinisterio.some(m => m.rede === nomeRede);
-
-        if (pertenceAoMinisterio) {
-          perfisRedesMinisterio.push({ nome: nomeRede, ...d });
-        }
+        perfisRedesMinisterio.push({ nome: doc.id, ...doc.data() });
       });
 
+      // Mapear sexo dos supervisores
       supervisoresSexoMap = {};
       membrosMinisterio.forEach(m => {
         if (m.categoria === 'Supervisor' && m.nome && m.sexo) {
