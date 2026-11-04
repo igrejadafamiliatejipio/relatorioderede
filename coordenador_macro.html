@@ -243,25 +243,32 @@
         if (d.status !== 'INATIVO') membrosMinisterio.push({ id: doc.id, ...d });
       });
 
-      // 2. Descobrir quais são as redes pertencentes a este ministério
-      // Uma rede pertence ao ministério se houver membros nela, ou se o perfil tiver o campo ministerio igual, ou se a supervisão for deste ministério.
-      const nomesRedesDoMinisterio = new Set();
+      // Mapear supervisores cadastrados neste ministério
+      const supervisoresDesteMinisterio = new Set();
       membrosMinisterio.forEach(m => {
-        if (m.rede) nomesRedesDoMinisterio.add(m.rede);
+        if (m.categoria && m.categoria.trim() === 'Supervisor' && m.nome) {
+          supervisoresDesteMinisterio.add(m.nome.trim());
+        }
       });
 
-      // Carregar perfis e filtrar estritamente apenas os que pertencem ao ministério ativo
+      // 2. Carregar perfis de redes de forma inteligente e rigorosa por ministério
       const snapPerfis = await db.collection('perfis_redes').get();
       perfisRedesMinisterio = [];
       
       snapPerfis.forEach(doc => {
         const d = doc.data();
         const nomeRede = doc.id;
-        
-        // Verifica se a rede pertence ao ministério ativo (pelo campo ministerio gravado ou por ter membros vinculados ou supervisão vinculada)
-        const pertenceAoMinisterio = (d.ministerio === ministerioAtivo) || 
-                                     nomesRedesDoMinisterio.has(nomeRede) || 
-                                     membrosMinisterio.some(m => m.supervisao === d.supervisao);
+        const supRede = (d.supervisao || '').trim();
+        const minRede = (d.ministerio || '').trim();
+
+        // Pertence ao ministério se:
+        // - O campo ministerio gravado na rede for exatamente igual ao ministério ativo
+        // - OU se a supervisão responsável estiver na lista de supervisores deste ministério
+        // - OU se houver membros deste ministério vinculados a esta rede
+        const pertenceAoMinisterio = 
+          (minRede.toUpperCase() === ministerioAtivo.toUpperCase()) ||
+          (supRede !== '' && supervisoresDesteMinisterio.has(supRede)) ||
+          membrosMinisterio.some(m => m.rede === nomeRede);
 
         if (pertenceAoMinisterio) {
           perfisRedesMinisterio.push({ nome: nomeRede, ...d });
@@ -516,7 +523,7 @@
     document.getElementById('loading').style.display = 'block';
 
     try {
-      // 1. Atualizar na coleção perfis_redes
+      // 1. Atualizar na coleção perfis_redes garantindo a permanência no ministério ativo
       await db.collection('perfis_redes').doc(redeParaTransferir).update({
         supervisao: novaSupervisao,
         ministerio: ministerioAtivo
@@ -527,7 +534,10 @@
       const snapMembrosRede = await db.collection('membros').where('rede', '==', redeParaTransferir).get();
       
       snapMembrosRede.forEach(docMembro => {
-        batch.update(docMembro.ref, { supervisao: novaSupervisao });
+        batch.update(docMembro.ref, { 
+          supervisao: novaSupervisao,
+          ministerio: ministerioAtivo 
+        });
       });
 
       await batch.commit();
