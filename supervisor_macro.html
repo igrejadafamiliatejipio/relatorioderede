@@ -78,4 +78,468 @@
     
     /* Destaque Líder */
     .rede-item-lider { background: linear-gradient(135deg, rgba(35, 209, 96, 0.15) 0%, rgba(22, 27, 34, 0.9) 100%); border: 1px solid rgba(35, 209, 96, 0.4); border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; box-shadow: 0 4px 15px rgba(35, 209, 96, 0.1); }
-    .rede-item-lider strong { color: #
+    .rede-item-lider strong { color: #23D160; font-size: 0.98rem; }
+
+    /* Destaque Base da Rede */
+    .rede-item-base { background: linear-gradient(135deg, rgba(110, 86, 207, 0.15) 0%, rgba(22, 27, 34, 0.9) 100%); border: 1px solid rgba(110, 86, 207, 0.4); border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; }
+    .rede-item-base strong { color: #A58BFF; font-size: 0.95rem; }
+
+    /* Ajustes Específicos para Celular */
+    @media (max-width: 650px) { 
+      body { padding: 8px 4px; }
+      .container { padding: 14px; border-radius: 12px; }
+      .metrics-grid { grid-template-columns: repeat(2, 1fr); gap: 6px; }
+      .header h1 { font-size: 1.3rem; }
+    }
+  </style>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+<div class="container">
+  <div class="top-nav">
+    <a href="supervisor_menu.html" class="btn-voltar" id="btnVoltarMenu">← Voltar ao Menu</a>
+    <span id="labelSupervisorLogado" style="font-size: 0.8rem; color: var(--text-muted);"></span>
+  </div>
+
+  <div class="header">
+    <span class="badge-topo">PAINEL MACRO</span>
+    <h1>Raio-X da Supervisão</h1>
+  </div>
+
+  <div id="painelMacro" style="display: none;">
+    <div class="metrics-grid">
+      <div class="metric-card"><h4>Total de Redes</h4><div class="value" id="mTotalRedes">0</div></div>
+      <div class="metric-card"><h4>Total Membros</h4><div class="value" id="mTotalMembros">0</div></div>
+      <div class="metric-card"><h4>Total Base</h4><div class="value" id="mTotalBase" style="color: var(--info);">0</div></div>
+      <div class="metric-card"><h4>Oficiais</h4><div class="value" id="mRedesMeta" style="color: var(--success);">0</div></div>
+      <div class="metric-card"><h4>Informais</h4><div class="value" id="mRedesInformais" style="color: var(--warning);">0</div></div>
+      <div class="metric-card"><h4>Em Alerta</h4><div class="value" id="mRedesAlerta" style="color: var(--warning);">0</div></div>
+      <div class="metric-card"><h4>Batizados</h4><div class="value" id="mBatizados" style="color: var(--success);">0</div></div>
+      <div class="metric-card"><h4>Não Batizados</h4><div class="value" id="mNaoBatizados" style="color: var(--warning);">0</div></div>
+      <div class="metric-card" style="grid-column: span 2;"><h4>Batizados (Não Base)</h4><div class="value" id="mBatizadosNaoBase" style="color: var(--info);">0</div></div>
+    </div>
+
+    <div class="section-title">📊 Raio-X das Redes da Supervisão</div>
+    <div class="table-container">
+      <table>
+        <thead><tr><th>Rede</th><th>Total Membros</th><th>Base (c/ Líder)</th><th>Status</th><th>Relatórios</th></tr></thead>
+        <tbody id="tabelaRedesBody"></tbody>
+      </table>
+    </div>
+
+    <!-- SANFONA: MATRIZ DE ALERTAS -->
+    <div class="sanfona-box" id="boxSanfonaAlertas">
+      <div class="sanfona-header" onclick="toggleSanfonaGeral('boxSanfonaAlertas')">
+        <span>⚠️ Matriz de Alertas e Faltas</span>
+        <span class="seta-sanfona">▼</span>
+      </div>
+      <div class="sanfona-conteudo">
+        <div class="table-container">
+          <table>
+            <thead><tr><th>Membro</th><th>Rede</th><th>Situação</th><th>Contato</th></tr></thead>
+            <tbody id="tabelaAlertasBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- SANFONA: ANIVERSARIANTES -->
+    <div class="sanfona-box" id="boxSanfonaNiver">
+      <div class="sanfona-header" onclick="toggleSanfonaGeral('boxSanfonaNiver')">
+        <span>🎂 Aniversariantes do Mês</span>
+        <span class="seta-sanfona">▼</span>
+      </div>
+      <div class="sanfona-conteudo">
+        <div class="table-container">
+          <table>
+            <thead><tr><th>Membro</th><th>Rede</th><th>Data Nasc.</th><th>Ação</th></tr></thead>
+            <tbody id="tabelaNiverBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">🌳 Árvore de Redes e Liderados</div>
+    <div class="tree-wrapper" id="treeContainerRedes"></div>
+  </div>
+</div>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyB7FJXs9wiRFYIs2ugZoWrw7jTXPR5weGk",
+    authDomain: "app-redes-iftejipio.firebaseapp.com",
+    projectId: "app-redes-iftejipio",
+    storageBucket: "app-redes-iftejipio.firebasestorage.app",
+    messagingSenderId: "954529090793",
+    appId: "1:954529090793:web:6702d102b6e5b178b6b478",
+    measurementId: "G-2MJ96WMYQ5"
+  };
+  if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  // ATIVA O CACHE NATIVO DO FIREBASE PARA CARREGAMENTO INSTANTÂNEO
+  db.enablePersistence().catch(function(err) {
+    if (err.code == 'failed-precondition') {
+      console.log("Múltiplas abas abertas, persistência falhou.");
+    } else if (err.code == 'unimplemented') {
+      console.log("Navegador não suporta persistência.");
+    }
+  });
+
+  let supervisorNome = '';
+  let supervisorRedesOficiais = [];
+  let redesInformaisCache = [];
+  let supervisorRedesTodas = [];
+  let membrosCache = [];
+  let relatoriosCache = [];
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const supParam = urlParams.get('supervisor');
+    
+    supervisorNome = supParam || sessionStorage.getItem('topo_sup_nome');
+    const resp = sessionStorage.getItem('topo_sup_responsavel') || (supParam ? 'Supervisão (Visualização Coordenador)' : 'Supervisor(a)');
+    const coordLogado = sessionStorage.getItem('topo_coord_logado');
+
+    if (!supervisorNome && !coordLogado) {
+      alert("Sessão expirada. Faça login novamente.");
+      window.location.href = "index.html";
+      return;
+    }
+
+    if (supParam && coordLogado) {
+      document.getElementById('btnVoltarMenu').href = "coordenador_macro.html";
+      document.getElementById('btnVoltarMenu').innerText = "← Voltar ao Raio-X";
+    }
+
+    document.getElementById('labelSupervisorLogado').innerText = `${supervisorNome} - ${resp}`;
+
+    await carregarDadosMacro();
+  });
+
+  async function carregarDadosMacro() {
+    try {
+      // 1. Carregar redes apenas desta supervisão
+      const snapPerfis = await db.collection('perfis_redes')
+        .where('supervisao', '==', supervisorNome)
+        .get();
+
+      supervisorRedesOficiais = [];
+      redesInformaisCache = [];
+
+      snapPerfis.forEach(doc => {
+        const d = doc.data();
+        const nomeRede = doc.id;
+        if (d.status === 'informal') {
+          redesInformaisCache.push({ nome: nomeRede, lider: "A definir", informal: true });
+        } else {
+          supervisorRedesOficiais.push({ nome: nomeRede, lider: d.lider || "A definir", informal: false });
+        }
+      });
+
+      supervisorRedesTodas = [...supervisorRedesOficiais, ...redesInformaisCache];
+      supervisorRedesTodas.sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR', { sensitivity: 'accent' }));
+
+      // 2. Carregar membros apenas desta supervisão
+      const snapMembros = await db.collection('membros')
+        .where('supervisao', '==', supervisorNome)
+        .get();
+
+      membrosCache = [];
+      snapMembros.forEach(doc => {
+        const d = doc.data();
+        if (d.status !== 'INATIVO') membrosCache.push({ id: doc.id, ...d });
+      });
+
+      // 3. Carregar os relatórios apenas das redes desta supervisão
+      relatoriosCache = [];
+      const nomesRedes = supervisorRedesTodas.map(r => r.nome);
+      
+      if (nomesRedes.length > 0) {
+        for (let i = 0; i < nomesRedes.length; i += 10) {
+          const lote = nomesRedes.slice(i, i + 10);
+          if (lote.length > 0) {
+            const snapRels = await db.collection('relatorios').where('rede', 'in', lote).get();
+            snapRels.forEach(doc => relatoriosCache.push(doc.data()));
+          }
+        }
+      }
+
+      renderizarMacro();
+    } catch (err) {
+      alert("Erro ao carregar dados do painel macro. Verifique o console.");
+      console.error(err);
+    } finally {
+      // CORREÇÃO: Torna o painel visível após o carregamento dos dados
+      document.getElementById('painelMacro').style.display = 'block';
+    }
+  }
+
+  function renderizarMacro() {
+    let totalRedes = supervisorRedesTodas.length;
+    let totalMembros = membrosCache.length;
+    let totalBase = 0;
+    let totalRedesOficiais = 0, qtdInformais = 0;
+
+    const categoriasBase = ['Base da Rede', 'Líder', 'Supervisor', 'Coordenador'];
+
+    const batizados = membrosCache.filter(m => m.batizado === 'Sim').length;
+    const naoBatizados = membrosCache.filter(m => m.batizado !== 'Sim').length;
+    const batizadosNaoBase = membrosCache.filter(m => m.batizado === 'Sim' && !categoriasBase.includes(m.categoria)).length;
+
+    const tabelaRedes = document.getElementById('tabelaRedesBody');
+    tabelaRedes.innerHTML = '';
+
+    supervisorRedesTodas.forEach(r => {
+      const membrosRede = membrosCache.filter(m => m.rede === r.nome);
+      const qtdTotal = membrosRede.length;
+      const qtdBase = membrosRede.filter(m => categoriasBase.includes(m.categoria)).length;
+      totalBase += qtdBase;
+
+      const relsRede = relatoriosCache.filter(rel => rel.rede === r.nome);
+      relsRede.sort((a, b) => new Date(b.dataEncontro || 0) - new Date(a.dataEncontro || 0));
+
+      let statusHtml = '';
+      if (r.informal) {
+        qtdInformais++;
+        statusHtml = `<span class="tag tag-informal">🌱 Informal</span>`;
+      } else {
+        totalRedesOficiais++;
+        if (qtdTotal === 12) {
+          statusHtml = `<span class="tag tag-green">Ideal (12)</span>`;
+        } else if (qtdTotal > 12) {
+          statusHtml = `<span class="tag tag-blue">Multiplicar</span>`;
+        } else {
+          statusHtml = `<span class="tag tag-yellow">Abaixo</span>`;
+        }
+      }
+
+      tabelaRedes.innerHTML += `
+        <tr>
+          <td><strong>${r.nome}</strong> ${r.informal ? '<small style="color:var(--warning)">(Inf.)</small>' : ''}</td>
+          <td>${qtdTotal}</td>
+          <td>${qtdBase}</td>
+          <td>${statusHtml}</td>
+          <td><small>${relsRede.length} rels</small></td>
+        </tr>
+      `;
+    });
+
+    document.getElementById('mTotalRedes').innerText = totalRedes;
+    document.getElementById('mTotalMembros').innerText = totalMembros;
+    document.getElementById('mTotalBase').innerText = totalBase;
+    document.getElementById('mRedesMeta').innerText = totalRedesOficiais;
+    document.getElementById('mRedesInformais').innerText = qtdInformais;
+    document.getElementById('mRedesAlerta').innerText = Math.max(0, totalRedesOficiais - supervisorRedesOficiais.filter(r => membrosCache.filter(m => m.rede === r.nome).length === 12).length);
+    document.getElementById('mBatizados').innerText = batizados;
+    document.getElementById('mNaoBatizados').innerText = naoBatizados;
+    document.getElementById('mBatizadosNaoBase').innerText = batizadosNaoBase;
+
+    // Alertas
+    const tabelaAlertas = document.getElementById('tabelaAlertasBody');
+    tabelaAlertas.innerHTML = '';
+    let totalAlertasEncontrados = 0;
+
+    supervisorRedesTodas.forEach(r => {
+      const membrosRede = membrosCache.filter(m => m.rede === r.nome);
+      const relsRede = relatoriosCache.filter(rel => rel.rede === r.nome);
+      relsRede.sort((a, b) => new Date(a.dataEncontro || 0) - new Date(b.dataEncontro || 0));
+
+      membrosRede.forEach(m => {
+        let faltasSeguidas = 0;
+        for (let rel of [...relsRede].reverse()) {
+          const faltantesTxt = rel.faltantes ? rel.faltantes.toString().toLowerCase() : '';
+          if (faltantesTxt.includes(m.nome.toLowerCase())) faltasSeguidas++;
+          else break;
+        }
+
+        if (faltasSeguidas >= 2) {
+          totalAlertasEncontrados++;
+          const tagSit = faltasSeguidas >= 3 ? `<span class="tag tag-danger">⛔ ${faltasSeguidas} faltas</span>` : `<span class="tag tag-warning">⚠️ ${faltasSeguidas} faltas</span>`;
+          const whats = m.whatsapp ? m.whatsapp.trim() : '';
+          const btnWhats = whats !== '' ? `<a href="https://api.whatsapp.com/send?phone=55${whats.replace(/\D/g,'')}&text=${encodeURIComponent('Olá ' + m.nome + ', sentimos sua falta!')}" target="_blank" class="btn-whats">💬 WhatsApp</a>` : '<small style="color:var(--text-muted)">Sem WhatsApp</small>';
+
+          tabelaAlertas.innerHTML += `<tr><td><strong>${m.nome}</strong></td><td>${r.nome}</td><td>${tagSit}</td><td>${btnWhats}</td></tr>`;
+        }
+      });
+    });
+
+    if (totalAlertasEncontrados === 0) {
+      tabelaAlertas.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Nenhum alerta de falta consecutiva. 👍</td></tr>`;
+    }
+
+    // Aniversariantes
+    const tabelaNiver = document.getElementById('tabelaNiverBody');
+    tabelaNiver.innerHTML = '';
+    const hoje = new Date();
+    const mesAtual = hoje.getMonth() + 1;
+    const diaAtual = hoje.getDate();
+    let qtdNivers = 0;
+
+    membrosCache.forEach(m => {
+      const nasc = m.nascimento;
+      if (nasc) {
+        const partes = nasc.toString().split('-');
+        if (partes.length === 3 && parseInt(partes[1]) === mesAtual) {
+          qtdNivers++;
+          const diaNasc = parseInt(partes[2]);
+          const isHoje = (diaNasc === diaAtual);
+          const whats = m.whatsapp ? m.whatsapp.trim() : '';
+          let acaoHtml = `<span style="color:var(--text-muted); font-size:0.82rem;">Dia ${partes[2]}</span>`;
+
+          if (isHoje && whats !== '') {
+            acaoHtml = `<a href="https://api.whatsapp.com/send?phone=55${whats.replace(/\D/g,'')}&text=${encodeURIComponent('Parabéns ' + m.nome + '!')}" target="_blank" class="btn-whats">🎂 Dar Parabéns</a>`;
+          }
+
+          tabelaNiver.innerHTML += `<tr><td><strong>${m.nome}</strong></td><td>${m.rede}</td><td>${partes[2]}/${partes[1]}</td><td>${acaoHtml}</td></tr>`;
+        }
+      }
+    });
+
+    if (qtdNivers === 0) {
+      tabelaNiver.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Nenhum aniversariante neste mês.</td></tr>`;
+    }
+
+    // Árvore de Redes
+    const treeContainer = document.getElementById('treeContainerRedes');
+    treeContainer.innerHTML = '';
+
+    supervisorRedesTodas.forEach(r => {
+      const membrosRede = membrosCache.filter(m => m.rede === r.nome);
+      
+      const liderObj = membrosRede.find(m => m.categoria && m.categoria.trim() === 'Líder');
+      const nomeLiderExibicao = liderObj ? liderObj.nome : (r.lider && r.lider !== 'A definir' ? r.lider : 'Não definido');
+
+      membrosRede.sort((a, b) => {
+        const getPeso = (cat) => {
+          if (!cat) return 3;
+          const c = cat.trim();
+          if (c === 'Líder' || c === 'Lider') return 1;
+          if (c === 'Base da Rede') return 2;
+          return 3;
+        };
+        const pesoA = getPeso(a.categoria);
+        const pesoB = getPeso(b.categoria);
+        if (pesoA !== pesoB) return pesoA - pesoB;
+        return a.nome.localeCompare(b.nome);
+      });
+
+      let membrosHtml = '';
+      if (membrosRede.length === 0) {
+        membrosHtml = `<div style="color:var(--text-muted); padding:6px 0; font-size:0.82rem;">Nenhum membro cadastrado nesta rede.</div>`;
+      } else {
+        membrosRede.forEach(m => {
+          const cat = m.categoria ? m.categoria.trim() : '';
+          if (cat === 'Líder') {
+            membrosHtml += `
+              <div class="rede-item-lider">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span style="font-size: 1.1rem;">👑</span>
+                  <div>
+                    <small style="color: #23D160; font-weight: 700; text-transform: uppercase; font-size: 0.65rem; display: block;">Líder da Rede</small>
+                    <strong>${m.nome}</strong>
+                  </div>
+                </div>
+              </div>
+            `;
+          } else if (cat === 'Base da Rede') {
+            membrosHtml += `
+              <div class="rede-item-base">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span style="font-size: 1rem;">🛡️</span>
+                  <div>
+                    <small style="color: #A58BFF; font-weight: 700; text-transform: uppercase; font-size: 0.65rem; display: block;">Base da Rede</small>
+                    <strong>${m.nome}</strong>
+                  </div>
+                </div>
+              </div>
+            `;
+          } else {
+            membrosHtml += `
+              <div class="rede-item">
+                <div style="display:flex; align-items:center; gap:6px; min-width: 0;">
+                  <span>👤</span>
+                  <strong style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${m.nome}</strong>
+                  <span class="tag" style="flex-shrink: 0;">${cat || 'Liderado'}</span>
+                </div>
+              </div>
+            `;
+          }
+        });
+      }
+
+      let botoesGestao = `
+        <div style="display: flex; gap: 6px; align-items: center;" onclick="event.stopPropagation()">
+          <a href="supervisor_detalhes_rede.html?rede=${encodeURIComponent(r.nome)}${coordLogado ? '&supervisor=' + encodeURIComponent(supervisorNome) : ''}" class="btn-detalhes-rede">🔍 Detalhes</a>
+        </div>
+      `;
+
+      if (r.informal) {
+        botoesGestao = `
+          <div style="display: flex; gap: 6px; align-items: center;" onclick="event.stopPropagation()">
+            <a href="supervisor_detalhes_rede.html?rede=${encodeURIComponent(r.nome)}${coordLogado ? '&supervisor=' + encodeURIComponent(supervisorNome) : ''}" class="btn-detalhes-rede">🔍 Detalhes</a>
+            <button class="btn-promover" onclick="promoverRede('${r.nome}')">✅ Oficial</button>
+            <button class="btn-excluir-rede" onclick="excluirRedeInformal('${r.nome}')">🗑️</button>
+          </div>
+        `;
+      }
+
+      treeContainer.innerHTML += `
+        <div class="supervisao-card ${r.informal ? 'informal' : ''}">
+          <div class="supervisao-header" onclick="toggleSanfona(this)">
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+              <h3 style="font-size: 0.98rem; margin: 0; word-break: break-word;">📍 ${r.nome} ${r.informal ? '<span class="tag tag-informal" style="margin-left: 6px;">🌱 INFORMAL</span>' : ''}</h3>
+              <div>${botoesGestao}</div>
+            </div>
+            <div style="margin-top: 4px; color: var(--text-muted); font-size: 0.78rem;">
+              👑 Líder: <strong style="color: var(--text);">${nomeLiderExibicao}</strong>
+            </div>
+          </div>
+          <div class="redes-list">${membrosHtml}</div>
+        </div>
+      `;
+    });
+  }
+
+  function toggleSanfona(headerEl) {
+    headerEl.parentElement.classList.toggle('ativo');
+  }
+
+  function toggleSanfonaGeral(boxId) {
+    document.getElementById(boxId).classList.toggle('ativo');
+  }
+
+  async function promoverRede(nomeRede) {
+    if (!confirm(`Deseja realmente aprovar e promover a "${nomeRede}" a uma Rede Oficial definitiva?`)) return;
+    try {
+      await db.collection('perfis_redes').doc(nomeRede).update({ status: 'oficial' });
+      alert(`🎉 Parabéns! A rede "${nomeRede}" agora é uma Rede Oficial do Ministério!`);
+      await carregarDadosMacro();
+    } catch (err) {
+      alert("Erro ao promover a rede.");
+      console.error(err);
+    }
+  }
+
+  async function excluirRedeInformal(nomeRede) {
+    const membrosNaRede = membrosCache.filter(m => m.rede === nomeRede);
+    if (membrosNaRede.length > 0) {
+      alert(`⚠️ Não é possível excluir a rede "${nomeRede}" pois ainda existem ${membrosNaRede.length} membro(s) alocado(s) nela.`);
+      return;
+    }
+
+    if (!confirm(`⚠️ ATENÇÃO: Deseja excluir permanentemente a rede informal "${nomeRede}"?`)) return;
+
+    try {
+      await db.collection('perfis_redes').doc(nomeRede).delete();
+      alert(`🗑️ Rede informal "${nomeRede}" excluída com sucesso.`);
+      await carregarDadosMacro();
+    } catch (err) {
+      alert("Erro ao excluir rede.");
+      console.error(err);
+    }
+  }
+</script>
+</body>
+</html>
