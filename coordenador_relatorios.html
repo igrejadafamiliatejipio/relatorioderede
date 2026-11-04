@@ -127,7 +127,7 @@
     document.getElementById('loadingPdf').style.display = 'flex';
 
     try {
-      // Buscar dados atualizados do Firebase
+      // 1. Buscar membros estritamente do ministério logado
       const snapMembros = await db.collection('membros')
         .where('ministerio', '==', ministerioAtivo)
         .get();
@@ -138,7 +138,11 @@
         if (d.status !== 'INATIVO') membrosMinisterio.push({ id: doc.id, ...d });
       });
 
-      const snapPerfis = await db.collection('perfis_redes').get();
+      // 2. Buscar perfis de redes estritamente do ministério logado
+      const snapPerfis = await db.collection('perfis_redes')
+        .where('ministerio', '==', ministerioAtivo)
+        .get();
+
       let perfisRedesMinisterio = [];
       snapPerfis.forEach(doc => {
         const d = doc.data();
@@ -153,7 +157,7 @@
         }
       });
 
-      // Coordenadores
+      // Coordenadores do ministério ativo
       let coordenadoresList = membrosMinisterio.filter(m => m.categoria && m.categoria.trim() === 'Coordenador');
       if (coordenadoresList.length === 0) {
         coordenadoresList = [{ nome: nomeCoord }];
@@ -162,13 +166,13 @@
       let coordenadoresHtml = '';
       coordenadoresList.forEach(c => {
         coordenadoresHtml += `
-          <div style="background: #F3F0FF; border: 1px solid #6E56CF; border-radius: 4px; padding: 5px 8px; margin-bottom: 5px; font-size: 10px; font-weight: bold; color: #4B32A8; display: inline-block; min-width: 160px;">
-            👑 ${c.nome}
+          <div style="background: #F8F9FA; border: 1px solid #333333; border-radius: 4px; padding: 6px 10px; margin-bottom: 6px; font-size: 11px; font-weight: bold; color: #111111; display: inline-block; min-width: 180px; text-align: center;">
+            ■ Coordenador(a): ${c.nome}
           </div>
         `;
       });
 
-      // Supervisões e Redes
+      // Supervisões e Redes filtradas
       let supervisoesHtml = '';
       if (perfisRedesMinisterio.length > 0) {
         const supervisoesMap = {};
@@ -200,56 +204,62 @@
             const nomeLider = liderObj ? liderObj.nome : (r.lider && r.lider !== 'A definir' ? r.lider : 'A definir');
 
             redesCardsHtml += `
-              <div style="background: #FFFFFF; border: 1px solid #D0D7DE; border-radius: 4px; padding: 5px 7px; width: 48%; margin-bottom: 5px; font-size: 9.5px;">
-                <div style="font-weight: bold; color: #1F2328; margin-bottom: 2px;">📍 ${r.nome}</div>
-                <div style="color: #57606A;">👑 Líder: <strong style="color: #1A7F37;">${nomeLider}</strong></div>
+              <div style="background: #FFFFFF; border: 1px solid #CCCCCC; border-radius: 4px; padding: 6px 8px; width: 48%; margin-bottom: 6px; font-size: 10px;">
+                <div style="font-weight: bold; color: #000000; margin-bottom: 3px; border-bottom: 1px solid #EEEEEE; padding-bottom: 2px;">Rede: ${r.nome}</div>
+                <div style="color: #333333;">Líder: <strong>${nomeLider}</strong></div>
               </div>
             `;
           });
 
           supervisoesHtml += `
-            <div style="margin-bottom: 10px; border-left: 2px solid #6E56CF; padding-left: 8px;">
-              <div style="background: #EAE4FF; color: #322375; font-weight: bold; font-size: 10px; padding: 4px 7px; border-radius: 3px; margin-bottom: 5px;">
-                🛡️ Supervisão: ${supName}
+            <div style="margin-bottom: 12px; border-left: 2px solid #333333; padding-left: 10px;">
+              <div style="background: #EAEAEA; color: #000000; font-weight: bold; font-size: 10.5px; padding: 5px 8px; border-radius: 3px; margin-bottom: 6px; text-transform: uppercase;">
+                Supervisão: ${supName}
               </div>
-              <div style="display: flex; flex-wrap: wrap; gap: 5px;">
+              <div style="display: flex; flex-wrap: wrap; gap: 6px;">
                 ${redesCardsHtml}
               </div>
             </div>
           `;
         });
       } else {
-        supervisoesHtml = `<div style="color: #666; font-size: 9px; padding: 6px;">Nenhuma supervisão ou rede cadastrada.</div>`;
+        supervisoesHtml = `<div style="color: #666666; font-size: 10px; padding: 8px;">Nenhuma supervisão ou rede cadastrada para este ministério.</div>`;
       }
 
-      // Montar elemento temporário para o PDF
+      // Montar elemento temporário para o PDF (Layout Limpo, Preto e Branco, Formal)
       const elemento = document.createElement('div');
-      elemento.style.padding = '20px';
+      elemento.style.padding = '24px';
       elemento.style.background = '#FFFFFF';
       elemento.style.color = '#111111';
       elemento.style.fontFamily = 'Arial, sans-serif';
-      elemento.style.fontSize = '9px';
+      elemento.style.fontSize = '10px';
       elemento.style.width = '820px';
 
+      const dataAtual = new Date().toLocaleDateString('pt-BR');
+
       elemento.innerHTML = `
-        <div style="text-align: center; margin-bottom: 16px; border-bottom: 2px solid #6E56CF; padding-bottom: 8px;">
-          <h1 style="color: #6E56CF; margin: 0; font-size: 16px; text-transform: uppercase;">Árvore Genealógica</h1>
-          <p style="color: #57606A; font-size: 10px; margin: 2px 0 0 0;">Ministério: <strong>${ministerioAtivo}</strong></p>
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #000000; padding-bottom: 8px; margin-bottom: 16px;">
+          <div>
+            <h1 style="color: #000000; margin: 0; font-size: 15px; text-transform: uppercase; letter-spacing: 0.5px;">Relatório de Estrutura Organizacional</h1>
+            <p style="color: #444444; font-size: 9px; margin: 2px 0 0 0;">Igreja da Família - Tejipió | Ministério: <strong>${ministerioAtivo}</strong></p>
+          </div>
+          <div style="text-align: right; font-size: 9px; color: #555555;">
+            Emissão: ${dataAtual}
+          </div>
         </div>
 
-        <div style="background: #6E56CF; color: #FFFFFF; padding: 6px; border-radius: 5px; text-align: center; font-weight: bold; font-size: 12px; margin-bottom: 8px; text-transform: uppercase;">
-          👑 Coordenador(es) do Ministério ${ministerioAtivo}
+        <div style="font-size: 11px; font-weight: bold; color: #000000; text-transform: uppercase; margin-bottom: 6px; border-bottom: 1px solid #CCCCCC; padding-bottom: 3px;">
+          1. Liderança de Coordenadoria
         </div>
-        <div style="text-align: center; font-size: 13px; color: #6E56CF; margin: -3px 0 6px 0;">│</div>
-
-        <div style="margin-left: 8px; border-left: 2px dashed #6E56CF; padding-left: 10px; margin-bottom: 10px;">
-          <div>${coordenadoresHtml}</div>
+        <div style="margin-bottom: 14px; padding-left: 4px;">
+          ${coordenadoresHtml}
         </div>
-        <div style="text-align: center; font-size: 13px; color: #6E56CF; margin: -3px 0 6px 0;">│</div>
 
-        <div style="margin-left: 8px; border-left: 2px dashed #6E56CF; padding-left: 10px;">
-          <div style="font-size: 10px; font-weight: bold; color: #57606A; text-transform: uppercase; margin-bottom: 6px;">🛡️ Supervisões, Redes & Liderança</div>
-          <div>${supervisoesHtml}</div>
+        <div style="font-size: 11px; font-weight: bold; color: #000000; text-transform: uppercase; margin-bottom: 8px; border-bottom: 1px solid #CCCCCC; padding-bottom: 3px;">
+          2. Supervisões e Redes Vinculadas
+        </div>
+        <div>
+          ${supervisoesHtml}
         </div>
       `;
 
